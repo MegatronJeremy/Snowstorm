@@ -1,5 +1,5 @@
-project "Core"
-   kind "StaticLib"
+project "Snowstorm-App"
+   kind "ConsoleApp"
    language "C++"
    cppdialect "C++20"
    targetdir "Binaries/%{cfg.buildcfg}"
@@ -9,7 +9,16 @@ project "Core"
 
    includedirs
    {
-      "Source"
+      "Source",
+
+	  -- Include Core
+	  "../Snowstorm-Core/Source"
+   }
+
+   links
+   {
+      "Snowstorm-Core",
+      "GLFW"
    }
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")
@@ -17,7 +26,7 @@ project "Core"
 
    filter "system:windows"
        systemversion "latest"
-       defines { }
+       defines { "WINDOWS" }
 
    filter "configurations:Debug"
        defines { "DEBUG" }

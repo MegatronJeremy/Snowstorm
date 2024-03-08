@@ -4,4 +4,6 @@ namespace Core {
 
 	void PrintHelloWorld();
 
+	void RenderingTest();
+
 }
