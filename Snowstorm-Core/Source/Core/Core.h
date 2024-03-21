@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <vector>
 
 namespace Core
 {
@@ -16,18 +17,32 @@ namespace Core
 	private:
 		void InitWindow() const;
 
-		static void CreateInstance();
+		void CreateInstance() const;
 
-		static void InitVulkan();
+		void InitVulkan() const;
+
+		void SetupDebugMessenger() const;
 
 		static void MainLoop();
 
-		static void Cleanup();
+		void Cleanup() const;
+
+		bool CheckValidationLayerSupport() const;
+
+		std::vector<const char*> GetRequiredExtensions() const;
 
 	private:
-		const uint32_t width = 800;
-		const uint32_t height = 600;
+		uint32_t width = 800;
+		uint32_t height = 600;
+
+		std::vector<const char*> validationLayers = {
+			"VK_LAYER_KHRONOS_validation"
+		};
+
+#ifdef DEBUG
+		bool enableValidationLayers = true;
+#else
+		bool enableValidationLayers = false;
+#endif
 	};
-
-
 }
