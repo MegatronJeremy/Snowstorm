@@ -35,6 +35,8 @@ namespace Core
 
 		void SetupDebugMessenger() const;
 
+		void CreateLogicalDevice() const;
+
 		static void MainLoop();
 
 		void Cleanup() const;

@@ -193,6 +193,10 @@ namespace Core
 		GLFWwindow* window = nullptr;
 
 		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+
+		VkDevice device; // logical device - to interface with the physical device
+
+		VkQueue graphicsQueue; // implicitly destroyed when the device is destroyed
 	}
 
 	void HelloTriangleApplication::Run() const
@@ -305,6 +309,7 @@ namespace Core
 		CreateInstance();
 		SetupDebugMessenger();
 		PickPhysicalDevice();
+		CreateLogicalDevice();
 	}
 
 	void HelloTriangleApplication::PickPhysicalDevice()
@@ -356,6 +361,58 @@ namespace Core
 		}
 	}
 
+	void HelloTriangleApplication::CreateLogicalDevice() const
+	{
+		const QueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
+
+		// we only need one for now - queue with graphics capabilities
+		VkDeviceQueueCreateInfo queueCreateInfo{};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value(); // NOLINT(bugprone-unchecked-optional-access)
+		queueCreateInfo.queueCount = 1;
+		// you don't really need more than one, since you can create all the command buffers on multiple threads
+		// and submit them all at once without much overhead
+
+		// required even with single queue - for command scheduler - between 0.0 and 1.0
+		constexpr float queuePriority = 1.0f;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+
+		// next specify the set of device features that you'll be using
+		VkPhysicalDeviceFeatures deviceFeatures{};
+		// right now we don't need anything special, so leave it empty
+
+		VkDeviceCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+		createInfo.pQueueCreateInfos = &queueCreateInfo;
+		createInfo.queueCreateInfoCount = 1;
+
+		createInfo.pEnabledFeatures = &deviceFeatures;
+
+		// Next specify extensions/validation layers, but device specific this time
+		// We only need to do this for backwards compatibility, though
+		createInfo.enabledExtensionCount = 0;
+
+		if (enableValidationLayers)
+		{
+			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+			createInfo.ppEnabledLayerNames = validationLayers.data();
+		}
+		else
+		{
+			createInfo.enabledLayerCount = 0;
+		}
+
+		// Finally, instantiate the logical device
+		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to create logical device!");
+		}
+
+		// get the actual graphics queue
+		vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+	}
+
 	void HelloTriangleApplication::MainLoop()
 	{
 		// event loop
@@ -372,6 +429,8 @@ namespace Core
 		{
 			DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 		}
+
+		vkDestroyDevice(device, nullptr);
 
 		vkDestroyInstance(instance, nullptr);
 
