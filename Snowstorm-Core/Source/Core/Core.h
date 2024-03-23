@@ -1,13 +1,23 @@
 #pragma once
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 namespace Core
 {
-
 	void PrintHelloWorld();
 
 	void RenderingTest();
+
+	struct QueueFamilyIndices
+	{
+		std::optional<uint32_t> graphicsFamily;
+
+		bool IsComplete() const
+		{
+			return graphicsFamily.has_value();
+		}
+	};
 
 	class HelloTriangleApplication
 	{
@@ -16,6 +26,8 @@ namespace Core
 
 	private:
 		void InitWindow() const;
+
+		static void PickPhysicalDevice();
 
 		void CreateInstance() const;
 

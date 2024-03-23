@@ -11,6 +11,7 @@
 #include <glm/mat4x4.hpp>
 
 #include <iostream>
+#include <map>
 #include <vector>
 
 namespace Core
@@ -52,6 +53,7 @@ namespace Core
 #pragma region HelloTriangleApplication
 	namespace
 	{
+		// -----------------------------------DEBUG MESSENGER--------------------------------------
 		VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
 			VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 			VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -118,13 +120,79 @@ namespace Core
 				func(instance, debugMessenger, pAllocator);
 			}
 		}
+
+		// -----------------------------------DEVICE PICKER--------------------------------------
+		QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice device)
+		{
+			QueueFamilyIndices indices;
+
+			uint32_t queueFamilyCount = 0;
+			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+			std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+			int i = 0;
+			for (const auto& queueFamily : queueFamilies)
+			{
+				// we need to find at least one queue family that support queue_graphics
+				if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+				{
+					indices.graphicsFamily = i;
+				}
+
+				// if found one break immediately
+				if (indices.IsComplete())
+				{
+					break;
+				}
+
+				i++;
+			}
+
+
+			return indices;
+		}
+
+		int RateDeviceSuitability(const VkPhysicalDevice device)
+		{
+			VkPhysicalDeviceProperties deviceProperties;
+			VkPhysicalDeviceFeatures deviceFeatures;
+			vkGetPhysicalDeviceProperties(device, &deviceProperties);
+			vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+			int score = 0;
+
+			// Discrete GPUs have a significant performance advantage
+			if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+			{
+				score += 1000;
+			}
+
+			// Maximum possible size of textures affects graphics quality
+			score += static_cast<int>(deviceProperties.limits.maxImageDimension2D);
+
+			const QueueFamilyIndices indices = FindQueueFamilies(device);
+
+			// Application can't function without geometry shaders or valid queue families
+			if (!deviceFeatures.geometryShader || !indices.IsComplete())
+			{
+				return 0;
+			}
+
+			return score;
+		}
 	}
 
 	namespace
 	{
 		VkInstance instance;
+
 		VkDebugUtilsMessengerEXT debugMessenger;
+
 		GLFWwindow* window = nullptr;
+
+		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 	}
 
 	void HelloTriangleApplication::Run() const
@@ -223,7 +291,6 @@ namespace Core
 		// 1. Pointer to struct with creation info
 		// 2. Pointer to custom allocator callbacks
 		// 3. Pointer to the variable that stores the handle to the new object
-
 		
 		const VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
 		if (result != VK_SUCCESS)
@@ -237,7 +304,41 @@ namespace Core
 	{
 		CreateInstance();
 		SetupDebugMessenger();
+		PickPhysicalDevice();
 	}
+
+	void HelloTriangleApplication::PickPhysicalDevice()
+	{
+		uint32_t deviceCount = 0;
+		vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
+		if (deviceCount == 0)
+		{
+			throw std::runtime_error("failed to find GPUs with Vulkan support!");
+		}
+
+		std::multimap<int, VkPhysicalDevice> candidates;
+
+		std::vector<VkPhysicalDevice> devices(deviceCount);
+		vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+		for (const auto& device : devices)
+		{
+			int score = RateDeviceSuitability(device);
+			candidates.insert(std::make_pair(score, device));
+
+			if (candidates.rbegin()->first > 0)
+			{
+				physicalDevice = candidates.rbegin()->second;
+			}
+			else
+			{
+				// TODO replace this with asserts
+				throw std::runtime_error("failed to find a suitable GPU!");
+			}
+		}
+	}
+
 
 	void HelloTriangleApplication::SetupDebugMessenger() const
 	{
