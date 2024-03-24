@@ -42,6 +42,8 @@ namespace Core
 
 		static void CreateSwapChain();
 
+		static void CreateImageViews();
+
 		static void MainLoop();
 
 		void Cleanup() const;

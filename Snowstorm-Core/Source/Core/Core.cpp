@@ -351,11 +351,17 @@ namespace Core
 		VkQueue graphicsQueue; // implicitly destroyed when the device is destroyed
 		VkQueue presentQueue;
 
-		// swap-chain
+		// --------------- swap-chain
 		VkSwapchainKHR swapChain;
+
 		std::vector<VkImage> swapChainImages; // No cleanup code needed for this
+
+		// creates a view for every image so we can use them as color targets
+		std::vector<VkImageView> swapChainImageViews;
+
 		VkFormat swapChainImageFormat;
 		VkExtent2D swapChainExtent;
+		// ---------------
 	}
 
 
@@ -472,6 +478,7 @@ namespace Core
 		PickPhysicalDevice();
 		CreateLogicalDevice();
 		CreateSwapChain();
+		CreateImageViews();
 	}
 
 	void HelloTriangleApplication::PickPhysicalDevice()
@@ -693,6 +700,40 @@ namespace Core
 		swapChainExtent = extent;
 	}
 
+	void HelloTriangleApplication::CreateImageViews()
+	{
+		swapChainImageViews.resize(swapChainImages.size());
+
+		for (size_t i = 0; i < swapChainImages.size(); i++)
+		{
+			VkImageViewCreateInfo createInfo{};
+			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			createInfo.image = swapChainImages[i];
+			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+			createInfo.format = swapChainImageFormat;
+
+			// stick to the default mappings -> we can do stuff like monochrome here instead
+			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+			// subresource range -> what the image's purpose is and which part of the image should be accessed
+			// we don't need any mipmapping levels or multiple layers
+			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			createInfo.subresourceRange.baseMipLevel = 0;
+			createInfo.subresourceRange.levelCount = 1;
+			createInfo.subresourceRange.baseArrayLayer = 0;
+			createInfo.subresourceRange.layerCount = 1;
+			// stereographic 3D application -> would have multiple layers (one for each eye)
+
+			if (vkCreateImageView(device, &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS)
+			{
+				throw std::runtime_error("failed to create image views!");
+			}
+		}
+	}
+
 	void HelloTriangleApplication::MainLoop()
 	{
 		// event loop
@@ -705,6 +746,11 @@ namespace Core
 	void HelloTriangleApplication::Cleanup() const
 	{
 		// cleanup resources and terminate GLFW
+		for (const auto imageView : swapChainImageViews)
+		{
+			vkDestroyImageView(device, imageView, nullptr);
+		}
+
 		vkDestroySwapchainKHR(device, swapChain, nullptr);
 
 		if (enableValidationLayers)
