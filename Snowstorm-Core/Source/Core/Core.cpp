@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <map>
+#include <set>
 #include <vector>
 
 namespace Core
@@ -51,6 +52,12 @@ namespace Core
 #pragma endregion
 
 #pragma region HelloTriangleApplication
+	namespace
+	{
+		VkSurfaceKHR surface; // window surface - tied to the GLFW window
+		// has a platform specific extension - INCLUDED IN glfwGetRequiredInstanceExtensions!
+	}
+
 	namespace
 	{
 		// -----------------------------------DEBUG MESSENGER--------------------------------------
@@ -135,13 +142,21 @@ namespace Core
 			int i = 0;
 			for (const auto& queueFamily : queueFamilies)
 			{
-				// we need to find at least one queue family that support queue_graphics
+				// we need to find at least one queue family that support graphics commands and presentation commands
 				if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
 				{
 					indices.graphicsFamily = i;
 				}
 
-				// if found one break immediately
+				VkBool32 presentSupport = false;
+				vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+
+				if (presentSupport)
+				{
+					indices.presentFamily = i;
+				}
+
+				// if found both break immediately
 				if (indices.IsComplete())
 				{
 					break;
@@ -197,7 +212,9 @@ namespace Core
 		VkDevice device; // logical device - to interface with the physical device
 
 		VkQueue graphicsQueue; // implicitly destroyed when the device is destroyed
+		VkQueue presentQueue;
 	}
+
 
 	void HelloTriangleApplication::Run() const
 	{
@@ -308,6 +325,7 @@ namespace Core
 	{
 		CreateInstance();
 		SetupDebugMessenger();
+		CreateSurface();
 		PickPhysicalDevice();
 		CreateLogicalDevice();
 	}
@@ -361,21 +379,41 @@ namespace Core
 		}
 	}
 
+	void HelloTriangleApplication::CreateSurface()
+	{
+		// NOTE: this call is completely platform agnostic!
+		if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to create window surface!");
+		}
+	}
+
+
 	void HelloTriangleApplication::CreateLogicalDevice() const
 	{
 		const QueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
 
-		// we only need one for now - queue with graphics capabilities
-		VkDeviceQueueCreateInfo queueCreateInfo{};
-		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value(); // NOLINT(bugprone-unchecked-optional-access)
-		queueCreateInfo.queueCount = 1;
-		// you don't really need more than one, since you can create all the command buffers on multiple threads
-		// and submit them all at once without much overhead
+		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
-		// required even with single queue - for command scheduler - between 0.0 and 1.0
+		std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+
 		constexpr float queuePriority = 1.0f;
-		queueCreateInfo.pQueuePriorities = &queuePriority;
+		for (uint32_t queueFamily : uniqueQueueFamilies)
+		{
+			// we only need one for now - queue with graphics capabilities
+			VkDeviceQueueCreateInfo queueCreateInfo{};
+			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queueCreateInfo.queueFamilyIndex = queueFamily;
+
+			// you don't really need more than one, since you can create all the command buffers on multiple threads
+			// and submit them all at once without much overhead
+			queueCreateInfo.queueCount = 1;
+
+			// required even with single queue - for command scheduler - between 0.0 and 1.0
+			queueCreateInfo.pQueuePriorities = &queuePriority;
+			queueCreateInfos.push_back(queueCreateInfo);
+		}
+
 
 		// next specify the set of device features that you'll be using
 		VkPhysicalDeviceFeatures deviceFeatures{};
@@ -384,8 +422,8 @@ namespace Core
 		VkDeviceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-		createInfo.pQueueCreateInfos = &queueCreateInfo;
-		createInfo.queueCreateInfoCount = 1;
+		createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+		createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
 		createInfo.pEnabledFeatures = &deviceFeatures;
 
@@ -410,7 +448,9 @@ namespace Core
 		}
 
 		// get the actual graphics queue
+		// these two queue families most likely the same - the handles will have the same value
 		vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+		vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 	}
 
 	void HelloTriangleApplication::MainLoop()
@@ -431,6 +471,9 @@ namespace Core
 		}
 
 		vkDestroyDevice(device, nullptr);
+
+		// make sure the surface is destroyed before the window
+		vkDestroySurfaceKHR(instance, surface, nullptr);
 
 		vkDestroyInstance(instance, nullptr);
 
@@ -476,7 +519,7 @@ namespace Core
 		uint32_t glfwExtensionCount = 0;
 		const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-		std::vector<const char*> requiredExtensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+		std::vector requiredExtensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
 		if (enableValidationLayers)
 		{
