@@ -40,6 +40,8 @@ namespace Core
 
 		void CreateLogicalDevice() const;
 
+		static void CreateSwapChain();
+
 		static void MainLoop();
 
 		void Cleanup() const;
