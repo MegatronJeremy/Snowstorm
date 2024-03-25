@@ -363,6 +363,11 @@ namespace Core
 		VkFormat swapChainImageFormat;
 		VkExtent2D swapChainExtent;
 
+		// attachments in the render pass will be bound to the framebuffer
+		// we create a framebuffer for all of the images in the swap chain and use the one
+		// that corresponds to the retrieved image at drawing time
+		std::vector<VkFramebuffer> swapChainFramebuffers;
+
 		// --------------- graphics pipeline
 		VkRenderPass renderPass;
 		VkPipelineLayout pipelineLayout;
@@ -536,6 +541,7 @@ namespace Core
 		CreateImageViews();
 		CreateRenderPass();
 		CreateGraphicsPipeline();
+		CreateFramebuffers();
 	}
 
 	void HelloTriangleApplication::PickPhysicalDevice()
@@ -1071,6 +1077,32 @@ namespace Core
 		vkDestroyShaderModule(device, vertShaderModule, nullptr);
 	}
 
+	void HelloTriangleApplication::CreateFramebuffers()
+	{
+		swapChainFramebuffers.resize(swapChainImageViews.size());
+
+		for (size_t i = 0; i < swapChainImageViews.size(); i++)
+		{
+			const VkImageView attachments[] = {
+				swapChainImageViews[i]
+			};
+
+			VkFramebufferCreateInfo framebufferInfo{};
+			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			framebufferInfo.renderPass = renderPass; // you can only use a framebuffer with the compatible render pass
+			framebufferInfo.attachmentCount = 1;
+			framebufferInfo.pAttachments = attachments; // binds it to the pAttachment of the render pass
+			framebufferInfo.width = swapChainExtent.width;
+			framebufferInfo.height = swapChainExtent.height;
+			framebufferInfo.layers = 1;
+
+			if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS)
+			{
+				throw std::runtime_error("failed to create framebuffer!");
+			}
+		}
+	}
+
 	void HelloTriangleApplication::MainLoop()
 	{
 		// event loop
@@ -1083,6 +1115,11 @@ namespace Core
 	void HelloTriangleApplication::Cleanup() const
 	{
 		// cleanup resources and terminate GLFW
+		for (const auto framebuffer : swapChainFramebuffers)
+		{
+			vkDestroyFramebuffer(device, framebuffer, nullptr);
+		}
+
 		vkDestroyPipeline(device, graphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 		vkDestroyRenderPass(device, renderPass, nullptr);

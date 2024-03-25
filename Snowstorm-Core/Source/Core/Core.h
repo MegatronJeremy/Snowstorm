@@ -48,6 +48,8 @@ namespace Core
 
 		static void CreateGraphicsPipeline();
 
+		static void CreateFramebuffers();
+
 		static void MainLoop();
 
 		void Cleanup() const;
