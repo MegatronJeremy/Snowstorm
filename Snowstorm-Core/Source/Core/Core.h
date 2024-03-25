@@ -52,7 +52,13 @@ namespace Core
 
 		static void CreateCommandPool();
 
+		static void CreateCommandBuffer();
+
+		static void CreateSyncObjects();
+
 		static void MainLoop();
+
+		static void DrawFrame();
 
 		void Cleanup() const;
 
