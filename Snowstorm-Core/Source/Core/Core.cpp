@@ -373,6 +373,11 @@ namespace Core
 		VkPipelineLayout pipelineLayout;
 		VkPipeline graphicsPipeline;
 		// ---------------
+
+		// --------------- command buffer
+		VkCommandPool commandPool;
+		VkCommandBuffer commandBuffer;
+		// ---------------
 	}
 
 	namespace
@@ -422,6 +427,77 @@ namespace Core
 
 			return shaderModule;
 		}
+
+		// -----------------------------------COMMAND BUFFER--------------------------------------
+		void RecordCommandBuffer(const VkCommandBuffer commandBuffer, const uint32_t imageIndex)
+		{
+			// writes the commands from the command buffer to the swap chain image tied to the index 
+
+			VkCommandBufferBeginInfo beginInfo{};
+			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			beginInfo.flags = 0; // Optional - not relevant right now
+			beginInfo.pInheritanceInfo = nullptr; // Optional - only relevant for secondary command buffers
+
+			if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
+			{
+				throw std::runtime_error("failed to begin recording command buffer!");
+			}
+
+			// begin render pass
+			VkRenderPassBeginInfo renderPassInfo{};
+			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+			renderPassInfo.renderPass = renderPass;
+			renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+
+			// define the size of the render area - match the size of the attachment
+			renderPassInfo.renderArea.offset = {0, 0};
+			renderPassInfo.renderArea.extent = swapChainExtent;
+
+			// clear values to use for VK_ATTACHMENT_LOAD_OP_CLEAR
+			constexpr VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+			renderPassInfo.clearValueCount = 1;
+			renderPassInfo.pClearValues = &clearColor;
+
+			// begin the render pass
+			vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+			// inline - embedded in the primary command buffer itself, with no secondary command buffers 
+
+			// bind the graphics pipeline
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+			// viewport and scissor states are dynamic - set them here
+			// viewport - the region of the framebuffer that the output will be rendered to
+			// always (0, 0) to (width, height)
+			// here we define the transformation from the image to the framebuffer
+			VkViewport viewport{};
+			viewport.x = 0.0f;
+			viewport.y = 0.0f;
+			viewport.width = static_cast<float>(swapChainExtent.width);
+			viewport.height = static_cast<float>(swapChainExtent.height);
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f; // range of depth values used for the framebuffer
+			vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+			// next define the scissor rectangle -> basically works like a filter
+			VkRect2D scissor{};
+			scissor.offset = {0, 0}; // we want the whole image
+			scissor.extent = swapChainExtent;
+			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+			// finally, issue the draw command
+			vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+			// firstVertex: lowest value of gl_VertexIndex
+			// firstInstance: offset for instanced rendering, lowest value of gl_InstanceIndex
+
+			// end the render pass and finish recording the command buffer
+			vkCmdEndRenderPass(commandBuffer);
+
+			if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
+			{
+				throw std::runtime_error("failed to record command buffer!");
+			}
+		}
+
 	}
 
 
@@ -542,6 +618,7 @@ namespace Core
 		CreateRenderPass();
 		CreateGraphicsPipeline();
 		CreateFramebuffers();
+		CreateCommandPool();
 	}
 
 	void HelloTriangleApplication::PickPhysicalDevice()
@@ -897,22 +974,7 @@ namespace Core
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 		// with an element buffer - specify indices to use yourself (reuse vertices - optimization)
 
-		// viewport - the region of the framebuffer that the output will be rendered to
-		// always (0, 0) to (width, height)
-		// here we define the transformation from the image to the framebuffer
-		VkViewport viewport{};
-		viewport.x = 0.0f;
-		viewport.y = 0.0f;
-		viewport.width = static_cast<float>(swapChainExtent.width);
-		viewport.height = static_cast<float>(swapChainExtent.height);
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f; // range of depth values used for the framebuffer
-
-		// next define the scissor rectangle -> basically works like a filter
-		VkRect2D scissor{};
-		scissor.offset = {0, 0}; // we want the whole image
-		scissor.extent = swapChainExtent;
-
+		
 		// setup the dynamic state, we can change and must specify these properties without recreating the pipeline from scratch
 		// at runtime we can change the viewport and teh scissor state
 		const std::vector<VkDynamicState> dynamicStates = {
@@ -1103,6 +1165,38 @@ namespace Core
 		}
 	}
 
+	void HelloTriangleApplication::CreateCommandPool()
+	{
+		const QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(physicalDevice);
+
+		VkCommandPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		// command buffers can be rerecorded individually
+		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		// we are recording commands for drawing
+		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+
+		if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to create command pool!");
+		}
+	}
+
+	void HelloTriangleApplication::CreateCommandBuffer()
+	{
+		VkCommandBufferAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool = commandPool;
+		// primary: can be submitted to a queue for execution, but cannot be called from other command buffers
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandBufferCount = 1;
+
+		if (vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to allocate command buffers!");
+		}
+	}
+
 	void HelloTriangleApplication::MainLoop()
 	{
 		// event loop
@@ -1115,6 +1209,8 @@ namespace Core
 	void HelloTriangleApplication::Cleanup() const
 	{
 		// cleanup resources and terminate GLFW
+		vkDestroyCommandPool(device, commandPool, nullptr);
+
 		for (const auto framebuffer : swapChainFramebuffers)
 		{
 			vkDestroyFramebuffer(device, framebuffer, nullptr);

@@ -50,6 +50,8 @@ namespace Core
 
 		static void CreateFramebuffers();
 
+		static void CreateCommandPool();
+
 		static void MainLoop();
 
 		void Cleanup() const;
