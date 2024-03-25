@@ -44,6 +44,8 @@ namespace Core
 
 		static void CreateImageViews();
 
+		static void CreateRenderPass();
+
 		static void CreateGraphicsPipeline();
 
 		static void MainLoop();
