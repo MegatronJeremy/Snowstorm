@@ -44,6 +44,8 @@ namespace Core
 
 		static void CreateImageViews();
 
+		static void CreateGraphicsPipeline();
+
 		static void MainLoop();
 
 		void Cleanup() const;

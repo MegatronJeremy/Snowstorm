@@ -8,6 +8,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <algorithm>
+#include <fstream>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 
@@ -364,6 +365,55 @@ namespace Core
 		// ---------------
 	}
 
+	namespace
+	{
+		// -----------------------------------GRAPHICS PIPELINE--------------------------------------
+		namespace
+		{
+		}
+
+		std::vector<char> ReadFile(const std::string& filename)
+		{
+			// ate: start reading at the end of the file
+			std::ifstream file(filename, std::ios::ate | std::ios::binary);
+
+			if (!file.is_open())
+			{
+				throw std::runtime_error("failed to open file!");
+			}
+
+			// we can use the end position to tell the size of the buffer
+			const size_t fileSize = file.tellg();
+			std::vector<char> buffer(fileSize);
+
+			// seek back to the beginning and load the data
+			file.seekg(0);
+			file.read(buffer.data(), static_cast<std::streamsize>(fileSize));
+
+			file.close();
+
+			return buffer;
+		}
+
+		VkShaderModule CreateShaderModule(const std::vector<char>& code)
+		{
+			// std::vector -> the default allocator ensures that the data satisfies the worst case alignment requirements
+			VkShaderModuleCreateInfo createInfo{};
+			createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+			createInfo.codeSize = code.size();
+			createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+
+			VkShaderModule shaderModule;
+			if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+			{
+				// TODO replace this with asserts
+				throw std::runtime_error("failed to create shader module!");
+			}
+
+			return shaderModule;
+		}
+	}
+
 
 	void HelloTriangleApplication::Run() const
 	{
@@ -479,6 +529,7 @@ namespace Core
 		CreateLogicalDevice();
 		CreateSwapChain();
 		CreateImageViews();
+		CreateGraphicsPipeline();
 	}
 
 	void HelloTriangleApplication::PickPhysicalDevice()
@@ -732,6 +783,36 @@ namespace Core
 				throw std::runtime_error("failed to create image views!");
 			}
 		}
+	}
+
+	void HelloTriangleApplication::CreateGraphicsPipeline()
+	{
+		// load the code
+		const auto vertShaderCode = ReadFile("Assets/Shaders/vert.spv");
+		const auto fragShaderCode = ReadFile("Assets/Shaders/frag.spv");
+
+		// create the shaders with a wrapper
+		const VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
+		const VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
+
+		// assign the actual shaders to a specific pipeline stage
+		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT; // enum for each programmable stage
+		vertShaderStageInfo.module = vertShaderModule;
+		vertShaderStageInfo.pName = "main"; // entry point (we can combine multiple shaders into a single file this way)
+		// pSpecializationInfo -> you can specify values for shader constants
+
+		VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+		fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		fragShaderStageInfo.module = fragShaderModule;
+		fragShaderStageInfo.pName = "main";
+
+		VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+
+		vkDestroyShaderModule(device, fragShaderModule, nullptr);
+		vkDestroyShaderModule(device, vertShaderModule, nullptr);
 	}
 
 	void HelloTriangleApplication::MainLoop()
