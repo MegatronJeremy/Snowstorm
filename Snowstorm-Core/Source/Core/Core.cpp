@@ -363,8 +363,10 @@ namespace Core
 		VkFormat swapChainImageFormat;
 		VkExtent2D swapChainExtent;
 
+		// --------------- graphics pipeline
 		VkRenderPass renderPass;
 		VkPipelineLayout pipelineLayout;
+		VkPipeline graphicsPipeline;
 		// ---------------
 	}
 
@@ -1022,6 +1024,49 @@ namespace Core
 			throw std::runtime_error("failed to create pipeline layout!");
 		}
 
+		// finally, create the graphics pipeline
+		VkGraphicsPipelineCreateInfo pipelineInfo{};
+
+		// reference the array of structs
+		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pipelineInfo.stageCount = 2;
+		pipelineInfo.pStages = shaderStages;
+
+		// reference all the structures describing the fixed-function state
+		pipelineInfo.pVertexInputState = &vertexInputInfo;
+		pipelineInfo.pInputAssemblyState = &inputAssembly;
+		pipelineInfo.pViewportState = &viewportState;
+		pipelineInfo.pRasterizationState = &rasterizer;
+		pipelineInfo.pMultisampleState = &multisampling;
+		pipelineInfo.pDepthStencilState = nullptr; // Optional
+		pipelineInfo.pColorBlendState = &colorBlending;
+		pipelineInfo.pDynamicState = &dynamicState;
+
+		// reference the pipeline layout - Vulkan handle
+		pipelineInfo.layout = pipelineLayout;
+
+		// reference to the render pass and the index of the subpass where this pipeline is used
+		pipelineInfo.renderPass = renderPass;
+		pipelineInfo.subpass = 0;
+		// we can also use other render passes with this pipeline IF COMPATIBLE
+		// we won't be using this now
+
+		// we can derive from an existing pipeline -> less expensive than creating from scratch
+		// right now there is only a single pipeline
+		// only used if the VK_PIPELINE_CREATE_DERIVATIVE_BIT is set in VkGraphicsPipelineCreateInfo
+		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
+		pipelineInfo.basePipelineIndex = -1; // Optional
+
+		// this function can actually create multiple pipelines immediately
+		// pipeline cache - for storing and reusing data relevant to pipeline creation across multiple calls
+		// TODO we will use a pipeline cache later
+		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) !=
+			VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to create graphics pipeline!");
+		}
+
+
 		vkDestroyShaderModule(device, fragShaderModule, nullptr);
 		vkDestroyShaderModule(device, vertShaderModule, nullptr);
 	}
@@ -1038,6 +1083,7 @@ namespace Core
 	void HelloTriangleApplication::Cleanup() const
 	{
 		// cleanup resources and terminate GLFW
+		vkDestroyPipeline(device, graphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 		vkDestroyRenderPass(device, renderPass, nullptr);
 
