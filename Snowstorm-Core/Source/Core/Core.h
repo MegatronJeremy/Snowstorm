@@ -26,10 +26,10 @@ namespace Core
 	class HelloTriangleApplication
 	{
 	public:
-		void Run() const;
+		void Run();
 
 	private:
-		void InitWindow() const;
+		void InitWindow();
 
 		static void PickPhysicalDevice();
 
@@ -62,6 +62,10 @@ namespace Core
 		static void MainLoop();
 
 		static void DrawFrame();
+
+		static void CleanupSwapChain();
+
+		static void RecreateSwapChain();
 
 		void Cleanup() const;
 

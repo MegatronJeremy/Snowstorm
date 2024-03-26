@@ -383,6 +383,8 @@ namespace Core
 		std::vector<VkSemaphore> imageAvailableSemaphores;
 		std::vector<VkSemaphore> renderFinishedSemaphores;
 		std::vector<VkFence> inFlightFences;
+
+		bool framebufferResized = false;
 		// ---------------
 
 		// --------------- drawing
@@ -511,7 +513,7 @@ namespace Core
 	}
 
 
-	void HelloTriangleApplication::Run() const
+	void HelloTriangleApplication::Run() 
 	{
 		InitWindow();
 		InitVulkan();
@@ -519,19 +521,33 @@ namespace Core
 		Cleanup();
 	}
 
-	void HelloTriangleApplication::InitWindow() const
+	namespace
+	{
+		// TODO move this somewhere else
+		void FramebufferResizeCallback(GLFWwindow* window, int width, int height)
+		{
+			auto app = static_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
+			// TODO app->framebufferResized = true
+			framebufferResized = true;
+		}
+	}
+
+
+	void HelloTriangleApplication::InitWindow() 
 	{
 		glfwInit();
 
 		// force it to not use OpenGL (default)
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-		// disabled for now - will be handled later
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		// set the window to not be resizable - optional
+		// glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		// fourth param: optional monitor
 		// fifth param: relevant to OpenGL only
 		window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), "Vulkan", nullptr, nullptr);
+		glfwSetWindowUserPointer(window, this);
+		glfwSetFramebufferSizeCallback(window, FramebufferResizeCallback);
 	}
 
 	void HelloTriangleApplication::CreateInstance() const
@@ -1271,11 +1287,28 @@ namespace Core
 	{
 		// wait for the previous frame to finish
 		vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
-		vkResetFences(device, 1, &inFlightFences[currentFrame]); // manually reset
 
 		uint32_t imageIndex;
-		vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE,
-		                      &imageIndex);
+		VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX,
+		                                        imageAvailableSemaphores[currentFrame],
+		                                        VK_NULL_HANDLE,
+		                                        &imageIndex);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR)
+		{
+			// usually happens after a windows resize - the swap-chain has become incompatible with the surface
+			// suboptimal - the surface properties are no longer matched exactly
+			RecreateSwapChain();
+			// recreate the swap chain and try drawing again in the next frame
+			return;
+		}
+		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+		{
+			throw std::runtime_error("failed to acquire swap chain image!");
+		}
+
+		// Only reset the fence if we are submitting work
+		vkResetFences(device, 1, &inFlightFences[currentFrame]); // manually reset
 
 		// record the command buffer
 		vkResetCommandBuffer(commandBuffers[currentFrame], 0);
@@ -1320,15 +1353,74 @@ namespace Core
 		presentInfo.pResults = nullptr; // Optional - specifying an array of VkResult to check for every swap chain
 
 		// submit a request for presentation
-		vkQueuePresentKHR(presentQueue, &presentInfo);
+		result = vkQueuePresentKHR(presentQueue, &presentInfo);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
+		{
+			// same values with the same meaning as above
+			// we want the best possible result here, so we will recreate even if suboptimal
+			framebufferResized = false;
+			RecreateSwapChain();
+		}
+		else if (result != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to present swap chain image!");
+		}
 
 		// go to the next frame -> while the GPU is rendering we will prepare the next one on the CPU side without waiting
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
+	void HelloTriangleApplication::CleanupSwapChain()
+	{
+		for (const auto& swapChainFramebuffer : swapChainFramebuffers)
+		{
+			vkDestroyFramebuffer(device, swapChainFramebuffer, nullptr);
+		}
+
+		for (const auto& swapChainImageView : swapChainImageViews)
+		{
+			vkDestroyImageView(device, swapChainImageView, nullptr);
+		}
+
+		vkDestroySwapchainKHR(device, swapChain, nullptr);
+	}
+
+	void HelloTriangleApplication::RecreateSwapChain()
+	{
+		int width = 0, height = 0;
+		glfwGetFramebufferSize(window, &width, &height);
+		while (width == 0 || height == 0)
+		{
+			// if width or height is 0 -> the window is minimized, so do nothing here
+			glfwGetFramebufferSize(window, &width, &height);
+			glfwWaitEvents();
+		}
+
+		// we shouldn't touch resources that may still be in use
+		vkDeviceWaitIdle(device);
+
+		// make sure the old versions of these objects are cleaned up first
+		CleanupSwapChain();
+
+		// we won't recreate the render pass, technically we may need to if moving to a different monitor,
+		// but we won't take this into account
+
+		CreateSwapChain();
+		CreateImageViews();
+		CreateFramebuffers();
+	}
+
 	void HelloTriangleApplication::Cleanup() const
 	{
 		// cleanup resources and terminate GLFW
+		CleanupSwapChain();
+
+		vkDestroyPipeline(device, graphicsPipeline, nullptr);
+		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+
+		vkDestroyRenderPass(device, renderPass, nullptr);
+
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 		{
 			vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
@@ -1338,32 +1430,15 @@ namespace Core
 
 		vkDestroyCommandPool(device, commandPool, nullptr);
 
-		for (const auto framebuffer : swapChainFramebuffers)
-		{
-			vkDestroyFramebuffer(device, framebuffer, nullptr);
-		}
-
-		vkDestroyPipeline(device, graphicsPipeline, nullptr);
-		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-		vkDestroyRenderPass(device, renderPass, nullptr);
-
-		for (const auto imageView : swapChainImageViews)
-		{
-			vkDestroyImageView(device, imageView, nullptr);
-		}
-
-		vkDestroySwapchainKHR(device, swapChain, nullptr);
+		vkDestroyDevice(device, nullptr);
 
 		if (enableValidationLayers)
 		{
 			DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 		}
 
-		vkDestroyDevice(device, nullptr);
-
 		// make sure the surface is destroyed before the window
 		vkDestroySurfaceKHR(instance, surface, nullptr);
-
 		vkDestroyInstance(instance, nullptr);
 
 		glfwDestroyWindow(window);
