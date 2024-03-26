@@ -5,6 +5,9 @@
 
 namespace Core
 {
+	// TODO move this to a separate file with other constants
+#define MAX_FRAMES_IN_FLIGHT 2
+
 	void PrintHelloWorld();
 
 	void RenderingTest();
@@ -52,7 +55,7 @@ namespace Core
 
 		static void CreateCommandPool();
 
-		static void CreateCommandBuffer();
+		static void CreateCommandBuffers();
 
 		static void CreateSyncObjects();
 
