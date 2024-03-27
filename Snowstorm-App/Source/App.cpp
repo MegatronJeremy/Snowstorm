@@ -1,11 +1,11 @@
 #include <exception>
 #include <iostream>
 
-#include "Core/Core.h"
+#include "SNowstorm/Core/Core.h"
 
 int main()
 {
-	Core::HelloTriangleApplication app;
+	Snowstorm::HelloTriangleApplication app;
 
 	try
 	{

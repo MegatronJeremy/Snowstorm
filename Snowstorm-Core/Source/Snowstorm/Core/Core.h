@@ -3,7 +3,7 @@
 #include <optional>
 #include <vector>
 
-namespace Core
+namespace Snowstorm
 {
 	// TODO move this to a separate file with other constants
 #define MAX_FRAMES_IN_FLIGHT 2
@@ -54,6 +54,8 @@ namespace Core
 		static void CreateFramebuffers();
 
 		static void CreateCommandPool();
+
+		static void CreateVertexBuffer();
 
 		static void CreateCommandBuffers();
 

@@ -17,7 +17,9 @@
 #include <set>
 #include <vector>
 
-namespace Core
+#include "Snowstorm/Renderer/Buffer.h"
+
+namespace Snowstorm
 {
 #pragma region BasicTests
 	void PrintHelloWorld()
@@ -390,15 +392,23 @@ namespace Core
 		// --------------- drawing
 		uint32_t currentFrame = 0;
 		// ---------------
+
+		// --------------- various buffers
+		// TODO make this not hardcoded
+		const std::vector<Vertex> vertices = {
+			{{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
+			{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+			{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+		};
+
+		VkBuffer vertexBuffer;
+		VkDeviceMemory vertexBufferMemory;
+		// ---------------
 	}
 
 	namespace
 	{
 		// -----------------------------------GRAPHICS PIPELINE--------------------------------------
-		namespace
-		{
-		}
-
 		std::vector<char> ReadFile(const std::string& filename)
 		{
 			// ate: start reading at the end of the file
@@ -496,8 +506,16 @@ namespace Core
 			scissor.extent = swapChainExtent;
 			vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
+			// bind the vertex buffer during rendering operations
+			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+			const VkBuffer vertexBuffers[] = {vertexBuffer};
+			constexpr VkDeviceSize offsets[] = {0}; // offsets to start reading vertex data from
+			// bind vertex buffers to bindings
+			vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
 			// finally, issue the draw command
-			vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+			vkCmdDraw(commandBuffer, vertices.size(), 1, 0, 0);
 			// firstVertex: lowest value of gl_VertexIndex
 			// firstInstance: offset for instanced rendering, lowest value of gl_InstanceIndex
 
@@ -508,6 +526,28 @@ namespace Core
 			{
 				throw std::runtime_error("failed to record command buffer!");
 			}
+		}
+
+		// -----------------------------------BUFFER FUNCTIONS--------------------------------------
+		uint32_t FindMemoryType(const uint32_t typeFilter, const VkMemoryPropertyFlags properties)
+		{
+			// graphics cards can offer different types of memory to allocate from
+			VkPhysicalDeviceMemoryProperties memProperties;
+			vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+
+			// right now we'll only concern ourselves with the type of memory and not the heap it comes from
+			// we also need to be able to write our vertex data to that memory, so we check additional bits
+			// so we check if ALL the properties are present
+			// TODO this impacts performance, check it out again later
+			for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+			{
+				if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+				{
+					return i;
+				}
+			}
+
+			throw std::runtime_error("failed to find suitable memory type!");
 		}
 
 	}
@@ -645,6 +685,7 @@ namespace Core
 		CreateGraphicsPipeline();
 		CreateFramebuffers();
 		CreateCommandPool();
+		CreateVertexBuffer();
 		CreateCommandBuffers();
 		CreateSyncObjects();
 	}
@@ -1006,11 +1047,14 @@ namespace Core
 		// to load them from and at which offset
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertexInputInfo.vertexBindingDescriptionCount = 0;
-		vertexInputInfo.pVertexBindingDescriptions = nullptr; // optional
-		vertexInputInfo.vertexAttributeDescriptionCount = 0;
-		vertexInputInfo.pVertexAttributeDescriptions = nullptr; // optional
-		// TODO for now keep this empty - we are hard coding the vertex data in the shader
+
+		auto bindingDescription = Vertex::GetBindingDescription();
+		auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+
+		vertexInputInfo.vertexBindingDescriptionCount = 1;
+		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+		vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+		vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
 		// next define the topology - we intend to draw triangles so stick to this structure
 		VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
@@ -1227,6 +1271,53 @@ namespace Core
 		}
 	}
 
+	void HelloTriangleApplication::CreateVertexBuffer()
+	{
+		
+		VkBufferCreateInfo bufferInfo{};
+		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT; // can even use bitwise or here
+		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // will only be used from the graphics queue
+		// flags - for sparse buffer memory, we will leave it at 0 for now
+
+		if (vkCreateBuffer(device, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to create vertex buffer!");
+		}
+
+		// allocate the memory on the GPU for the buffer
+		VkMemoryRequirements memRequirements;
+		vkGetBufferMemoryRequirements(device, vertexBuffer, &memRequirements);
+
+		VkMemoryAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		allocInfo.allocationSize = memRequirements.size;
+		allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits,
+		                                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+		                                           VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+		if (vkAllocateMemory(device, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to allocate vertex buffer memory!");
+		}
+
+		// if everything was successful, we can now associate this memory with the buffer
+		vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
+
+		// now actually copy the vertex data to the buffer
+		// by mapping the buffer memory into CPU accessible memory with vkMapMemory
+		void* data;
+		vkMapMemory(device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
+		memcpy(data, vertices.data(), bufferInfo.size);
+		vkUnmapMemory(device, vertexBufferMemory);
+		// the driver may not immediately copy the data into buffer memory -> because of caching for example
+		// so we use memory that is host coherent: VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+		// OR we call vkFlushMappedMemoryRanged after writing to the mapped memory
+		// AND call vkInvalidateMappedMemoryRanges before reading from the mapped memory
+		// TODO the approach we have may lead to worse performances
+	}
+
 	void HelloTriangleApplication::CreateCommandBuffers()
 	{
 		commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
@@ -1415,6 +1506,10 @@ namespace Core
 	{
 		// cleanup resources and terminate GLFW
 		CleanupSwapChain();
+
+		// the vertex buffer does not depend on the swap-chain
+		vkDestroyBuffer(device, vertexBuffer, nullptr);
+		vkFreeMemory(device, vertexBufferMemory, nullptr);
 
 		vkDestroyPipeline(device, graphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
