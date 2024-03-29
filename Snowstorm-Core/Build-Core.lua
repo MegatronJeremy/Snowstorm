@@ -5,6 +5,9 @@ project "Snowstorm-Core"
    targetdir "Binaries/%{cfg.buildcfg}"
    staticruntime "off"
 
+   pchheader "pch.h"
+   pchsource "Source/pch.cpp"
+
    files 
    { 
     "Source/**.h", 
@@ -17,6 +20,7 @@ project "Snowstorm-Core"
    includedirs
    {
     "Source",
+    "Vendor/spdlog/include",
     "%{IncludeDir.GLFW}",
     "%{IncludeDir.glm}",
     "%{IncludeDir.VulkanSDK}"
@@ -36,7 +40,7 @@ project "Snowstorm-Core"
        defines { }
 
    filter "configurations:Debug"
-       defines { "DEBUG" }
+       defines { "SS_DEBUG" }
        runtime "Debug"
        symbols "On"
 
@@ -48,7 +52,7 @@ project "Snowstorm-Core"
 		}
 
    filter "configurations:Release"
-       defines { "RELEASE" }
+       defines { "SS_RELEASE" }
        runtime "Release"
        optimize "On"
        symbols "On"
@@ -61,7 +65,7 @@ project "Snowstorm-Core"
 		}
 
    filter "configurations:Dist"
-       defines { "DIST" }
+       defines { "SS_DIST" }
        runtime "Release"
        optimize "On"
        symbols "Off"

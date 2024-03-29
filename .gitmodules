@@ -4,3 +4,6 @@
 [submodule "Snowstorm-Core/Vendor/GLFW"]
 	path = Snowstorm-Core/Vendor/GLFW
 	url = https://github.com/glfw/glfw
+[submodule "Snowstorm-Core/Vendor/spdlog"]
+	path = Snowstorm-Core/Vendor/spdlog
+	url = https://github.com/gabime/spdlog
