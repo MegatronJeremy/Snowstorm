@@ -12,16 +12,6 @@ namespace Snowstorm
 
 	void RenderingTest();
 
-	struct QueueFamilyIndices
-	{
-		std::optional<uint32_t> graphicsFamily; // supports drawing commands
-		std::optional<uint32_t> presentFamily; // supports presentation commands
-
-		bool IsComplete() const
-		{
-			return graphicsFamily.has_value() && presentFamily.has_value();
-		}
-	};
 
 	class HelloTriangleApplication
 	{
@@ -37,7 +27,7 @@ namespace Snowstorm
 
 		void InitVulkan() const;
 
-		void SetupDebugMessenger() const;
+		static void SetupDebugMessenger();
 
 		static void CreateSurface();
 
@@ -75,7 +65,7 @@ namespace Snowstorm
 
 		bool CheckValidationLayerSupport() const;
 
-		std::vector<const char*> GetRequiredExtensions() const;
+		static std::vector<const char*> GetRequiredExtensions();
 
 	private:
 		uint32_t width = 800;

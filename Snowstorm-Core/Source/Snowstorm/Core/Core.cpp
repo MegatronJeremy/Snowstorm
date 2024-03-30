@@ -18,6 +18,7 @@
 #include <set>
 #include <vector>
 
+#include "Platform/Vulkan/VulkanQueueFamilyIndices.h"
 #include "Snowstorm/Renderer/Buffer.h"
 
 namespace Snowstorm
@@ -847,20 +848,17 @@ namespace Snowstorm
 	}
 
 
-	void HelloTriangleApplication::SetupDebugMessenger() const
+	void HelloTriangleApplication::SetupDebugMessenger()
 	{
 		if (!enableValidationLayers) return;
 
 		VkDebugUtilsMessengerCreateInfoEXT createInfo;
 		PopulateDebugMessengerCreateInfo(createInfo);
-		
 
 		// this is only for our specific Vulkan instance and its layers
-		if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
-		{
-			// TODO assert here
-			throw std::runtime_error("failed to set up debug messenger!");
-		}
+		const VkResult result = CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger);
+
+		SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to set up debug messenger!")
 	}
 
 	void HelloTriangleApplication::CreateSurface()
@@ -1717,7 +1715,7 @@ namespace Snowstorm
 		return true;
 	}
 
-	std::vector<const char*> HelloTriangleApplication::GetRequiredExtensions() const
+	std::vector<const char*> HelloTriangleApplication::GetRequiredExtensions()
 	{
 		uint32_t glfwExtensionCount = 0;
 		const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
