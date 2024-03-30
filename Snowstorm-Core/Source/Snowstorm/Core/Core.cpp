@@ -402,13 +402,22 @@ namespace Snowstorm
 		// --------------- various buffers
 		// TODO make this not hardcoded
 		const std::vector<Vertex> vertices = {
-			{{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
-			{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-			{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+			{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+			{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+			{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+			{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+		};
+
+		// uint16_t -> if using less than 65535 unique vertices
+		// but we can also use uint32_t
+		const std::vector<uint16_t> indices = {
+			0, 1, 2, 2, 3, 0
 		};
 
 		VkBuffer vertexBuffer;
 		VkDeviceMemory vertexBufferMemory;
+		VkBuffer indexBuffer;
+		VkDeviceMemory indexBufferMemory;
 		// ---------------
 	}
 
@@ -520,8 +529,21 @@ namespace Snowstorm
 			// bind vertex buffers to bindings
 			vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
+			// we have to bind the index buffer as well
+			vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+			// You can only have a SINGLE index buffer! not possible to use different indices for each vertex attribute
+
 			// finally, issue the draw command
-			vkCmdDraw(commandBuffer, vertices.size(), 1, 0, 0);
+			// vkCmdDraw(commandBuffer, vertices.size(), 1, 0, 0);
+
+			// change the drawing command to drawIndexed to utilize the index buffer
+			vkCmdDrawIndexed(commandBuffer, indices.size(), 1, 0, 0, 0);
+			// first index - offset in the index buffer
+			// 1 instance - we are not using instancing
+			// TODO allocate multiple resources like buffers from a single memory allocation
+			// TODO and store multiple buffers into a single VkBuffer and use offsets in commands like vkCmdBindVertexBuffers
+			// TODO the data is more cache friendly this way! (this is known as aliasing)
+
 			// firstVertex: lowest value of gl_VertexIndex
 			// firstInstance: offset for instanced rendering, lowest value of gl_InstanceIndex
 
@@ -787,6 +809,7 @@ namespace Snowstorm
 		CreateFramebuffers();
 		CreateCommandPool();
 		CreateVertexBuffer();
+		CreateIndexBuffer();
 		CreateCommandBuffers();
 		CreateSyncObjects();
 	}
@@ -1408,6 +1431,34 @@ namespace Snowstorm
 		vkFreeMemory(device, stagingBufferMemory, nullptr);
 	}
 
+	void HelloTriangleApplication::CreateIndexBuffer()
+	{
+		// This looks basically the same as creating a vertex buffer - well, it actually is the same
+		// TODO make this a single function -> CreateBuffer 
+		const VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		             stagingBuffer, stagingBufferMemory);
+
+		void* data;
+		vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, indices.data(), bufferSize);
+		vkUnmapMemory(device, stagingBufferMemory);
+
+		// This is a difference -> VK_BUFFER_USAGE_INDEX_BUFFER_BIT -> a single boolean!
+		CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+		             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		             indexBuffer, indexBufferMemory);
+
+		CopyBuffer(stagingBuffer, indexBuffer, bufferSize);
+
+		vkDestroyBuffer(device, stagingBuffer, nullptr);
+		vkFreeMemory(device, stagingBufferMemory, nullptr);
+	}
+
 	void HelloTriangleApplication::CreateCommandBuffers()
 	{
 		commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
@@ -1592,12 +1643,15 @@ namespace Snowstorm
 		CreateFramebuffers();
 	}
 
-	void HelloTriangleApplication::Cleanup() const
+	void HelloTriangleApplication::Cleanup()
 	{
 		// cleanup resources and terminate GLFW
 		CleanupSwapChain();
 
-		// the vertex buffer does not depend on the swap-chain
+		// the various buffers do not depend on the swap-chain
+		vkDestroyBuffer(device, indexBuffer, nullptr);
+		vkFreeMemory(device, indexBufferMemory, nullptr);
+
 		vkDestroyBuffer(device, vertexBuffer, nullptr);
 		vkFreeMemory(device, vertexBufferMemory, nullptr);
 

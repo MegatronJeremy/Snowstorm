@@ -57,6 +57,8 @@ namespace Snowstorm
 
 		static void CreateVertexBuffer();
 
+		static void CreateIndexBuffer();
+
 		static void CreateCommandBuffers();
 
 		static void CreateSyncObjects();
@@ -69,7 +71,7 @@ namespace Snowstorm
 
 		static void RecreateSwapChain();
 
-		void Cleanup() const;
+		static void Cleanup();
 
 		bool CheckValidationLayerSupport() const;
 
