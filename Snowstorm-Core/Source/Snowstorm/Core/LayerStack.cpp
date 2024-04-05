@@ -1,15 +1,14 @@
 #include "pch.h"
-#include "Snowstorm/Core/LayerStack.h"
+#include "LayerStack.h"
 
 namespace Snowstorm
 {
+	LayerStack::LayerStack() = default;
+
 	LayerStack::~LayerStack()
 	{
-		for (Layer* layer : m_Layers)
-		{
-			layer->OnDetach();
+		for (const Layer* layer : m_Layers)
 			delete layer;
-		}
 	}
 
 	void LayerStack::PushLayer(Layer* layer)
@@ -23,24 +22,21 @@ namespace Snowstorm
 		m_Layers.emplace_back(overlay);
 	}
 
-	void LayerStack::PopLayer(Layer* layer)
+	void LayerStack::PopLayer(const Layer* layer)
 	{
-		const auto it = std::find(m_Layers.begin(), m_Layers.begin() + m_LayerInsertIndex, layer);
-		if (it != m_Layers.begin() + m_LayerInsertIndex)
+		if (const auto it = std::find(m_Layers.begin(), m_Layers.end(), layer); it != m_Layers.end())
 		{
-			layer->OnDetach();
 			m_Layers.erase(it);
 			m_LayerInsertIndex--;
 		}
 	}
 
-	void LayerStack::PopOverlay(Layer* overlay)
+	void LayerStack::PopOverlay(const Layer* overlay)
 	{
-		const auto it = std::find(m_Layers.begin() + m_LayerInsertIndex, m_Layers.end(), overlay);
-		if (it != m_Layers.end())
+		if (const auto it = std::find(m_Layers.begin(), m_Layers.end(), overlay); it != m_Layers.end())
 		{
-			overlay->OnDetach();
 			m_Layers.erase(it);
 		}
 	}
+
 }

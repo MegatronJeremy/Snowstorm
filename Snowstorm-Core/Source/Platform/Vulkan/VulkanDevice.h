@@ -17,8 +17,6 @@ namespace Snowstorm
 		~VulkanDevice();
 
 	private:
-		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device) const;
-
 		void PickPhysicalDevice();
 
 		void CreateLogicalDevice();

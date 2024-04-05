@@ -1,26 +1,18 @@
 #pragma once
 
-#include "Snowstorm/Core/Log.h"
-
-#include <chrono>
-#include <fstream>
-#include <iomanip>
 #include <string>
+#include <algorithm>
+#include <fstream>
+
 #include <thread>
-#include <mutex>
-#include <sstream>
 
 namespace Snowstorm
 {
-	using FloatingPointMicroseconds = std::chrono::duration<double, std::micro>;
-
 	struct ProfileResult
 	{
 		std::string Name;
-
-		FloatingPointMicroseconds Start;
-		std::chrono::microseconds ElapsedTime;
-		std::thread::id ThreadID;
+		long long Start, End;
+		uint32_t ThreadID;
 	};
 
 	struct InstrumentationSession
@@ -31,71 +23,57 @@ namespace Snowstorm
 	class Instrumentor
 	{
 	public:
-		Instrumentor(const Instrumentor&) = delete;
-		Instrumentor(Instrumentor&&) = delete;
-
-		void operator=(const Instrumentor&) = delete;
-		void operator=(Instrumentor&&) = delete;
+		Instrumentor()
+			: m_CurrentSession(nullptr), m_ProfileCount(0)
+		{
+		}
 
 		void BeginSession(const std::string& name, const std::string& filepath = "results.json")
 		{
-			std::lock_guard lock(m_Mutex);
-			if (m_CurrentSession)
-			{
-				// If there is already a current session, then close it before beginning new one.
-				// Subsequent profiling output meant for the original session will end up in the
-				// newly opened session instead.  That's better than having badly formatted
-				// profiling output.
-				if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
-				{
-					SS_CORE_ERROR("Instrumentor::BeginSession('{0}') when session '{1}' already open.", name,
-					              m_CurrentSession->Name);
-				}
-				InternalEndSession();
-			}
 			m_OutputStream.open(filepath);
-
-			if (m_OutputStream.is_open())
-			{
-				m_CurrentSession = new InstrumentationSession({name});
-				WriteHeader();
-			}
-			else
-			{
-				if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
-				{
-					SS_CORE_ERROR("Instrumentor could not open results file '{0}'.", filepath);
-				}
-			}
+			WriteHeader();
+			m_CurrentSession = new InstrumentationSession({name});
 		}
 
 		void EndSession()
 		{
-			std::lock_guard lock(m_Mutex);
-			InternalEndSession();
+			WriteFooter();
+			m_OutputStream.close();
+			delete m_CurrentSession;
+			m_CurrentSession = nullptr;
+			m_ProfileCount = 0;
 		}
 
 		void WriteProfile(const ProfileResult& result)
 		{
-			std::stringstream json;
+			if (m_ProfileCount++ > 0)
+				m_OutputStream << ",";
 
-			json << std::setprecision(3) << std::fixed;
-			json << ",{";
-			json << R"("cat":"function",)";
-			json << "\"dur\":" << (result.ElapsedTime.count()) << ',';
-			json << R"("name":")" << result.Name << "\",";
-			json << R"("ph":"X",)";
-			json << "\"pid\":0,";
-			json << "\"tid\":" << result.ThreadID << ",";
-			json << "\"ts\":" << result.Start.count();
-			json << "}";
+			std::string name = result.Name;
+			std::replace(name.begin(), name.end(), '"', '\'');
 
-			std::lock_guard lock(m_Mutex);
-			if (m_CurrentSession)
-			{
-				m_OutputStream << json.str();
-				m_OutputStream.flush();
-			}
+			m_OutputStream << "{";
+			m_OutputStream << R"("cat":"function",)";
+			m_OutputStream << R"("dur":)" << (result.End - result.Start) << ',';
+			m_OutputStream << R"("name":")" << name << R"(",)";
+			m_OutputStream << R"("ph":"X",)";
+			m_OutputStream << R"("pid":0,)";
+			m_OutputStream << R"("tid":)" << result.ThreadID << ",";
+			m_OutputStream << R"("ts":)" << result.Start;
+			m_OutputStream << "}";
+
+			m_OutputStream.flush();
+		}
+
+		void WriteHeader()
+		{
+			m_OutputStream << R"({"otherData": {},"traceEvents":[)";
+		}
+
+		void WriteFooter()
+		{
+			m_OutputStream << "]}";
+			m_OutputStream.flush();
 		}
 
 		static Instrumentor& Get()
@@ -105,45 +83,9 @@ namespace Snowstorm
 		}
 
 	private:
-		Instrumentor()
-			: m_CurrentSession(nullptr)
-		{
-		}
-
-		~Instrumentor()
-		{
-			EndSession();
-		}
-
-		void WriteHeader()
-		{
-			m_OutputStream << R"({"otherData": {},"traceEvents":[{})";
-			m_OutputStream.flush();
-		}
-
-		void WriteFooter()
-		{
-			m_OutputStream << "]}";
-			m_OutputStream.flush();
-		}
-
-		// Note: you must already own lock on m_Mutex before
-		// calling InternalEndSession()
-		void InternalEndSession()
-		{
-			if (m_CurrentSession)
-			{
-				WriteFooter();
-				m_OutputStream.close();
-				delete m_CurrentSession;
-				m_CurrentSession = nullptr;
-			}
-		}
-
-	private:
-		std::mutex m_Mutex;
 		InstrumentationSession* m_CurrentSession;
 		std::ofstream m_OutputStream;
+		int m_ProfileCount;
 	};
 
 	class InstrumentationTimer
@@ -152,14 +94,9 @@ namespace Snowstorm
 		explicit InstrumentationTimer(const char* name)
 			: m_Name(name), m_Stopped(false)
 		{
-			m_StartTimepoint = std::chrono::steady_clock::now();
+			QueryPerformanceFrequency(&m_Frequency);
+			QueryPerformanceCounter(&m_StartTimePoint);
 		}
-
-		InstrumentationTimer(const InstrumentationTimer& other) = delete;
-		InstrumentationTimer(InstrumentationTimer&& other) = delete;
-
-		InstrumentationTimer& operator=(const InstrumentationTimer& other) = delete;
-		InstrumentationTimer& operator=(InstrumentationTimer&& other) = delete;
 
 		~InstrumentationTimer()
 		{
@@ -169,88 +106,38 @@ namespace Snowstorm
 
 		void Stop()
 		{
-			const auto endTimepoint = std::chrono::steady_clock::now();
-			const auto highResStart = FloatingPointMicroseconds{m_StartTimepoint.time_since_epoch()};
-			const auto elapsedTime =
-				std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch()
-				- std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch();
+			LARGE_INTEGER endTimePoint;
+			QueryPerformanceCounter(&endTimePoint);
 
-			Instrumentor::Get().WriteProfile({m_Name, highResStart, elapsedTime, std::this_thread::get_id()});
+			// Convert to microseconds
+			m_StartTimePoint.QuadPart *= 1000000;
+			m_StartTimePoint.QuadPart /= m_Frequency.QuadPart;
+
+			endTimePoint.QuadPart *= 1000000;
+			endTimePoint.QuadPart /= m_Frequency.QuadPart;
+
+			const uint32_t threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
+			Instrumentor::Get().WriteProfile({m_Name, m_StartTimePoint.QuadPart, endTimePoint.QuadPart, threadID});
 
 			m_Stopped = true;
 		}
 
 	private:
 		const char* m_Name;
-		std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint;
+		LARGE_INTEGER m_StartTimePoint, m_Frequency;
 		bool m_Stopped;
 	};
-
-	namespace InstrumentorUtils
-	{
-		template <size_t N>
-		struct ChangeResult
-		{
-			char Data[N];
-		};
-
-		template <size_t N, size_t K>
-		constexpr auto CleanupOutputString(const char (&expr)[N], const char (&remove)[K])
-		{
-			ChangeResult<N> result = {};
-
-			size_t srcIndex = 0;
-			size_t dstIndex = 0;
-			while (srcIndex < N)
-			{
-				size_t matchIndex = 0;
-				while (matchIndex < K - 1 && srcIndex + matchIndex < N - 1 && expr[srcIndex + matchIndex] == remove[
-					matchIndex])
-					matchIndex++;
-				if (matchIndex == K - 1)
-					srcIndex += matchIndex;
-				result.Data[dstIndex++] = expr[srcIndex] == '"' ? '\'' : expr[srcIndex];
-				srcIndex++;
-			}
-			return result;
-		}
-	}
 }
 
-#define SS_PROFILE 0
+#define SS_PROFILE 1
 #if SS_PROFILE
-// Resolve which function signature macro will be used. Note that this only
-// is resolved when the (pre)compiler starts, so the syntax highlighting
-// could mark the wrong one in your editor!
-#if defined(__GNUC__) || (defined(__MWERKS__) && (__MWERKS__ >= 0x3000)) || (defined(__ICC) && (__ICC >= 600)) || defined(__ghs__)
-#define SS_FUNC_SIG __PRETTY_FUNCTION__
-#elif defined(__DMC__) && (__DMC__ >= 0x810)
-#define SS_FUNC_SIG __PRETTY_FUNCTION__
-#elif (defined(__FUNCSIG__) || (_MSC_VER))
-#define SS_FUNC_SIG __FUNCSIG__
-#elif (defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 600)) || (defined(__IBMCPP__) && (__IBMCPP__ >= 500))
-#define SS_FUNC_SIG __FUNCTION__
-#elif defined(__BORLANDC__) && (__BORLANDC__ >= 0x550)
-#define SS_FUNC_SIG __FUNC__
-#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901)
-#define SS_FUNC_SIG __func__
-#elif defined(__cplusplus) && (__cplusplus >= 201103)
-#define SS_FUNC_SIG __func__
-#else
-#define SS_FUNC_SIG "SS_FUNC_SIG unknown!"
-#endif
-
 #define SS_PROFILE_BEGIN_SESSION(name, filepath) ::Snowstorm::Instrumentor::Get().BeginSession(name, filepath)
 #define SS_PROFILE_END_SESSION() ::Snowstorm::Instrumentor::Get().EndSession()
-#define SS_PROFILE_SCOPE_LINE2(name, line) constexpr auto fixedName##line = ::Snowstorm::InstrumentorUtils::CleanupOutputString(name, "__cdecl ");\
-											   ::Snowstorm::InstrumentationTimer timer##line(fixedName##line.Data)
-#define SS_PROFILE_SCOPE_LINE(name, line) SS_PROFILE_SCOPE_LINE2(name, line)
-#define SS_PROFILE_SCOPE(name) SS_PROFILE_SCOPE_LINE(name, __LINE__)
-#define SS_PROFILE_FUNCTION() SS_PROFILE_SCOPE(SS_FUNC_SIG)
+#define SS_PROFILE_SCOPE(name) ::Snowstorm::InstrumentationTimer C(timer,__LINE__)(name)
+#define SS_PROFILE_FUNCTION() SS_PROFILE_SCOPE(__FUNCSIG__)
 #else
 #define SS_PROFILE_BEGIN_SESSION(name, filepath)
 #define SS_PROFILE_END_SESSION()
 #define SS_PROFILE_SCOPE(name)
 #define SS_PROFILE_FUNCTION()
 #endif
-

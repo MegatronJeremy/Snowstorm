@@ -1,16 +1,12 @@
 #pragma once
 
-// #include "Snowstorm/Debug/Instrumentor.h"
-#include "Snowstorm/Core/Base.h"
+#include "Snowstorm/Core/Core.h"
 
-#include <functional>
+#include <string>
 
 namespace Snowstorm
 {
-	// Events in Snowstorm are currently blocking, meaning when an event occurs it
-	// immediately gets dispatched and must be dealt with right then and there.
-	// For the future, a better strategy might be to buffer events in an event
-	// bus and process them during the "event" part of the update stage.
+	// Events are currently blocking
 
 	enum class EventType
 	{
@@ -40,9 +36,9 @@ namespace Snowstorm
 		EventCategoryKeyboard = BIT(2),
 		EventCategoryMouse = BIT(3),
 		EventCategoryMouseButton = BIT(4)
-	};
+	}; // bit field because one event can be in multiple categories
 
-#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::type; }\
+#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() {return EventType::##type;  }\
 								virtual EventType GetEventType() const override { return GetStaticType(); }\
 								virtual const char* GetName() const override { return #type; }
 
@@ -50,20 +46,25 @@ namespace Snowstorm
 
 	class Event
 	{
+		friend class EventDispatcher;
+
 	public:
-		Event() = default;
-
-		Event(const Event&) = delete;
-		void operator=(const Event&) = delete;
-
-		virtual ~Event() = default;
-
+		// we need to see if the event is handled or not, in case we don't want to propagate it further
 		bool Handled = false;
 
+		Event() = default;
+		virtual ~Event() = default;
+
+		Event(const Event& e) = delete;
+		Event(Event&& e) = delete;
+
+		Event& operator=(const Event& e) = delete;
+		Event& operator=(Event&& e) = delete;
+
 		virtual EventType GetEventType() const = 0;
-		virtual const char* GetName() const = 0;
 		virtual int GetCategoryFlags() const = 0;
-		virtual std::string ToString() const { return GetName(); }
+		virtual const char* GetName() const = 0; // basically only for debugging
+		virtual std::string ToString() const { return GetName(); } // if you want more details override
 
 		bool IsInCategory(const EventCategory category) const
 		{
@@ -74,25 +75,26 @@ namespace Snowstorm
 	class EventDispatcher
 	{
 	public:
-		explicit EventDispatcher(Event& event)
+		explicit EventDispatcher(Event& event) // this can be any type of event
 			: m_Event(&event)
 		{
 		}
 
 		// F will be deduced by the compiler
 		template <typename T, typename F>
-		bool Dispatch(const F& func)
+		bool Dispatch(const F& func) // call this a bunch of times with a different event function
 		{
 			if (m_Event->GetEventType() == T::GetStaticType())
 			{
-				m_Event->Handled |= func(static_cast<T&>(*m_Event));
+				// run the function if it matches the actual type
+				m_Event->Handled = func(*static_cast<T*>(m_Event));
 				return true;
 			}
 			return false;
 		}
 
 	private:
-		Event* m_Event = nullptr;
+		Event* m_Event;
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const Event& e)
@@ -100,4 +102,3 @@ namespace Snowstorm
 		return os << e.ToString();
 	}
 }
-

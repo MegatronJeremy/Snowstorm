@@ -1,26 +1,28 @@
 #pragma once
 
-#include "Snowstorm/Core/Base.h"
-#include "Snowstorm/Core/Layer.h"
+#include "Snowstorm/Core/Core.h"
+#include "Layer.h"
 
 #include <vector>
 
 namespace Snowstorm
 {
-	class LayerStack
+	class HAZEL_API LayerStack
 	{
 	public:
-		LayerStack() = default;
+		LayerStack();
+		~LayerStack();
 
 		LayerStack(const LayerStack&) = delete;
-		LayerStack(const LayerStack&&) = delete;
+		LayerStack(LayerStack&&) = delete;
 
-		~LayerStack();
+		LayerStack& operator=(const LayerStack&) = delete;
+		LayerStack& operator=(LayerStack&&) = delete;
 
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* overlay);
-		void PopLayer(Layer* layer);
-		void PopOverlay(Layer* overlay);
+		void PopLayer(const Layer* layer);
+		void PopOverlay(const Layer* overlay);
 
 		std::vector<Layer*>::iterator begin() { return m_Layers.begin(); }
 		std::vector<Layer*>::iterator end() { return m_Layers.end(); }
@@ -32,8 +34,9 @@ namespace Snowstorm
 		std::vector<Layer*>::const_reverse_iterator rbegin() const { return m_Layers.rbegin(); }
 		std::vector<Layer*>::const_reverse_iterator rend() const { return m_Layers.rend(); }
 
+
 	private:
 		std::vector<Layer*> m_Layers;
-		unsigned int m_LayerInsertIndex = 0;
+		unsigned int m_LayerInsertIndex = 0; 
 	};
 }

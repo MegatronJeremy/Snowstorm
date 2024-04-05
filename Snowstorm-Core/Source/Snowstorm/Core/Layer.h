@@ -1,15 +1,22 @@
 #pragma once
 
+#include "Snowstorm/Core/Core.h"
 #include "Snowstorm/Core/Timestep.h"
 #include "Snowstorm/Events/Event.h"
 
 namespace Snowstorm
 {
-	class Layer final
+	class HAZEL_API Layer
 	{
 	public:
-		explicit Layer(std::string name = "Layer");
-		virtual ~Layer() = default;
+		explicit Layer(std::string debugName = "Layer");
+		virtual ~Layer();
+
+		Layer(const Layer&) = delete;
+		Layer(Layer&&) = delete;
+
+		Layer& operator=(const Layer&) = delete;
+		Layer& operator=(Layer&&) = delete;
 
 		virtual void OnAttach()
 		{

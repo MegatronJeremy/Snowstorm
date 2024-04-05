@@ -1,10 +1,12 @@
 #pragma once
 
-#include "Snowstorm/Events/Event.h"
+#include "pch.h"
+
+#include "Event.h"
 
 namespace Snowstorm
 {
-	class WindowResizeEvent final : public Event
+	class HAZEL_API WindowResizeEvent final : public Event
 	{
 	public:
 		WindowResizeEvent(const unsigned int width, const unsigned int height)
@@ -29,40 +31,43 @@ namespace Snowstorm
 		unsigned int m_Width, m_Height;
 	};
 
-	class WindowCloseEvent final : public Event
+	class HAZEL_API WindowCloseEvent final : public Event
 	{
 	public:
-		WindowCloseEvent() = default;
+		WindowCloseEvent()
+		= default;
 
 		EVENT_CLASS_TYPE(WindowClose)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class AppTickEvent final : public Event
+	class HAZEL_API AppTickEvent final : public Event
 	{
 	public:
-		AppTickEvent() = default;
+		AppTickEvent()
+		= default;
 
 		EVENT_CLASS_TYPE(AppTick)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class AppUpdateEvent final : public Event
+	class HAZEL_API AppUpdateEvent final : public Event
 	{
 	public:
-		AppUpdateEvent() = default;
+		AppUpdateEvent()
+		= default;
 
 		EVENT_CLASS_TYPE(AppUpdate)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class AppRenderEvent final : public Event
+	class HAZEL_API AppRenderEvent final : public Event
 	{
 	public:
-		AppRenderEvent() = default;
+		AppRenderEvent()
+		= default;
 
 		EVENT_CLASS_TYPE(AppRender)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 }
-

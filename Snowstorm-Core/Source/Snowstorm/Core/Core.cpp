@@ -250,9 +250,9 @@ namespace Snowstorm
 
 
 		// -----------------------------------DEVICE PICKER--------------------------------------
-		QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice device)
+		VulkanQueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice device)
 		{
-			QueueFamilyIndices indices;
+			VulkanQueueFamilyIndices indices;
 
 			uint32_t queueFamilyCount = 0;
 			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
@@ -326,7 +326,7 @@ namespace Snowstorm
 			// Maximum possible size of textures affects graphics quality
 			score += static_cast<int>(deviceProperties.limits.maxImageDimension2D);
 
-			const QueueFamilyIndices indices = FindQueueFamilies(device);
+			const VulkanQueueFamilyIndices indices = FindQueueFamilies(device);
 
 			const bool extensionsSupported = CheckDeviceExtensionSupport(device);
 
@@ -701,14 +701,14 @@ namespace Snowstorm
 	{
 		glfwInit();
 
-		// force it to not use OpenGL (default)
+		// force it to not use Vulkan (default)
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 		// set the window to not be resizable - optional
 		// glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		// fourth param: optional monitor
-		// fifth param: relevant to OpenGL only
+		// fifth param: relevant to Vulkan only
 		window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), "Vulkan", nullptr, nullptr);
 		glfwSetWindowUserPointer(window, this);
 		glfwSetFramebufferSizeCallback(window, FramebufferResizeCallback);
@@ -873,7 +873,7 @@ namespace Snowstorm
 
 	void HelloTriangleApplication::CreateLogicalDevice() const
 	{
-		const QueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
+		const VulkanQueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
@@ -977,7 +977,7 @@ namespace Snowstorm
 
 		// Next specify how to handle swap chain images used across multiple queue families
 		// This is the case when the graphics queue family is different from the presentation queue
-		const QueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
+		const VulkanQueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
 
 		const uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
@@ -1378,7 +1378,7 @@ namespace Snowstorm
 
 	void HelloTriangleApplication::CreateCommandPool()
 	{
-		const QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(physicalDevice);
+		const VulkanQueueFamilyIndices queueFamilyIndices = FindQueueFamilies(physicalDevice);
 
 		VkCommandPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;

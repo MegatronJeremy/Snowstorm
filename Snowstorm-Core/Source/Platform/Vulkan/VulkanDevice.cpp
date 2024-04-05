@@ -57,7 +57,8 @@ namespace Snowstorm
 
 	void VulkanDevice::CreateLogicalDevice() 
 	{
-		const QueueFamilyIndices indices = FindQueueFamilies(m_VkPhysicalDevice);
+		const VulkanQueueFamilyIndices indices = VulkanQueueFamilyIndices::FindQueueFamilies(
+			m_VkPhysicalDevice, m_Surface);
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
@@ -124,48 +125,6 @@ namespace Snowstorm
 		vkGetDeviceQueue(m_VkDevice, indices.presentFamily.value(), 0, &m_PresentQueue);
 	}
 
-
-	QueueFamilyIndices VulkanDevice::FindQueueFamilies(const VkPhysicalDevice device) const
-	{
-		QueueFamilyIndices indices;
-
-		uint32_t queueFamilyCount = 0;
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-
-		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-
-		int i = 0;
-		for (const auto& queueFamily : queueFamilies)
-		{
-			// we need to find at least one queue family that support graphics commands and presentation commands
-			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-			{
-				indices.graphicsFamily = i;
-			}
-
-			VkBool32 presentSupport = false;
-			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_Surface, &presentSupport);
-
-			if (presentSupport)
-			{
-				indices.presentFamily = i;
-			}
-
-			// if found both break immediately
-			if (indices.IsComplete())
-			{
-				break;
-			}
-
-			i++;
-		}
-
-
-		return indices;
-	}
-
-
 	bool VulkanDevice::CheckDeviceExtensionSupport(const VkPhysicalDevice device) const
 	{
 		uint32_t extensionCount;
@@ -203,7 +162,7 @@ namespace Snowstorm
 		// Maximum possible size of textures affects graphics quality
 		score += static_cast<int>(physicalDeviceProperties.limits.maxImageDimension2D);
 
-		const QueueFamilyIndices indices = FindQueueFamilies(device);
+		const VulkanQueueFamilyIndices indices = VulkanQueueFamilyIndices::FindQueueFamilies(device, m_Surface);
 
 		const bool extensionsSupported = CheckDeviceExtensionSupport(device);
 

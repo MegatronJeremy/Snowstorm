@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Snowstorm/Core/Base.h"
-#include "Snowstorm/Events/Event.h"
+#include "pch.h"
 
-#include <sstream>
+#include "Snowstorm/Core/Core.h"
+#include "Snowstorm/Events/Event.h"
 
 namespace Snowstorm
 {
@@ -13,18 +13,28 @@ namespace Snowstorm
 		uint32_t Width;
 		uint32_t Height;
 
-		explicit WindowProps(const std::string& title = "Snowstorm Engine",
-		                     uint32_t width = 1600,
-		                     uint32_t height = 900);
+		explicit WindowProps(std::string title = "Snowstorm Engine",
+		                     const uint32_t width = 1280,
+		                     const uint32_t height = 720)
+			: Title(std::move(title)), Width(width), Height(height)
+		{
+		}
 	};
 
-	// Interface representing a desktop system based Window
-	class Window
+	// Interface representing a desktop system based Window (implemented per platform)
+	class HAZEL_API Window
 	{
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;
 
+		Window() = default;
 		virtual ~Window() = default;
+
+		Window(const Window&) = delete;
+		Window(Window&&) = delete;
+
+		Window& operator=(const Window&) = delete;
+		Window& operator=(Window&&) = delete;
 
 		virtual void OnUpdate() = 0;
 
