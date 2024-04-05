@@ -3,9 +3,13 @@
 VULKAN_SDK = os.getenv("VULKAN_SDK")
 
 IncludeDir = {}
+IncludeDir["spdlog"] = "%{wks.location}/Snowstorm-Core/Vendor/spdlog/include"
 IncludeDir["GLFW"] = "%{wks.location}/Snowstorm-Core/Vendor/GLFW/include"
 IncludeDir["Glad"] = "%{wks.location}/Snowstorm-Core/Vendor/Glad/include"
 IncludeDir["glm"] = "%{wks.location}/Snowstorm-Core/Vendor/glm"
+IncludeDir["ImGui"] = "%{wks.location}/Snowstorm-Core/Vendor/imgui"
+IncludeDir["stb_image"] = "%{wks.location}/Snowstorm-Core/Vendor/stb_image"
+IncludeDir["entt"] = "%{wks.location}/Snowstorm-Core/Vendor/entt/include"
 IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
 
 LibraryDir = {}

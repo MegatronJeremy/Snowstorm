@@ -8,6 +8,7 @@ Binaries/
 *.vcxproj.filters
 *.sln
 *.log
+*.json
 Makefile
 
 # Exclude

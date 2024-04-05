@@ -1,7 +1,7 @@
 #include "Sandbox2D.h"
 
 #include <glm/gtc/type_ptr.hpp>
-#include <ImGui/imgui.h>
+#include <imgui.h>
 
 namespace
 {
@@ -25,7 +25,7 @@ namespace
 
 Sandbox2D::Sandbox2D()
 	: Layer("Sandbox2D"),
-	  m_CameraController(1280.0f / 720.0f, true)
+	  m_CameraController(1280.0f / 720.0f, true), m_Particle(), m_MapWidth(0), m_MapHeight(0)
 {
 }
 
@@ -103,9 +103,9 @@ void Sandbox2D::OnUpdate(const Snowstorm::Timestep ts)
 		Snowstorm::Renderer::EndScene();
 	}
 
-#if 0
+#if 1
 	// Particle system
-	if (Snowstorm::Input::IsMouseButtonPressed(SS_MOUSE_BUTTON_LEFT))
+	if (Snowstorm::Input::IsMouseButtonPressed(Snowstorm::Mouse::ButtonLeft))
 	{
 		auto [x, y] = Snowstorm::Input::GetMousePosition();
 		const auto width = Snowstorm::Application::Get().GetWindow().GetWidth();

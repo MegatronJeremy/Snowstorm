@@ -64,7 +64,7 @@ namespace Snowstorm {
 		// TODO(Yan): tesselation shader stats when we have them
 	};
 
-	// Identical to Vulkan's VkPipelineStageFlagBits
+	// Identical to OpenGL's VkPipelineStageFlagBits
 	// Note: this is a bitfield
 	enum class PipelineStage
 	{
@@ -88,7 +88,7 @@ namespace Snowstorm {
 		AllCommands = 0x00010000
 	};
 
-	// Identical to Vulkan's VkAccessFlagBits
+	// Identical to OpenGL's VkAccessFlagBits
 	// Note: this is a bitfield
 	enum class ResourceAccessFlags
 	{

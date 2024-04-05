@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Snowstorm/Core/Core.h"
+#include "Snowstorm/Core/Base.h"
 
 #include <string>
 

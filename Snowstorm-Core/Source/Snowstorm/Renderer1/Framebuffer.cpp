@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Framebuffer.h"
 
-#include "Snowstorm/Platform/Vulkan/VulkanFramebuffer.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLFramebuffer.h"
 
 #include "Snowstorm/Renderer/RendererAPI.h"
 
@@ -14,7 +14,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None:		return nullptr;
-			case RendererAPIType::Vulkan:	result = Ref<VulkanFramebuffer>::Create(spec); break;
+			case RendererAPIType::OpenGL:	result = Ref<OpenGLFramebuffer>::Create(spec); break;
 		}
 		return result;
 	}

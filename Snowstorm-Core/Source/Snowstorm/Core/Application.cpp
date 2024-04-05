@@ -3,7 +3,6 @@
 
 #include <GLFW/glfw3.h>
 
-#include "Snowstorm/Core/Log.h"
 #include "Snowstorm/Renderer/Renderer.h"
 
 namespace Snowstorm

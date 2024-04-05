@@ -3,7 +3,7 @@
 
 #include "Renderer.h"
 
-#include "Platform/Vulkan/VulkanBuffer.h"
+#include "Platform/OpenGL/OpenGLBuffer.h"
 
 namespace Snowstorm
 {
@@ -14,8 +14,8 @@ namespace Snowstorm
 		case RendererAPI::API::None:
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;
-		case RendererAPI::API::Vulkan:
-			return CreateRef<VulkanVertexBuffer>(size);
+		case RendererAPI::API::OpenGL:
+			return CreateRef<OpenGLVertexBuffer>(size);
 		}
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -29,8 +29,8 @@ namespace Snowstorm
 		case RendererAPI::API::None:
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;
-		case RendererAPI::API::Vulkan:
-			return CreateRef<VulkanVertexBuffer>(vertices, size);
+		case RendererAPI::API::OpenGL:
+			return CreateRef<OpenGLVertexBuffer>(vertices, size);
 		}
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -44,8 +44,8 @@ namespace Snowstorm
 		case RendererAPI::API::None:
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;
-		case RendererAPI::API::Vulkan:
-			return CreateRef<VulkanIndexBuffer>(indices, count);
+		case RendererAPI::API::OpenGL:
+			return CreateRef<OpenGLIndexBuffer>(indices, count);
 		}
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");

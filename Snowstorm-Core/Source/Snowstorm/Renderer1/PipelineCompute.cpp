@@ -2,7 +2,7 @@
 #include "PipelineCompute.h"
 
 #include "Snowstorm/Renderer/RendererAPI.h"
-#include "Snowstorm/Platform/Vulkan/VulkanComputePipeline.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLComputePipeline.h"
 
 namespace Snowstorm {
 
@@ -11,7 +11,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None: return nullptr;
-			case RendererAPIType::Vulkan: return Ref<VulkanComputePipeline>::Create(computeShader);
+			case RendererAPIType::OpenGL: return Ref<OpenGLComputePipeline>::Create(computeShader);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;

@@ -2,7 +2,7 @@
 #include "Texture.h"
 
 #include "Renderer.h"
-#include "Platform/Vulkan/VulkanTexture.h"
+#include "Platform/OpenGL/OpenGLTexture.h"
 
 namespace Snowstorm
 {
@@ -13,8 +13,8 @@ namespace Snowstorm
 		case RendererAPI::API::None:
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;
-		case RendererAPI::API::Vulkan:
-			return CreateRef<VulkanTexture2D>(width, height);
+		case RendererAPI::API::OpenGL:
+			return CreateRef<OpenGLTexture2D>(width, height);
 		}
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -28,8 +28,8 @@ namespace Snowstorm
 		case RendererAPI::API::None:
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;
-		case RendererAPI::API::Vulkan:
-			return CreateRef<VulkanTexture2D>(path);
+		case RendererAPI::API::OpenGL:
+			return CreateRef<OpenGLTexture2D>(path);
 		}
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");

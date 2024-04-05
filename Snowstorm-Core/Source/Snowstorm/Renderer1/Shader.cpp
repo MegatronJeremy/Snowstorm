@@ -4,10 +4,10 @@
 #include <utility>
 
 #include "Snowstorm/Renderer/Renderer.h"
-#include "Snowstorm/Platform/Vulkan/VulkanShader.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLShader.h"
 
 #if SS_HAS_SHADER_COMPILER
-#include "Snowstorm/Platform/Vulkan/ShaderCompiler/VulkanShaderCompiler.h"
+#include "Snowstorm/Platform/OpenGL/ShaderCompiler/OpenGLShaderCompiler.h"
 #endif
 
 #include "Snowstorm/Renderer/RendererAPI.h"
@@ -22,8 +22,8 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None: return nullptr;
-			case RendererAPIType::Vulkan:
-				result = Ref<VulkanShader>::Create(filepath, forceCompile, disableOptimization);
+			case RendererAPIType::OpenGL:
+				result = Ref<OpenGLShader>::Create(filepath, forceCompile, disableOptimization);
 				break;
 		}
 		return result;
@@ -68,7 +68,7 @@ namespace Snowstorm {
 			// Try compile from source
 			// Unavailable at runtime
 #if SS_HAS_SHADER_COMPILER
-			shader = VulkanShaderCompiler::Compile(path, forceCompile, disableOptimization);
+			shader = OpenGLShaderCompiler::Compile(path, forceCompile, disableOptimization);
 #endif
 		}
 

@@ -3,7 +3,7 @@
 
 #include "Snowstorm/Renderer/RendererAPI.h"
 
-#include "Snowstorm/Platform/Vulkan/VulkanContext.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLContext.h"
 
 namespace Snowstorm {
 
@@ -12,7 +12,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None:    return nullptr;
-			case RendererAPIType::Vulkan:  return Ref<VulkanContext>::Create();
+			case RendererAPIType::OpenGL:  return Ref<OpenGLContext>::Create();
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;

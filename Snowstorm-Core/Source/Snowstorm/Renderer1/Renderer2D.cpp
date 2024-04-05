@@ -9,7 +9,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 // TEMP
-#include "Snowstorm/Platform/Vulkan/VulkanRenderCommandBuffer.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLRenderCommandBuffer.h"
 
 #include "Snowstorm/Renderer/UI/MSDFData.h"
 
@@ -424,7 +424,7 @@ namespace Snowstorm {
 		Renderer::Submit([lineWidth = m_LineWidth, renderCommandBuffer = m_RenderCommandBuffer]()
 		{
 			uint32_t frameIndex = Renderer::RT_GetCurrentFrameIndex();
-			VkCommandBuffer commandBuffer = renderCommandBuffer.As<VulkanRenderCommandBuffer>()->GetCommandBuffer(frameIndex);
+			VkCommandBuffer commandBuffer = renderCommandBuffer.As<OpenGLRenderCommandBuffer>()->GetCommandBuffer(frameIndex);
 			vkCmdSetLineWidth(commandBuffer, lineWidth);
 		});
 

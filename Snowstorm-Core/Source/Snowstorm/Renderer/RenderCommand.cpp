@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "RenderCommand.h"
 
-#include "Platform/Vulkan/VulkanRendererAPI.h"
+#include "Platform/OpenGL/OpenGLRendererAPI.h"
 
 namespace Snowstorm
 {
-	RendererAPI* RenderCommand::s_RendererAPI = new VulkanRendererAPI;
+	RendererAPI* RenderCommand::s_RendererAPI = new OpenGLRendererAPI;
 }

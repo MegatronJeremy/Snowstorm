@@ -31,13 +31,13 @@ namespace
 std::mt19937 Random::s_RandomEngine;
 std::uniform_int_distribution<std::mt19937::result_type> Random::s_Distribution;
 
-ParticleSystem::ParticleSystem(uint32_t maxParticles)
+ParticleSystem::ParticleSystem(const uint32_t maxParticles)
 	: m_PoolIndex(maxParticles - 1)
 {
 	m_ParticlePool.resize(maxParticles);
 }
 
-void ParticleSystem::OnUpdate(Snowstorm::Timestep ts)
+void ParticleSystem::OnUpdate(const Snowstorm::Timestep ts)
 {
 	for (auto& particle : m_ParticlePool)
 	{
@@ -56,7 +56,7 @@ void ParticleSystem::OnUpdate(Snowstorm::Timestep ts)
 	}
 }
 
-void ParticleSystem::OnRender(Snowstorm::OrthographicCamera& camera)
+void ParticleSystem::OnRender(const Snowstorm::OrthographicCamera& camera) const
 {
 	Snowstorm::Renderer2D::BeginScene(camera);
 
@@ -66,7 +66,7 @@ void ParticleSystem::OnRender(Snowstorm::OrthographicCamera& camera)
 			continue;
 
 		// Fade away particles
-		float life = particle.LifeRemaining / particle.LifeTime;
+		const float life = particle.LifeRemaining / particle.LifeTime;
 		glm::vec4 color = lerp(particle.ColorEnd, particle.ColorBegin, life);
 		//color.a = color.a * life;
 

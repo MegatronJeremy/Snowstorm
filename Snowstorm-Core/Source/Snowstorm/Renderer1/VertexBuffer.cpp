@@ -3,7 +3,7 @@
 
 #include "Renderer.h"
 
-#include "Snowstorm/Platform/Vulkan/VulkanVertexBuffer.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLVertexBuffer.h"
 
 #include "Snowstorm/Renderer/RendererAPI.h"
 
@@ -14,7 +14,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None:    return nullptr;
-			case RendererAPIType::Vulkan:  return Ref<VulkanVertexBuffer>::Create(data, size, usage);
+			case RendererAPIType::OpenGL:  return Ref<OpenGLVertexBuffer>::Create(data, size, usage);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
@@ -25,7 +25,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None:    return nullptr;
-			case RendererAPIType::Vulkan:  return Ref<VulkanVertexBuffer>::Create(size, usage);
+			case RendererAPIType::OpenGL:  return Ref<OpenGLVertexBuffer>::Create(size, usage);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;

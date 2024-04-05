@@ -283,8 +283,8 @@ namespace Snowstorm {
 		friend class Scene;
 		friend class SceneRenderer;
 		friend class Renderer;
-		friend class VulkanRenderer;
-		friend class VulkanRenderer;
+		friend class OpenGLRenderer;
+		friend class OpenGLRenderer;
 		friend class SceneHierarchyPanel;
 		friend class MeshViewerPanel;
 		friend class Mesh;
@@ -327,8 +327,8 @@ namespace Snowstorm {
 
 		friend class Scene;
 		friend class Renderer;
-		friend class VulkanRenderer;
-		friend class VulkanRenderer;
+		friend class OpenGLRenderer;
+		friend class OpenGLRenderer;
 		friend class SceneHierarchyPanel;
 		friend class MeshViewerPanel;
 	};
@@ -365,8 +365,8 @@ namespace Snowstorm {
 
 		friend class Scene;
 		friend class Renderer;
-		friend class VulkanRenderer;
-		friend class VulkanRenderer;
+		friend class OpenGLRenderer;
+		friend class OpenGLRenderer;
 		friend class SceneHierarchyPanel;
 		friend class MeshViewerPanel;
 	};

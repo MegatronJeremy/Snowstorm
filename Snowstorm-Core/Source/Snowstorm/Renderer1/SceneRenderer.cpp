@@ -2238,7 +2238,7 @@ namespace Snowstorm {
 		SceneRenderer::EndGPUPerfMarker(m_CommandBuffer);
 
 #if 0 // Is this necessary?
-		Renderer::Submit([cb = m_CommandBuffer, image = m_PreDepthPipeline->GetSpecification().RenderPass->GetSpecification().TargetFramebuffer->GetDepthImage().As<VulkanImage2D>()]()
+		Renderer::Submit([cb = m_CommandBuffer, image = m_PreDepthPipeline->GetSpecification().RenderPass->GetSpecification().TargetFramebuffer->GetDepthImage().As<OpenGLImage2D>()]()
 		{
 			VkImageMemoryBarrier imageMemoryBarrier = {};
 			imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -2250,7 +2250,7 @@ namespace Snowstorm {
 			imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
 			vkCmdPipelineBarrier(
-				cb.As<VulkanRenderCommandBuffer>()->GetCommandBuffer(Renderer::GetCurrentFrameIndex()),
+				cb.As<OpenGLRenderCommandBuffer>()->GetCommandBuffer(Renderer::GetCurrentFrameIndex()),
 				VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
 				VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
 				0,
@@ -2827,8 +2827,8 @@ namespace Snowstorm {
 					m_ReadBackImage);
 
 				{
-					auto alloc = m_ReadBackImage.As<VulkanImage2D>()->GetImageInfo().MemoryAlloc;
-					VulkanAllocator allocator("SceneRenderer");
+					auto alloc = m_ReadBackImage.As<OpenGLImage2D>()->GetImageInfo().MemoryAlloc;
+					OpenGLAllocator allocator("SceneRenderer");
 					glm::vec4* mappedMem = allocator.MapMemory<glm::vec4>(alloc);
 					delete[] m_ReadBackBuffer;
 					m_ReadBackBuffer = new glm::vec4[m_ReadBackImage->GetWidth() * m_ReadBackImage->GetHeight()];

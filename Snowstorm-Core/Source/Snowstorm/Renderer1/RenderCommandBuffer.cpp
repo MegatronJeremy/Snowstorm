@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "RenderCommandBuffer.h"
 
-#include "Snowstorm/Platform/Vulkan/VulkanRenderCommandBuffer.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLRenderCommandBuffer.h"
 
 #include "Snowstorm/Renderer/RendererAPI.h"
 
@@ -12,7 +12,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None:    return nullptr;
-			case RendererAPIType::Vulkan:  return Ref<VulkanRenderCommandBuffer>::Create(count, debugName);
+			case RendererAPIType::OpenGL:  return Ref<OpenGLRenderCommandBuffer>::Create(count, debugName);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
@@ -23,7 +23,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None:    return nullptr;
-			case RendererAPIType::Vulkan:  return Ref<VulkanRenderCommandBuffer>::Create(debugName, true);
+			case RendererAPIType::OpenGL:  return Ref<OpenGLRenderCommandBuffer>::Create(debugName, true);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;

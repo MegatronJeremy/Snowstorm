@@ -14,10 +14,10 @@ struct ParticleProps
 class ParticleSystem
 {
 public:
-	ParticleSystem(uint32_t maxParticles = 100000);
+	explicit ParticleSystem(uint32_t maxParticles = 100000);
 
 	void OnUpdate(Snowstorm::Timestep ts);
-	void OnRender(Snowstorm::OrthographicCamera& camera);
+	void OnRender(const Snowstorm::OrthographicCamera& camera) const;
 
 	void Emit(const ParticleProps& particleProps);
 

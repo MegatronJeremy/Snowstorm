@@ -3,7 +3,7 @@
 
 #include "Renderer.h"
 
-#include "Snowstorm/Platform/Vulkan/VulkanIndexBuffer.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLIndexBuffer.h"
 
 #include "Snowstorm/Renderer/RendererAPI.h"
 
@@ -14,7 +14,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None:    return nullptr;
-			case RendererAPIType::Vulkan:  return Ref<VulkanIndexBuffer>::Create(size);
+			case RendererAPIType::OpenGL:  return Ref<OpenGLIndexBuffer>::Create(size);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
@@ -25,7 +25,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None:    return nullptr;
-			case RendererAPIType::Vulkan:  return Ref<VulkanIndexBuffer>::Create(data, size);
+			case RendererAPIType::OpenGL:  return Ref<OpenGLIndexBuffer>::Create(data, size);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;

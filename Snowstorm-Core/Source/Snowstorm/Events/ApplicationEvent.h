@@ -6,7 +6,7 @@
 
 namespace Snowstorm
 {
-	class HAZEL_API WindowResizeEvent final : public Event
+	class WindowResizeEvent final : public Event
 	{
 	public:
 		WindowResizeEvent(const unsigned int width, const unsigned int height)
@@ -31,7 +31,7 @@ namespace Snowstorm
 		unsigned int m_Width, m_Height;
 	};
 
-	class HAZEL_API WindowCloseEvent final : public Event
+	class WindowCloseEvent final : public Event
 	{
 	public:
 		WindowCloseEvent()
@@ -41,7 +41,7 @@ namespace Snowstorm
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class HAZEL_API AppTickEvent final : public Event
+	class AppTickEvent final : public Event
 	{
 	public:
 		AppTickEvent()
@@ -51,7 +51,7 @@ namespace Snowstorm
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class HAZEL_API AppUpdateEvent final : public Event
+	class AppUpdateEvent final : public Event
 	{
 	public:
 		AppUpdateEvent()
@@ -61,7 +61,7 @@ namespace Snowstorm
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class HAZEL_API AppRenderEvent final : public Event
+	class AppRenderEvent final : public Event
 	{
 	public:
 		AppRenderEvent()

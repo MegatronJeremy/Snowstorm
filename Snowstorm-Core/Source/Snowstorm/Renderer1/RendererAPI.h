@@ -18,7 +18,7 @@ namespace Snowstorm {
 	enum class RendererAPIType
 	{
 		None,
-		Vulkan
+		OpenGL
 	};
 
 	enum class PrimitiveType
@@ -72,7 +72,7 @@ namespace Snowstorm {
 		static RendererAPIType Current() { return s_CurrentRendererAPI; }
 		static void SetAPI(RendererAPIType api);
 	private:
-		inline static RendererAPIType s_CurrentRendererAPI = RendererAPIType::Vulkan;
+		inline static RendererAPIType s_CurrentRendererAPI = RendererAPIType::OpenGL;
 	};
 
 }

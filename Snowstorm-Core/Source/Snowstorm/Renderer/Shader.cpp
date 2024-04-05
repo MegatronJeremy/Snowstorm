@@ -2,7 +2,7 @@
 #include "Shader.h"
 
 #include "Renderer.h"
-#include "Platform/Vulkan/VulkanShader.h"
+#include "Platform/OpenGL/OpenGLShader.h"
 
 namespace Snowstorm
 {
@@ -14,8 +14,8 @@ namespace Snowstorm
 		case RendererAPI::API::None:
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;
-		case RendererAPI::API::Vulkan:
-			return CreateRef<VulkanShader>(filepath);
+		case RendererAPI::API::OpenGL:
+			return CreateRef<OpenGLShader>(filepath);
 		}
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -30,8 +30,8 @@ namespace Snowstorm
 		case RendererAPI::API::None:
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;
-		case RendererAPI::API::Vulkan:
-			return CreateRef<VulkanShader>(name, vertexSrc, fragmentSrc);
+		case RendererAPI::API::OpenGL:
+			return CreateRef<OpenGLShader>(name, vertexSrc, fragmentSrc);
 		}
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");

@@ -24,7 +24,6 @@ sub recursive_replace {
             $num_changes += $content =~ s/Hazel/Snowstorm/g;
             $num_changes += $content =~ s/HZ/SS/g;
             $num_changes += $content =~ s/hzpch/pch/g;
-            $num_changes += $content =~ s/OpenGL/Vulkan/g;
             if ($num_changes) {
                 open my $fh, '>', $path or die "Could not open '$path' for writing: $!";
                 print $fh $content;

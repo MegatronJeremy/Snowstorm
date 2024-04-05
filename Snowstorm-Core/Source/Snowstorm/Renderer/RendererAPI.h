@@ -22,7 +22,7 @@ namespace Snowstorm
 		{
 			None = 0,
 			// For headless execution
-			Vulkan = 1
+			OpenGL = 1
 		};
 
 	public:
@@ -37,6 +37,6 @@ namespace Snowstorm
 		static API GetAPI() { return s_API; }
 
 	private:
-		inline static API s_API = API::Vulkan;
+		inline static API s_API = API::OpenGL;
 	};
 }

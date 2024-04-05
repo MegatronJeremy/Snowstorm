@@ -3,7 +3,7 @@
 
 #include "Renderer.h"
 
-#include "Snowstorm/Platform/Vulkan/VulkanPipeline.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLPipeline.h"
 
 #include "Snowstorm/Renderer/RendererAPI.h"
 
@@ -14,7 +14,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None:    return nullptr;
-			case RendererAPIType::Vulkan:  return Ref<VulkanPipeline>::Create(spec);
+			case RendererAPIType::OpenGL:  return Ref<OpenGLPipeline>::Create(spec);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;

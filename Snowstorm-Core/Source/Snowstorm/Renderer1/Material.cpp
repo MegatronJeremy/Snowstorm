@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Material.h"
 
-#include "Snowstorm/Platform/Vulkan/VulkanMaterial.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLMaterial.h"
 
 #include "Snowstorm/Renderer/RendererAPI.h"
 
@@ -12,7 +12,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None: return nullptr;
-			case RendererAPIType::Vulkan: return Ref<VulkanMaterial>::Create(shader, name);
+			case RendererAPIType::OpenGL: return Ref<OpenGLMaterial>::Create(shader, name);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
@@ -23,7 +23,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None: return nullptr;
-			case RendererAPIType::Vulkan: return Ref<VulkanMaterial>::Create(other, name);
+			case RendererAPIType::OpenGL: return Ref<OpenGLMaterial>::Create(other, name);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;

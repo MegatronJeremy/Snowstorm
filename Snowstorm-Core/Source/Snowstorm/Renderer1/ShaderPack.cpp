@@ -5,7 +5,7 @@
 
 #include "Snowstorm/Serialization/FileStream.h"
 
-#include "Snowstorm/Platform/Vulkan/VulkanShader.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLShader.h"
 
 namespace Snowstorm {
 
@@ -96,7 +96,7 @@ namespace Snowstorm {
 			shaderName = found != std::string::npos ? shaderName.substr(0, found) : name;
 		}
 
-		Ref<VulkanShader> vulkanShader = Ref<VulkanShader>::Create();
+		Ref<OpenGLShader> vulkanShader = Ref<OpenGLShader>::Create();
 		vulkanShader->m_Name = shaderName;
 		vulkanShader->m_AssetPath = name;
 		//vulkanShader->TryReadReflectionData(&serializer);
@@ -140,7 +140,7 @@ namespace Snowstorm {
 		uint32_t shaderModuleIndexArraySize = 0;
 		for (const auto& [name, shader] : shaderMap)
 		{
-			Ref<VulkanShader> vulkanShader = shader.As<VulkanShader>();
+			Ref<OpenGLShader> vulkanShader = shader.As<OpenGLShader>();
 			const auto& shaderData = vulkanShader->m_ShaderData;
 
 			shaderPackFile.Header.ShaderModuleCount += (uint32_t)shaderData.size();
@@ -174,7 +174,7 @@ namespace Snowstorm {
 		serializer.WriteZero(shaderPackFile.Header.ShaderModuleCount * sizeof(ShaderPackFile::ShaderModuleInfo));
 		for (const auto& [name, shader] : shaderMap)
 		{
-			Ref<VulkanShader> vulkanShader = shader.As<VulkanShader>();
+			Ref<OpenGLShader> vulkanShader = shader.As<OpenGLShader>();
 
 			// Serialize reflection data
 			shaderPackFile.Index.ShaderPrograms[(uint32_t)vulkanShader->GetHash()].ReflectionDataOffset = serializer.GetStreamPosition();

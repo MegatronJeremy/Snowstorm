@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Snowstorm/Core/Core.h"
+#include "Snowstorm/Core/Base.h"
 #include "Layer.h"
 
 #include <vector>
 
 namespace Snowstorm
 {
-	class HAZEL_API LayerStack
+	class LayerStack
 	{
 	public:
 		LayerStack();

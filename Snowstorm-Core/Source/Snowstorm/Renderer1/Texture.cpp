@@ -2,7 +2,7 @@
 #include "Texture.h"
 
 #include "Snowstorm/Renderer/RendererAPI.h"
-#include "Snowstorm/Platform/Vulkan/VulkanTexture.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLTexture.h"
 
 #include "Snowstorm/Renderer/RendererAPI.h"
 
@@ -13,7 +13,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None: return nullptr;
-			case RendererAPIType::Vulkan: return Ref<VulkanTexture2D>::Create(specification);
+			case RendererAPIType::OpenGL: return Ref<OpenGLTexture2D>::Create(specification);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
@@ -24,7 +24,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None: return nullptr;
-			case RendererAPIType::Vulkan: return Ref<VulkanTexture2D>::Create(specification, filepath);
+			case RendererAPIType::OpenGL: return Ref<OpenGLTexture2D>::Create(specification, filepath);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
@@ -35,7 +35,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None: return nullptr;
-			case RendererAPIType::Vulkan: return Ref<VulkanTexture2D>::Create(specification, imageData);
+			case RendererAPIType::OpenGL: return Ref<OpenGLTexture2D>::Create(specification, imageData);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
@@ -46,7 +46,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None: return nullptr;
-			case RendererAPIType::Vulkan: return Ref<VulkanTextureCube>::Create(specification, imageData);
+			case RendererAPIType::OpenGL: return Ref<OpenGLTextureCube>::Create(specification, imageData);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;

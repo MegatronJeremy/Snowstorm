@@ -3,7 +3,7 @@
 
 #include "Snowstorm/Renderer/Renderer.h"
 
-#include "Snowstorm/Platform/Vulkan/VulkanUniformBufferSet.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLUniformBufferSet.h"
 
 #include "Snowstorm/Renderer/RendererAPI.h"
 
@@ -14,7 +14,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None:   return nullptr;
-			case RendererAPIType::Vulkan: return Ref<VulkanUniformBufferSet>::Create(size, framesInFlight);
+			case RendererAPIType::OpenGL: return Ref<OpenGLUniformBufferSet>::Create(size, framesInFlight);
 		}
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");

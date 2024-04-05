@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Image.h"
 
-#include "Snowstorm/Platform/Vulkan/VulkanImage.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLImage.h"
 
 #include "Snowstorm/Renderer/RendererAPI.h"
 
@@ -12,7 +12,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None: return nullptr;
-			case RendererAPIType::Vulkan: return Ref<VulkanImage2D>::Create(specification);
+			case RendererAPIType::OpenGL: return Ref<OpenGLImage2D>::Create(specification);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
@@ -23,7 +23,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None: return nullptr;
-			case RendererAPIType::Vulkan: return Ref<VulkanImage2D>::Create(specification);
+			case RendererAPIType::OpenGL: return Ref<OpenGLImage2D>::Create(specification);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
@@ -34,7 +34,7 @@ namespace Snowstorm {
 		switch (RendererAPI::Current())
 		{
 			case RendererAPIType::None: return nullptr;
-			case RendererAPIType::Vulkan: return Ref<VulkanImageView>::Create(specification);
+			case RendererAPIType::OpenGL: return Ref<OpenGLImageView>::Create(specification);
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;

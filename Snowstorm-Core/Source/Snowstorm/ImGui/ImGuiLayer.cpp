@@ -53,8 +53,8 @@ namespace Snowstorm
 		const auto window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 
 		// Setup Platform/Renderer backends
-		ImGui_ImplGlfw_InitForVulkan(window, true);
-		ImGui_ImplVulkan3_Init("#version 410");
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplOpenGL3_Init("#version 410");
 	}
 
 	void ImGuiLayer::OnDetach()
@@ -62,7 +62,7 @@ namespace Snowstorm
 		SS_PROFILE_FUNCTION();
 
 		// Cleanup
-		ImGui_ImplVulkan3_Shutdown();
+		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
@@ -84,7 +84,7 @@ namespace Snowstorm
 		SS_PROFILE_FUNCTION();
 
 		// Start the Dear ImGui frame
-		ImGui_ImplVulkan3_NewFrame();
+		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
@@ -100,10 +100,10 @@ namespace Snowstorm
 
 		// Rendering
 		ImGui::Render();
-		ImGui_ImplVulkan3_RenderDrawData(ImGui::GetDrawData());
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// Update and Render additional Platform Windows
-		// (Platform functions may change the current Vulkan context, so we save/restore it to make it easier to paste this code elsewhere.
+		// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			GLFWwindow* backupCurrentContext = glfwGetCurrentContext();

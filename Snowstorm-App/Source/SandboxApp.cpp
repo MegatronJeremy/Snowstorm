@@ -1,9 +1,9 @@
 #include <Snowstorm.h>
 #include <Snowstorm/Core/EntryPoint.h>
 
-#include "imgui/imgui.h"
+#include <imgui.h>
 
-#include "Platform/Vulkan/VulkanShader.h"
+#include "Platform/OpenGL/OpenGLShader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -135,13 +135,13 @@ public:
 
 		m_FlatColorShader = Snowstorm::Shader::Create("FlatColor", flatColorShaderVertexSrc, flatColorShaderFragmentSrc);
 
-		const auto textureShader = m_ShaderLibrary.Load("assets/shaders/Texture.glsl");
+		const auto textureShader = m_ShaderLibrary.Load("Assets/Shaders/Texture.glsl");
 
-		m_Texture = Snowstorm::Texture2D::Create("assets/textures/Checkerboard.png");
-		m_ChernoLogoTexture = Snowstorm::Texture2D::Create("assets/textures/ChernoLogo.png");
+		m_Texture = Snowstorm::Texture2D::Create("Assets/Textures/Checkerboard.png");
+		m_ChernoLogoTexture = Snowstorm::Texture2D::Create("Assets/Textures/ChernoLogo.png");
 
-		std::dynamic_pointer_cast<Snowstorm::VulkanShader>(textureShader)->Bind();
-		std::dynamic_pointer_cast<Snowstorm::VulkanShader>(textureShader)->UploadUniformInt(
+		std::dynamic_pointer_cast<Snowstorm::OpenGLShader>(textureShader)->Bind();
+		std::dynamic_pointer_cast<Snowstorm::OpenGLShader>(textureShader)->UploadUniformInt(
 			"u_Texture", 0);
 	}
 
@@ -160,8 +160,8 @@ public:
 		static bool goingUp = true;
 		const glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 
-		std::dynamic_pointer_cast<Snowstorm::VulkanShader>(m_FlatColorShader)->Bind();
-		std::dynamic_pointer_cast<Snowstorm::VulkanShader>(m_FlatColorShader)->UploadUniformFloat3(
+		std::dynamic_pointer_cast<Snowstorm::OpenGLShader>(m_FlatColorShader)->Bind();
+		std::dynamic_pointer_cast<Snowstorm::OpenGLShader>(m_FlatColorShader)->UploadUniformFloat3(
 			"u_Color", m_SquareColor);
 
 		for (int x = 0; x < 20; x++)

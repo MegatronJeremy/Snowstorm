@@ -1,78 +1,41 @@
 project "Snowstorm-Core"
-   kind "StaticLib"
-   language "C++"
-   cppdialect "C++20"
-   targetdir "Binaries/%{cfg.buildcfg}"
-   staticruntime "off"
+kind "StaticLib"
+language "C++"
+cppdialect "C++20"
+targetdir "Binaries/%{cfg.buildcfg}"
+staticruntime "off"
 
-   pchheader "pch.h"
-   pchsource "Source/pch.cpp"
+pchheader "pch.h"
+pchsource "Source/pch.cpp"
 
-   files 
-   { 
-    "Source/**.h", 
-    "Source/**.cpp", 
+files {"Source/**.h", "Source/**.cpp", "Vendor/stb_image/**.h", "Vendor/stb_image/**.cpp",
+             "Vendor/glm/glm/**.hpp", "Vendor/glm/glm/**.inl"}
 
-    "Vendor/glm/glm/**.hpp",
-    "Vendor/glm/glm/**.inl"
-   }
+includedirs {"Source", "%{IncludeDir.spdlog}", "%{IncludeDir.GLFW}", "%{IncludeDir.glm}", "%{IncludeDir.Glad}",
+             "%{IncludeDir.ImGui}", "%{IncludeDir.stb_image}", "%{IncludeDir.entt}", "%{IncludeDir.VulkanSDK}"}
 
-   includedirs
-   {
-    "Source",
-    "Vendor/spdlog/include",
-    "%{IncludeDir.GLFW}",
-    "%{IncludeDir.glm}",
-    "%{IncludeDir.VulkanSDK}"
-   }
+links {"GLFW", "Glad", "ImGui", "opengl32.lib", "%{Library.Vulkan}"}
 
-   links
-   {
-    "GLFW",
-    "%{Library.Vulkan}"
-   }
+targetdir("../Binaries/" .. OutputDir .. "/%{prj.name}")
+objdir("../Binaries/Intermediates/" .. OutputDir .. "/%{prj.name}")
 
-   targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")
-   objdir ("../Binaries/Intermediates/" .. OutputDir .. "/%{prj.name}")
+filter "system:windows"
+systemversion "latest"
+defines {}
 
-   filter "system:windows"
-       systemversion "latest"
-       defines { }
+filter "configurations:Debug"
+defines {"SS_DEBUG"}
+runtime "Debug"
+symbols "On"
 
-   filter "configurations:Debug"
-       defines { "SS_DEBUG" }
-       runtime "Debug"
-       symbols "On"
+filter "configurations:Release"
+defines {"SS_RELEASE"}
+runtime "Release"
+optimize "On"
+symbols "On"
 
-       links
-		{
-			"%{Library.ShaderC_Release}",
-			"%{Library.SPIRV_Cross_Release}",
-			"%{Library.SPIRV_Cross_GLSL_Release}"
-		}
-
-   filter "configurations:Release"
-       defines { "SS_RELEASE" }
-       runtime "Release"
-       optimize "On"
-       symbols "On"
-
-       links
-		{
-			"%{Library.ShaderC_Release}",
-			"%{Library.SPIRV_Cross_Release}",
-			"%{Library.SPIRV_Cross_GLSL_Release}"
-		}
-
-   filter "configurations:Dist"
-       defines { "SS_DIST" }
-       runtime "Release"
-       optimize "On"
-       symbols "Off"
-
-       links
-		{
-			"%{Library.ShaderC_Release}",
-			"%{Library.SPIRV_Cross_Release}",
-			"%{Library.SPIRV_Cross_GLSL_Release}"
-		}
+filter "configurations:Dist"
+defines {"SS_DIST"}
+runtime "Release"
+optimize "On"
+symbols "Off"

@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "Snowstorm/Core/Core.h"
+#include "Snowstorm/Core/Base.h"
 #include "Snowstorm/Events/Event.h"
 
 namespace Snowstorm
@@ -15,14 +15,14 @@ namespace Snowstorm
 
 		explicit WindowProps(std::string title = "Snowstorm Engine",
 		                     const uint32_t width = 1280,
-		                     const uint32_t height = 720)
-			: Title(std::move(title)), Width(width), Height(height)
+		                     const uint32_t height = 720):
+			Title(std::move(title)), Width(width), Height(height)
 		{
 		}
 	};
 
 	// Interface representing a desktop system based Window (implemented per platform)
-	class HAZEL_API Window
+	class Window
 	{
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;

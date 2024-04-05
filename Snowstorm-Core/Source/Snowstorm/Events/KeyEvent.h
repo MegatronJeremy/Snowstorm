@@ -4,7 +4,7 @@
 
 namespace Snowstorm
 {
-	class HAZEL_API KeyEvent : public Event // basically an abstract event
+	class KeyEvent : public Event // basically an abstract event
 	{
 	public:
 		int GetKeyCode() const { return m_KeyCode; }
@@ -20,7 +20,7 @@ namespace Snowstorm
 		int m_KeyCode;
 	};
 
-	class HAZEL_API KeyPressedEvent final : public KeyEvent
+	class KeyPressedEvent final : public KeyEvent
 	{
 	public:
 		KeyPressedEvent(const int keycode, const int repeatCount)
@@ -43,7 +43,7 @@ namespace Snowstorm
 		int m_RepeatCount;
 	};
 
-	class HAZEL_API KeyReleasedEvent final : public KeyEvent
+	class KeyReleasedEvent final : public KeyEvent
 	{
 	public:
 		explicit KeyReleasedEvent(const int keycode):
@@ -61,7 +61,7 @@ namespace Snowstorm
 		EVENT_CLASS_TYPE(KeyReleased)
 	};
 
-	class HAZEL_API KeyTypedEvent final : public KeyEvent
+	class KeyTypedEvent final : public KeyEvent
 	{
 	public:
 		explicit KeyTypedEvent(const int keycode)

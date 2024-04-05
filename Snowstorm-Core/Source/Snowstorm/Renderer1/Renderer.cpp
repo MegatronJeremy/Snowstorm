@@ -13,10 +13,10 @@
 #include "Snowstorm/Core/Timer.h"
 #include "Snowstorm/Debug/Profiler.h"
 
-#include "Snowstorm/Platform/Vulkan/VulkanComputePipeline.h"
-#include "Snowstorm/Platform/Vulkan/VulkanRenderer.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLComputePipeline.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLRenderer.h"
 
-#include "Snowstorm/Platform/Vulkan/VulkanContext.h"
+#include "Snowstorm/Platform/OpenGL/OpenGLContext.h"
 
 #include "Snowstorm/Project/Project.h"
 
@@ -83,7 +83,7 @@ namespace Snowstorm {
 
 			for (auto& computePipeline : dependencies.ComputePipelines)
 			{
-				computePipeline.As<VulkanComputePipeline>()->CreatePipeline();
+				computePipeline.As<OpenGLComputePipeline>()->CreatePipeline();
 			}
 
 			for (auto& material : dependencies.Materials)
@@ -107,7 +107,7 @@ namespace Snowstorm {
 	void RendererAPI::SetAPI(RendererAPIType api)
 	{
 		// TODO: make sure this is called at a valid time
-		SS_CORE_VERIFY(api == RendererAPIType::Vulkan, "Vulkan is currently the only supported Renderer API");
+		SS_CORE_VERIFY(api == RendererAPIType::OpenGL, "OpenGL is currently the only supported Renderer API");
 		s_CurrentRendererAPI = api;
 	}
 
@@ -136,7 +136,7 @@ namespace Snowstorm {
 	{
 		switch (RendererAPI::Current())
 		{
-			case RendererAPIType::Vulkan: return hnew VulkanRenderer();
+			case RendererAPIType::OpenGL: return hnew OpenGLRenderer();
 		}
 		SS_CORE_ASSERT(false, "Unknown RendererAPI");
 		return nullptr;
@@ -682,7 +682,7 @@ namespace Snowstorm {
 
 	GPUMemoryStats Renderer::GetGPUMemoryStats()
 	{
-		return VulkanAllocator::GetStats();
+		return OpenGLAllocator::GetStats();
 	}
 
 }

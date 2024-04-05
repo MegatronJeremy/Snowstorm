@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Snowstorm/Core/Core.h"
+#include "Snowstorm/Core/Base.h"
 #include "Snowstorm/Core/Timestep.h"
 #include "Snowstorm/Events/Event.h"
 
 namespace Snowstorm
 {
-	class HAZEL_API Layer
+	class Layer
 	{
 	public:
 		explicit Layer(std::string debugName = "Layer");
