@@ -26,7 +26,7 @@ namespace Snowstorm
 		// Update script
 		{
 			// TODO: Move to Scene::OnScenePlay
-			m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+			m_Registry.view<NativeScriptComponent>().each([=, this](auto entity, auto& nsc)
 			{
 				if (!nsc.Instance)
 				{

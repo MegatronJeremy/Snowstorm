@@ -226,8 +226,8 @@ class Sandbox final : public Snowstorm::Application
 public:
 	Sandbox()
 	{
-		// PushLayer(new ExampleLayer());
-		PushLayer(new Sandbox2D());
+		PushLayer(new ExampleLayer());
+		// PushLayer(new Sandbox2D());
 	}
 
 	~Sandbox() override
