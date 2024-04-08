@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Platform/Vulkan/VulkanBuffer.h"
 
+#include "VulkanDevice.h"
+
 namespace Snowstorm
 {
 	/////////////////////////////////////////////////////////////////////////////
@@ -9,9 +11,35 @@ namespace Snowstorm
 
 	namespace
 	{
-		void CreateBuffer(const VkDeviceSize size, const VkBufferUsageFlags usage,
-		                  const VkMemoryPropertyFlags properties,
-		                  VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+		uint32_t FindMemoryType(const uint32_t typeFilter,
+		                        const VkMemoryPropertyFlags properties)
+		{
+			const VkPhysicalDevice physicalDevice = VulkanInstance::GetInstance()->GetVulkanDevice()->
+				GetVkPhysicalDevice();
+
+			// graphics cards can offer different types of memory to allocate from
+			VkPhysicalDeviceMemoryProperties memProperties;
+			vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+
+			// right now we'll only concern ourselves with the type of memory and not the heap it comes from
+			// we also need to be able to write our vertex data to that memory, so we check additional bits
+			// so we check if ALL the properties are present
+			// TODO this impacts performance, check it out again later
+			for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+			{
+				if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+				{
+					return i;
+				}
+			}
+
+			SS_CORE_ASSERT(false, "Failed to find suitable memory type!");
+			return 0;
+		}
+
+
+		void CreateBuffer(const VkDevice device, const VkDeviceSize size, const VkBufferUsageFlags usage,
+		                  const VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
 		{
 			// helper function for creating a vertex buffer
 			// last two parameters -> output parameters to write to
@@ -43,21 +71,22 @@ namespace Snowstorm
 			// TODO create a custom allocator that splits up a single allocation among different objects by using the offset param
 			// TODO see: https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
 			// TODO from: https://vulkan-tutorial.com/en/Vertex_buffers/Staging_buffer
-			if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
-			{
-				throw std::runtime_error("failed to allocate vertex buffer memory!");
-			}
+			const VkResult result = vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory);
+			SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to allocate vertex buffer memory!");
 
 			// if everything was successful, we can now associate this memory with the buffer
 			vkBindBufferMemory(device, buffer, bufferMemory, 0);
 		}
 
-		void CopyBuffer(const VkBuffer srcBuffer, const VkBuffer dstBuffer, const VkDeviceSize size)
+		void CopyBuffer(const VkDevice device, const VkBuffer srcBuffer, const VkBuffer dstBuffer,
+		                const VkDeviceSize size)
 		{
 			// Memory transfer operations executed using command buffer, just like drawing commands
 			// First allocate a temporary command buffer
 			// TODO create a separate command pool for these kinds of short-lived buffers
 			// TODO using VK_COMMAND_POOL_CREATE_TRANSIENT_BIT flag during command pool generation
+			const VkCommandPool commandPool = VulkanInstance::GetInstance()->GetVulkanCommandPool()->GetVkCommandPool();
+			const VkQueue graphicsQueue = VulkanInstance::GetInstance()->GetVulkanDevice()->GetVkGraphicsQueue();
 
 			VkCommandBufferAllocateInfo allocInfo{};
 			allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -102,32 +131,29 @@ namespace Snowstorm
 			// clean up the command buffer used for the transfer operation
 			vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 		}
-
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
 	// VertexBuffer /////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 
-	VulkanVertexBuffer::VulkanVertexBuffer(uint32_t size)
+	VulkanVertexBuffer::VulkanVertexBuffer(const uint32_t size)
+		: VulkanVertexBuffer(nullptr, size)
 	{
-		SS_PROFILE_FUNCTION();
-
-		glCreateBuffers(1, &m_RendererID);
-		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 	}
 
 	VulkanVertexBuffer::VulkanVertexBuffer(const float* vertices, const uint32_t size)
 	{
 		SS_PROFILE_FUNCTION();
 
-		const VkDeviceSize bufferSize = sizeof(float) * size;
+		m_Device = VulkanInstance::GetInstance()->GetVulkanDevice()->GetVkDevice();
+
+		const VkDeviceSize bufferSize = size;
 
 		VkBuffer stagingBuffer;
 		VkDeviceMemory stagingBufferMemory;
 		// we only use this to write from the CPU
-		CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		CreateBuffer(m_Device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 		             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
 		             stagingBuffer, stagingBufferMemory);
 
@@ -135,33 +161,33 @@ namespace Snowstorm
 		// now actually copy the vertex data to the buffer
 		// by mapping the buffer memory into CPU accessible memory with vkMapMemory
 		void* data;
-		vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+		vkMapMemory(m_Device, stagingBufferMemory, 0, bufferSize, 0, &data);
 		memcpy(data, vertices, bufferSize);
-		vkUnmapMemory(device, stagingBufferMemory);
+		vkUnmapMemory(m_Device, stagingBufferMemory);
 		// the driver may not immediately copy the data into buffer memory -> because of caching for example
 		// so we use memory that is host coherent: VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
 		// OR we call vkFlushMappedMemoryRanged after writing to the mapped memory
 		// AND call vkInvalidateMappedMemoryRanges before reading from the mapped memory
 
 		// This buffer will be optimally used on the GPU - DEVICE_LOCAL_BIT in MEMORY
-		CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+		CreateBuffer(m_Device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 		             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-		             vertexBuffer, vertexBufferMemory);
+		             m_VertexBuffer, m_VertexBufferMemory);
 
 		// Now we need to transfer from the SRC buffer to the DST buffer
-		CopyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+		CopyBuffer(m_Device, stagingBuffer, m_VertexBuffer, bufferSize);
 
 		// Finally, clean the staging buffer up
-		vkDestroyBuffer(device, stagingBuffer, nullptr);
-		vkFreeMemory(device, stagingBufferMemory, nullptr);
+		vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
+		vkFreeMemory(m_Device, stagingBufferMemory, nullptr);
 	}
 
 	VulkanVertexBuffer::~VulkanVertexBuffer()
 	{
 		SS_PROFILE_FUNCTION();
 
-		vkDestroyBuffer(device, vertexBuffer, nullptr);
-		vkFreeMemory(device, vertexBufferMemory, nullptr);
+		vkDestroyBuffer(m_Device, m_VertexBuffer, nullptr);
+		vkFreeMemory(m_Device, m_VertexBufferMemory, nullptr);
 	}
 
 	void VulkanVertexBuffer::Bind() const
@@ -184,38 +210,52 @@ namespace Snowstorm
 	// IndexBuffer //////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////
 
-	VulkanIndexBuffer::VulkanIndexBuffer(uint32_t* indices, const uint32_t count)
+	VulkanIndexBuffer::VulkanIndexBuffer(const uint32_t* indices, const uint32_t count)
 		: m_Count(count)
 	{
 		SS_PROFILE_FUNCTION();
 
-		glCreateBuffers(1, &m_RendererID);
+		m_Device = VulkanInstance::GetInstance()->GetVulkanDevice()->GetVkDevice();
 
-		// GL_ELEMENT_ARRAY_BUFFER is not valid without an actively bound VAO
-		// Binding with GL_ARRAY_BUFFER allows the data to be loaded regardless of VAO state. 
-		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+		const VkDeviceSize bufferSize = sizeof(indices[0]) * count;
+
+		VkBuffer stagingBuffer;
+		VkDeviceMemory stagingBufferMemory;
+		CreateBuffer(m_Device, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+		             stagingBuffer, stagingBufferMemory);
+
+		void* data;
+		vkMapMemory(m_Device, stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, indices, bufferSize);
+		vkUnmapMemory(m_Device, stagingBufferMemory);
+
+		// This is a difference -> VK_BUFFER_USAGE_INDEX_BUFFER_BIT -> a single boolean!
+		CreateBuffer(m_Device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+		             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+		             m_IndexBuffer, m_IndexBufferMemory);
+
+		CopyBuffer(m_Device, stagingBuffer, m_IndexBuffer, bufferSize);
+
+		vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
+		vkFreeMemory(m_Device, stagingBufferMemory, nullptr);
 	}
 
 	VulkanIndexBuffer::~VulkanIndexBuffer()
 	{
 		SS_PROFILE_FUNCTION();
 
-		glDeleteBuffers(1, &m_RendererID);
+		vkDestroyBuffer(m_Device, m_IndexBuffer, nullptr);
+		vkFreeMemory(m_Device, m_IndexBufferMemory, nullptr);
 	}
 
 	void VulkanIndexBuffer::Bind() const
 	{
 		SS_PROFILE_FUNCTION();
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 	}
 
 	void VulkanIndexBuffer::Unbind() const
 	{
 		SS_PROFILE_FUNCTION();
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 }
-

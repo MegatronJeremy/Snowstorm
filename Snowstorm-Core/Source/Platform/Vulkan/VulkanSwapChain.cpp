@@ -102,11 +102,20 @@ namespace Snowstorm
 		// store these for later
 		m_SwapChainImageFormat = surfaceFormat.format;
 		m_SwapChainExtent = extent;
+
+		// Create image views
+		CreateImageViews();
+
+		// Create render pass
+		m_RenderPass = CreateScope<VulkanRenderPass>(m_Device, m_SwapChainImageFormat);
+
+		// Create graphics pipeline
+		m_GraphicsPipeline = CreateScope<VulkanGraphicsPipeline>(m_Device, m_RenderPass->GetVkRenderPass());
 	}
 
 	VulkanSwapChain::~VulkanSwapChain()
 	{
-		for (const auto& swapChainFramebuffer : swapChainFramebuffers)
+		for (const auto& swapChainFramebuffer : m_SwapChainFramebuffers)
 		{
 			vkDestroyFramebuffer(m_Device, swapChainFramebuffer, nullptr);
 		}
@@ -244,7 +253,33 @@ namespace Snowstorm
 
 			const VkResult result = vkCreateImageView(m_Device, &createInfo, nullptr, &m_SwapChainImageViews[i]);
 			SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to create image views!")
-			}
+		}
+	}
+
+	void VulkanSwapChain::CreateFramebuffers()
+	{
+		m_SwapChainFramebuffers.resize(m_SwapChainImageViews.size());
+
+		for (size_t i = 0; i < m_SwapChainImageViews.size(); i++)
+		{
+			const VkImageView attachments[] = {
+				m_SwapChainImageViews[i]
+			};
+
+			VkFramebufferCreateInfo framebufferInfo{};
+			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			framebufferInfo.renderPass = m_RenderPass->GetVkRenderPass();
+			// you can only use a framebuffer with the compatible render pass
+
+			framebufferInfo.attachmentCount = 1;
+			framebufferInfo.pAttachments = attachments; // binds it to the pAttachment of the render pass
+			framebufferInfo.width = m_SwapChainExtent.width;
+			framebufferInfo.height = m_SwapChainExtent.height;
+			framebufferInfo.layers = 1;
+
+			const VkResult result = vkCreateFramebuffer(m_Device, &framebufferInfo, nullptr,
+			                                            &m_SwapChainFramebuffers[i]);
+			SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to create framebuffer!");
 		}
 	}
 }

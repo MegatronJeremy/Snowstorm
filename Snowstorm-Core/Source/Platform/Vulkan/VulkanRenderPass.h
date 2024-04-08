@@ -15,6 +15,11 @@ namespace Snowstorm
 
 		~VulkanRenderPass();
 
+		VkRenderPass GetVkRenderPass() const
+		{
+			return m_RenderPass;
+		}
+
 	private:
 		VkDevice m_Device = VK_NULL_HANDLE;
 		VkRenderPass m_RenderPass = VK_NULL_HANDLE;

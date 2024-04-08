@@ -32,7 +32,13 @@ namespace Snowstorm
 		                                                &m_Surface);
 		SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to create window m_Surface!")
 
-		m_VulkanDevice = CreateScope<VulkanDevice>(m_Surface);
+		m_VulkanDevice = CreateRef<VulkanDevice>(m_Surface);
+
+		m_VulkanCommandPool = CreateRef<VulkanCommandPool>(m_VulkanDevice->GetVkDevice(),
+		                                                   m_VulkanDevice->GetVkPhysicalDevice(), m_Surface);
+
+		VulkanInstance::GetInstance()->SetVulkanDevice(m_VulkanDevice);
+		VulkanInstance::GetInstance()->SetVulkanCommandPool(m_VulkanCommandPool);
 
 		// TODO create swap-chain here?
 	}

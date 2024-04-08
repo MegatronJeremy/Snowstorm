@@ -86,6 +86,9 @@ namespace Snowstorm
 
 		// setup debug messenger after creating the m_Instance
 		SetupDebugMessenger();
+
+		// setup command pool
+		m_CommandPool = CreateScope<VulkanCommandPool>(m_Device, );
 	}
 
 	bool VulkanInstance::CheckValidationLayerSupport() const
@@ -140,7 +143,7 @@ namespace Snowstorm
 	{
 		if (m_EnabledValidationLayers)
 		{
-			m_DebugMessenger = CreateScope<VulkanDebugMessenger>(m_VkInstance);
+			m_VulkanDebugMessenger = CreateScope<VulkanDebugMessenger>(m_VkInstance);
 		}
 	}
 }

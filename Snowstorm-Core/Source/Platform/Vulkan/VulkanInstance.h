@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan_core.h>
 
+#include "VulkanCommandPool.h"
 #include "VulkanDebugMessenger.h"
 
 namespace Snowstorm
@@ -35,6 +36,28 @@ namespace Snowstorm
 			return m_ValidationLayers;
 		}
 
+		Ref<VulkanDevice> GetVulkanDevice() const
+		{
+			SS_CORE_ASSERT(m_VulkanDevice != nullptr, "Vulkan device not registered to Vulkan instance!");
+			return m_VulkanDevice;
+		}
+
+		void SetVulkanDevice(const Ref<VulkanDevice>& vulkanDevice)
+		{
+			m_VulkanDevice = vulkanDevice;
+		}
+
+		Ref<VulkanCommandPool> GetVulkanCommandPool() const
+		{
+			SS_CORE_ASSERT(m_VulkanCommandPool != nullptr, "Vulkan command pool not registered to Vulkan instance!");
+			return m_VulkanCommandPool;
+		}
+
+		void SetVulkanCommandPool(const Ref<VulkanCommandPool>& vulkanCommandPool)
+		{
+			m_VulkanCommandPool = vulkanCommandPool;
+		}
+
 	private:
 		VulkanInstance();
 
@@ -54,6 +77,10 @@ namespace Snowstorm
 
 		bool m_EnabledValidationLayers = SS_DEBUG;
 
-		Scope<VulkanDebugMessenger> m_DebugMessenger = nullptr;
+		Scope<VulkanDebugMessenger> m_VulkanDebugMessenger = nullptr;
+
+		Ref<VulkanDevice> m_VulkanDevice = nullptr;
+
+		Ref<VulkanCommandPool> m_VulkanCommandPool = nullptr;
 	};
 }

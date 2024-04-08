@@ -1,6 +1,5 @@
 #pragma once
 #include "VulkanInstance.h"
-#include "VulkanQueueFamilyIndices.h"
 
 namespace Snowstorm
 {
@@ -15,6 +14,26 @@ namespace Snowstorm
 		VulkanDevice& operator=(VulkanDevice&& other) = delete;
 
 		~VulkanDevice();
+
+		VkPhysicalDevice GetVkPhysicalDevice() const
+		{
+			return m_VkPhysicalDevice;
+		}
+
+		VkDevice GetVkDevice() const
+		{
+			return m_VkDevice;
+		}
+
+		VkQueue GetVkGraphicsQueue() const
+		{
+			return m_GraphicsQueue;
+		}
+
+		VkQueue GetVkPresentQueue() const
+		{
+			return m_PresentQueue;
+		}
 
 	private:
 		void PickPhysicalDevice();

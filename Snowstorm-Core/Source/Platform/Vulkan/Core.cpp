@@ -18,7 +18,7 @@
 #include <set>
 #include <vector>
 
-#include "Platform/OpenGL/OpenGLQueueFamilyIndices.h"
+#include "Platform/Vulkan/VulkanQueueFamilyIndices.h"
 #include "Snowstorm/Renderer/Buffer.h"
 
 namespace Snowstorm
@@ -35,7 +35,7 @@ namespace Snowstorm
 		glfwInit();
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL window", nullptr, nullptr);
+		GLFWwindow* window = glfwCreateWindow(800, 600, "Vulkan window", nullptr, nullptr);
 
 		uint32_t extensionCount = 0;
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -250,9 +250,9 @@ namespace Snowstorm
 
 
 		// -----------------------------------DEVICE PICKER--------------------------------------
-		OpenGLQueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice device)
+		VulkanQueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice device)
 		{
-			OpenGLQueueFamilyIndices indices;
+			VulkanQueueFamilyIndices indices;
 
 			uint32_t queueFamilyCount = 0;
 			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
@@ -326,7 +326,7 @@ namespace Snowstorm
 			// Maximum possible size of textures affects graphics quality
 			score += static_cast<int>(deviceProperties.limits.maxImageDimension2D);
 
-			const OpenGLQueueFamilyIndices indices = FindQueueFamilies(device);
+			const VulkanQueueFamilyIndices indices = FindQueueFamilies(device);
 
 			const bool extensionsSupported = CheckDeviceExtensionSupport(device);
 
@@ -612,7 +612,7 @@ namespace Snowstorm
 			// TODO do not use vkAllocateMemory for every individual buffer
 			// TODO max number of simultaneous memory allocations may be as low as 4096
 			// TODO create a custom allocator that splits up a single allocation among different objects by using the offset param
-			// TODO see: https://github.com/GPUOpen-LibrariesAndSDKs/OpenGLMemoryAllocator
+			// TODO see: https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
 			// TODO from: https://vulkan-tutorial.com/en/Vertex_buffers/Staging_buffer
 			if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
 			{
@@ -680,7 +680,7 @@ namespace Snowstorm
 	void HelloTriangleApplication::Run() 
 	{
 		InitWindow();
-		InitOpenGL();
+		InitVulkan();
 		MainLoop();
 		Cleanup();
 	}
@@ -701,15 +701,15 @@ namespace Snowstorm
 	{
 		glfwInit();
 
-		// force it to not use OpenGL (default)
+		// force it to not use Vulkan (default)
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 		// set the window to not be resizable - optional
 		// glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		// fourth param: optional monitor
-		// fifth param: relevant to OpenGL only
-		window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), "OpenGL", nullptr, nullptr);
+		// fifth param: relevant to Vulkan only
+		window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), "Vulkan", nullptr, nullptr);
 		glfwSetWindowUserPointer(window, this);
 		glfwSetFramebufferSizeCallback(window, FramebufferResizeCallback);
 	}
@@ -732,7 +732,7 @@ namespace Snowstorm
 		appInfo.apiVersion = VK_API_VERSION_1_0;
 		// appInfo.pNext -> points to an extension in the future
 
-		// this tells the OpenGL driver which global extensions and validation layers to use
+		// this tells the Vulkan driver which global extensions and validation layers to use
 		VkInstanceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		createInfo.pApplicationInfo = &appInfo;
@@ -783,7 +783,7 @@ namespace Snowstorm
 			createInfo.pNext = nullptr;
 		}
 
-		// common pattern in OpenGL:
+		// common pattern in Vulkan:
 		// 1. Pointer to struct with creation info
 		// 2. Pointer to custom allocator callbacks
 		// 3. Pointer to the variable that stores the handle to the new object
@@ -796,7 +796,7 @@ namespace Snowstorm
 		}
 	}
 
-	void HelloTriangleApplication::InitOpenGL() const
+	void HelloTriangleApplication::InitVulkan() const
 	{
 		CreateInstance();
 		SetupDebugMessenger();
@@ -822,7 +822,7 @@ namespace Snowstorm
 
 		if (deviceCount == 0)
 		{
-			throw std::runtime_error("failed to find GPUs with OpenGL support!");
+			throw std::runtime_error("failed to find GPUs with Vulkan support!");
 		}
 
 		std::multimap<int, VkPhysicalDevice> candidates;
@@ -855,7 +855,7 @@ namespace Snowstorm
 		VkDebugUtilsMessengerCreateInfoEXT createInfo;
 		PopulateDebugMessengerCreateInfo(createInfo);
 
-		// this is only for our specific OpenGL instance and its layers
+		// this is only for our specific Vulkan instance and its layers
 		const VkResult result = CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger);
 
 		SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to set up debug messenger!")
@@ -873,7 +873,7 @@ namespace Snowstorm
 
 	void HelloTriangleApplication::CreateLogicalDevice() const
 	{
-		const OpenGLQueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
+		const VulkanQueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
@@ -977,7 +977,7 @@ namespace Snowstorm
 
 		// Next specify how to handle swap chain images used across multiple queue families
 		// This is the case when the graphics queue family is different from the presentation queue
-		const OpenGLQueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
+		const VulkanQueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
 
 		const uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
@@ -1011,7 +1011,7 @@ namespace Snowstorm
 		createInfo.presentMode = presentMode;
 		createInfo.clipped = VK_TRUE;
 
-		// old swap chain -> with OpenGL it is possible that another swap chain becomes invalid/unoptimized (if the window is resized)
+		// old swap chain -> with Vulkan it is possible that another swap chain becomes invalid/unoptimized (if the window is resized)
 		// in this case, the swap chain needs to be recreated from scratch!
 		// TODO we will do this in the future, for now, only assume one swap chain
 		createInfo.oldSwapchain = VK_NULL_HANDLE;
@@ -1321,7 +1321,7 @@ namespace Snowstorm
 		pipelineInfo.pColorBlendState = &colorBlending;
 		pipelineInfo.pDynamicState = &dynamicState;
 
-		// reference the pipeline layout - OpenGL handle
+		// reference the pipeline layout - Vulkan handle
 		pipelineInfo.layout = pipelineLayout;
 
 		// reference to the render pass and the index of the subpass where this pipeline is used
@@ -1378,7 +1378,7 @@ namespace Snowstorm
 
 	void HelloTriangleApplication::CreateCommandPool()
 	{
-		const OpenGLQueueFamilyIndices queueFamilyIndices = FindQueueFamilies(physicalDevice);
+		const VulkanQueueFamilyIndices queueFamilyIndices = FindQueueFamilies(physicalDevice);
 
 		VkCommandPoolCreateInfo poolInfo{};
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;

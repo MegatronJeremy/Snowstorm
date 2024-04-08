@@ -1,6 +1,8 @@
 #pragma once
 #include <vulkan/vulkan_core.h>
 
+#include "VulkanGraphicsPipeline.h"
+#include "VulkanRenderPass.h"
 #include "Platform/Windows/WindowsWindow.h"
 
 namespace Snowstorm
@@ -34,8 +36,9 @@ namespace Snowstorm
 
 		static VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window);
 
-
 		void CreateImageViews();
+
+		void CreateFramebuffers();
 
 	private:
 		VkDevice m_Device = VK_NULL_HANDLE;
@@ -48,5 +51,13 @@ namespace Snowstorm
 
 		// creates a view for every image so we can use them as color targets
 		std::vector<VkImageView> m_SwapChainImageViews;
+
+		// we create a framebuffer for all of the images in the swap chain and use the one
+		// that corresponds to the retrieved image at drawing time
+		std::vector<VkFramebuffer> m_SwapChainFramebuffers;
+
+		Scope<VulkanRenderPass> m_RenderPass;
+
+		Scope<VulkanGraphicsPipeline> m_GraphicsPipeline;
 	};
 }

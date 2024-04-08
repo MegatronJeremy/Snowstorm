@@ -1,5 +1,6 @@
 #pragma once
 
+#include "VulkanDevice.h"
 #include "Snowstorm/Renderer/Buffer.h"
 
 namespace Snowstorm
@@ -26,14 +27,18 @@ namespace Snowstorm
 		void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
 
 	private:
-		uint32_t m_RendererID;
+		VkDevice m_Device = VK_NULL_HANDLE;
+
+		VkBuffer m_VertexBuffer = VK_NULL_HANDLE;
+		VkDeviceMemory m_VertexBufferMemory = VK_NULL_HANDLE;
+
 		BufferLayout m_Layout;
 	};
 
 	class VulkanIndexBuffer final : public IndexBuffer
 	{
 	public:
-		VulkanIndexBuffer(uint32_t* indices, uint32_t count);
+		VulkanIndexBuffer(const uint32_t* indices, uint32_t count);
 
 		VulkanIndexBuffer(const VulkanIndexBuffer& other) = delete;
 		VulkanIndexBuffer(VulkanIndexBuffer&& other) = delete;
@@ -48,7 +53,11 @@ namespace Snowstorm
 		uint32_t GetCount() const override { return m_Count; }
 
 	private:
-		uint32_t m_RendererID;
+		VkDevice m_Device = VK_NULL_HANDLE;
+
+		VkBuffer m_IndexBuffer = VK_NULL_HANDLE;
+		VkDeviceMemory m_IndexBufferMemory = VK_NULL_HANDLE;
+
 		uint32_t m_Count;
 	};
 }

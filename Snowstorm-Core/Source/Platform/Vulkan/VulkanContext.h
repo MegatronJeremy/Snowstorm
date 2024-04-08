@@ -26,7 +26,9 @@ namespace Snowstorm
 	private:
 		GLFWwindow* m_WindowHandle = VK_NULL_HANDLE;
 
-		Scope<VulkanDevice> m_VulkanDevice;
+		Ref<VulkanDevice> m_VulkanDevice;
+
+		Ref<VulkanCommandPool> m_VulkanCommandPool;
 
 		VkSurfaceKHR m_Surface = VK_NULL_HANDLE; // window m_Surface - tied to the GLFW window
 	};
