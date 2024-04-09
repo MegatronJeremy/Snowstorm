@@ -126,7 +126,6 @@ namespace Snowstorm
 		}
 
 		vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
-		
 	}
 
 	VulkanSwapChainSupportDetails VulkanSwapChain::QuerySwapChainSupport(

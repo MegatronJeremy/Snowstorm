@@ -31,6 +31,9 @@ namespace Snowstorm
 		Ref<VulkanCommandPool> m_VulkanCommandPool;
 
 		VkSurfaceKHR m_Surface = VK_NULL_HANDLE; // window m_Surface - tied to the GLFW window
+
+		std::vector<VulkanCommandBuffer> m_CommandBuffers;
+
 	};
 }
 

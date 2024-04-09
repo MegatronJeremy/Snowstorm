@@ -10,13 +10,13 @@ namespace Snowstorm
 	{
 	public:
 		RendererAPI() = default;
+		virtual ~RendererAPI() = default;
 
 		RendererAPI(const RendererAPI& other) = delete;
 		RendererAPI(RendererAPI&& other) = delete;
 		RendererAPI& operator=(const RendererAPI& other) = delete;
 		RendererAPI& operator=(RendererAPI&& other) = delete;
 
-		virtual ~RendererAPI() = default;
 
 		enum class API
 		{

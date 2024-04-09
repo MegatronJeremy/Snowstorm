@@ -2,6 +2,7 @@
 #include "OpenGLRendererAPI.h"
 
 #include <glad/glad.h>
+#include <vulkan/vulkan_core.h>
 
 namespace Snowstorm
 {
