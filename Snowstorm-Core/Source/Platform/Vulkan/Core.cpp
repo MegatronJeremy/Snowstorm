@@ -525,6 +525,7 @@ namespace Snowstorm
 			// bind the vertex buffer during rendering operations
 			vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
+			// TODO put these in a global queue and bind only when swapping buffers
 			const VkBuffer vertexBuffers[] = {vertexBuffer};
 			constexpr VkDeviceSize offsets[] = {0}; // offsets to start reading vertex data from
 			// bind vertex buffers to bindings

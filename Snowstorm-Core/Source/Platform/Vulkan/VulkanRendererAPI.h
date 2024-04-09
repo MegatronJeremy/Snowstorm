@@ -14,7 +14,7 @@ namespace Snowstorm
 		void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
 
 		void BeginRenderPass();
-		void EndRenderPass();
+		void EndRenderPass() const;
 
 		void SetClearColor(const glm::vec4& color) override;
 		void Clear() override;

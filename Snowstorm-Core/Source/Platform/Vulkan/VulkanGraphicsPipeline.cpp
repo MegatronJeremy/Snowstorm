@@ -3,6 +3,7 @@
 
 #include <vulkan/vulkan_core.h>
 
+#include "VulkanVertex.h"
 #include "VulkanVertexBuffer.h"
 
 namespace Snowstorm
