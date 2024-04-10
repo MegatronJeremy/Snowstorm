@@ -2,12 +2,35 @@
 
 #include "VulkanSwapChain.h"
 
+#include <queue>
 #include <GLFW/glfw3.h>
 
 #include "VulkanQueueFamilyIndices.h"
 
 namespace Snowstorm
 {
+	namespace
+	{
+		std::queue<VkBuffer> queuedVertexBuffers;
+	}
+
+	void VulkanSwapChainQueue::AddVertexArray(const VulkanVertexArray& vertexArray)
+	{
+		m_VertexArrays.emplace(&vertexArray);
+	}
+
+	const VulkanVertexArray* VulkanSwapChainQueue::GetNextVertexArray()
+	{
+		const VulkanVertexArray* nextVertexArray = nullptr;
+		if (!m_VertexArrays.empty())
+		{
+			nextVertexArray = m_VertexArrays.front();
+			m_VertexArrays.pop();
+		}
+
+		return nextVertexArray;
+	}
+
 	VulkanSwapChain::VulkanSwapChain(const VkPhysicalDevice physicalDevice, const VkDevice device,
 	                                 const VkSurfaceKHR surface,
 	                                 GLFWwindow* window)
@@ -110,7 +133,7 @@ namespace Snowstorm
 		m_RenderPass = CreateScope<VulkanRenderPass>(m_Device, m_SwapChainImageFormat);
 
 		// Create graphics pipeline
-		m_GraphicsPipeline = CreateScope<VulkanGraphicsPipeline>(m_Device, m_RenderPass->GetVkRenderPass());
+		m_GraphicsPipeline = CreateScope<VulkanGraphicsPipeline>(m_Device, *m_RenderPass);
 	}
 
 	VulkanSwapChain::~VulkanSwapChain()
@@ -126,6 +149,110 @@ namespace Snowstorm
 		}
 
 		vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
+	}
+
+	void VulkanSwapChain::RecordCommandBuffer(const VkCommandBuffer commandBuffer, const uint32_t imageIndex) const
+	{
+		// writes the commands from the command buffer to the swap chain image tied to the index 
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = 0; // Optional - not relevant right now
+		beginInfo.pInheritanceInfo = nullptr; // Optional - only relevant for secondary command buffers
+
+		VkResult result = vkBeginCommandBuffer(commandBuffer, &beginInfo);
+		SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to begin recording command buffer!")
+
+		// begin render pass
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = *m_RenderPass;
+		renderPassInfo.framebuffer = m_SwapChainFramebuffers[imageIndex];
+
+		// define the size of the render area - match the size of the attachment
+		renderPassInfo.renderArea.offset = {0, 0};
+		renderPassInfo.renderArea.extent = m_SwapChainExtent;
+
+		// clear values to use for VK_ATTACHMENT_LOAD_OP_CLEAR
+		constexpr VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+		renderPassInfo.clearValueCount = 1;
+		renderPassInfo.pClearValues = &clearColor;
+
+		// begin the render pass
+		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		// inline - embedded in the primary command buffer itself, with no secondary command buffers 
+
+		// bind the graphics pipeline
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *m_GraphicsPipeline);
+
+		// viewport and scissor states are dynamic - set them here
+		// viewport - the region of the framebuffer that the output will be rendered to
+		// always (0, 0) to (width, height)
+		// here we define the transformation from the image to the framebuffer
+		VkViewport viewport{};
+		viewport.x = 0.0f;
+		viewport.y = 0.0f;
+		viewport.width = static_cast<float>(m_SwapChainExtent.width);
+		viewport.height = static_cast<float>(m_SwapChainExtent.height);
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f; // range of depth values used for the framebuffer
+		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+		// next define the scissor rectangle -> basically works like a filter
+		VkRect2D scissor{};
+		scissor.offset = {0, 0}; // we want the whole image
+		scissor.extent = m_SwapChainExtent;
+		vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+		// bind the vertex buffer during rendering operations
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *m_GraphicsPipeline);
+
+		// TODO see if this works
+		VulkanSwapChainQueue* swapChainQueue = VulkanSwapChainQueue::GetInstance();
+
+		const VulkanVertexArray* vertexArray = swapChainQueue->GetNextVertexArray();
+		while (vertexArray != nullptr)
+		{
+			std::vector<VkBuffer> vertexBuffers;
+
+			vertexBuffers.reserve(vertexArray->GetVertexBuffers().size());
+			for (auto& vertexBuffer : vertexArray->GetVertexBuffers())
+			{
+				vertexBuffers.push_back(reinterpret_cast<VkBuffer>(vertexBuffer->GetHandle()));
+			}
+
+			constexpr VkDeviceSize offsets[] = {0}; // offsets to start reading vertex data from
+			// bind vertex buffers to bindings
+			vkCmdBindVertexBuffers(commandBuffer, 0, vertexBuffers.size(), vertexBuffers.data(), offsets);
+
+			// we have to bind the index buffer as well
+			vkCmdBindIndexBuffer(commandBuffer, reinterpret_cast<VkBuffer>(vertexArray->GetIndexBuffer()->GetHandle()),
+			                     0,
+			                     VK_INDEX_TYPE_UINT16);
+			// You can only have a SINGLE index buffer! not possible to use different indices for each vertex attribute
+
+			// finally, issue the draw command
+			// vkCmdDraw(commandBuffer, vertices.size(), 1, 0, 0);
+
+			// change the drawing command to drawIndexed to utilize the index buffer
+			vkCmdDrawIndexed(commandBuffer, vertexArray->GetIndexBuffer()->GetCount(), 1, 0, 0, 0);
+			// first index - offset in the index buffer
+			// 1 instance - we are not using instancing
+			// TODO allocate multiple resources like buffers from a single memory allocation
+			// TODO and store multiple buffers into a single VkBuffer and use offsets in commands like vkCmdBindVertexBuffers
+			// TODO the data is more cache friendly this way! (this is known as aliasing)
+
+			// firstVertex: lowest value of gl_VertexIndex
+			// firstInstance: offset for instanced rendering, lowest value of gl_InstanceIndex
+
+			// get next vertex array
+			const VulkanVertexArray* vertexArray = swapChainQueue->GetNextVertexArray();
+		}
+
+		// end the render pass and finish recording the command buffer
+		vkCmdEndRenderPass(commandBuffer);
+
+		result = vkEndCommandBuffer(commandBuffer);
+		SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to record command buffer!");
 	}
 
 	VulkanSwapChainSupportDetails VulkanSwapChain::QuerySwapChainSupport(
@@ -267,7 +394,7 @@ namespace Snowstorm
 
 			VkFramebufferCreateInfo framebufferInfo{};
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = m_RenderPass->GetVkRenderPass();
+			framebufferInfo.renderPass = *m_RenderPass;
 			// you can only use a framebuffer with the compatible render pass
 
 			framebufferInfo.attachmentCount = 1;

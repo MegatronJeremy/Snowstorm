@@ -7,6 +7,11 @@
 
 namespace Snowstorm
 {
+	uint64_t VertexBuffer::GetHandle() const
+	{
+		return 0;
+	}
+
 	Ref<VertexBuffer> VertexBuffer::Create(uint32_t size)
 	{
 		switch (Renderer::GetAPI())
@@ -35,6 +40,11 @@ namespace Snowstorm
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");
 		return nullptr;
+	}
+
+	uint64_t IndexBuffer::GetHandle() const
+	{
+		return 0;
 	}
 
 	Ref<IndexBuffer> IndexBuffer::Create(const uint32_t* indices, const uint32_t count)

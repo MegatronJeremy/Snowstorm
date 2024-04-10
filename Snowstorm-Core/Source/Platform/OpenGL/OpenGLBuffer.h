@@ -11,6 +11,11 @@ namespace Snowstorm
 		OpenGLVertexBuffer(const float* vertices, uint32_t size);
 		~OpenGLVertexBuffer() override;
 
+		OpenGLVertexBuffer(const OpenGLVertexBuffer& other) = delete;
+		OpenGLVertexBuffer(OpenGLVertexBuffer&& other) = delete;
+		OpenGLVertexBuffer& operator=(const OpenGLVertexBuffer& other) = delete;
+		OpenGLVertexBuffer& operator=(OpenGLVertexBuffer&& other) = delete;
+
 		void SetData(const void* data, uint32_t size) override;
 
 		void Bind() const override;
@@ -29,6 +34,11 @@ namespace Snowstorm
 	public:
 		OpenGLIndexBuffer(const uint32_t* indices, uint32_t count);
 		~OpenGLIndexBuffer() override;
+
+		OpenGLIndexBuffer(const OpenGLIndexBuffer& other) = delete;
+		OpenGLIndexBuffer(OpenGLIndexBuffer&& other) = delete;
+		OpenGLIndexBuffer& operator=(const OpenGLIndexBuffer& other) = delete;
+		OpenGLIndexBuffer& operator=(OpenGLIndexBuffer&& other) = delete;
 
 		void Bind() const override;
 		void Unbind() const override;

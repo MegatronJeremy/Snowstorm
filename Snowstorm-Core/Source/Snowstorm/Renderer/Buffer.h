@@ -118,7 +118,13 @@ namespace Snowstorm
 	class VertexBuffer
 	{
 	public:
+		VertexBuffer() = default;
 		virtual ~VertexBuffer() = default;
+
+		VertexBuffer(const VertexBuffer& other) = delete;
+		VertexBuffer(VertexBuffer&& other) = delete;
+		VertexBuffer& operator=(const VertexBuffer& other) = delete;
+		VertexBuffer& operator=(VertexBuffer&& other) = delete;
 
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
@@ -128,6 +134,8 @@ namespace Snowstorm
 		virtual const BufferLayout& GetLayout() const = 0;
 		virtual void SetLayout(const BufferLayout& layout) = 0;
 
+		virtual uint64_t GetHandle() const;
+
 		static Ref<VertexBuffer> Create(uint32_t size);
 		static Ref<VertexBuffer> Create(const float* vertices, uint32_t size);
 	};
@@ -136,12 +144,20 @@ namespace Snowstorm
 	class IndexBuffer
 	{
 	public:
+		IndexBuffer() = default;
 		virtual ~IndexBuffer() = default;
+
+		IndexBuffer(const IndexBuffer& other) = delete;
+		IndexBuffer(IndexBuffer&& other) = delete;
+		IndexBuffer& operator=(const IndexBuffer& other) = delete;
+		IndexBuffer& operator=(IndexBuffer&& other) = delete;
 
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
 
 		virtual uint32_t GetCount() const = 0;
+
+		virtual uint64_t GetHandle() const;
 
 		static Ref<IndexBuffer> Create(const uint32_t* indices, uint32_t count);
 	};

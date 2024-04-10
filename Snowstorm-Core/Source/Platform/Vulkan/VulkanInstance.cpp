@@ -6,8 +6,6 @@
 
 namespace Snowstorm
 {
-	VulkanInstance* VulkanInstance::m_Instance = nullptr;
-
 	VulkanInstance::VulkanInstance()
 	{
 		SS_PROFILE_FUNCTION();
@@ -86,9 +84,6 @@ namespace Snowstorm
 
 		// setup debug messenger after creating the m_Instance
 		SetupDebugMessenger();
-
-		// setup command pool
-		m_CommandPool = CreateScope<VulkanCommandPool>(m_Device, );
 	}
 
 	bool VulkanInstance::CheckValidationLayerSupport() const

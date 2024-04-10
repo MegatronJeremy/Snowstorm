@@ -14,8 +14,7 @@ namespace Snowstorm
 		VulkanSemaphore& operator=(const VulkanSemaphore& other) = delete;
 		VulkanSemaphore& operator=(VulkanSemaphore&& other) = delete;
 
-		void Wait();
-		void Signal();
+		operator VkSemaphore() const;
 
 	private:
 		VkDevice m_Device;
@@ -33,6 +32,8 @@ namespace Snowstorm
 		VulkanFence(VulkanFence&& other) = delete;
 		VulkanFence& operator=(const VulkanFence& other) = delete;
 		VulkanFence& operator=(VulkanFence&& other) = delete;
+
+		operator VkFence() const;
 
 		void Wait() const;
 		void Reset() const;

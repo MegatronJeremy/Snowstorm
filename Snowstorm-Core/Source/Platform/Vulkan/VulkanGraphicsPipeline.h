@@ -7,13 +7,17 @@ namespace Snowstorm
 	{
 	public:
 		explicit VulkanGraphicsPipeline(VkDevice device, VkRenderPass renderPass);
+		~VulkanGraphicsPipeline();
 
 		VulkanGraphicsPipeline(const VulkanGraphicsPipeline& other) = delete;
 		VulkanGraphicsPipeline(VulkanGraphicsPipeline&& other) = delete;
 		VulkanGraphicsPipeline& operator=(const VulkanGraphicsPipeline& other) = delete;
 		VulkanGraphicsPipeline& operator=(VulkanGraphicsPipeline&& other) = delete;
 
-		~VulkanGraphicsPipeline();
+		operator VkPipeline() const
+		{
+			return m_GraphicsPipeline;
+		}
 
 	private:
 		VkDevice m_Device;

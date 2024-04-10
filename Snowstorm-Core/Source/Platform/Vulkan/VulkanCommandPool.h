@@ -15,7 +15,7 @@ namespace Snowstorm
 
 		~VulkanCommandPool();
 
-		VkCommandPool GetVkCommandPool() const
+		operator VkCommandPool() const
 		{
 			return m_CommandPool;
 		}

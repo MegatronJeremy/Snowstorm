@@ -67,7 +67,7 @@ namespace Snowstorm
 		void SetupDebugMessenger();
 
 	private:
-		static VulkanInstance* m_Instance;
+		static inline VulkanInstance* m_Instance = nullptr;
 
 		VkInstance m_VkInstance = nullptr;
 

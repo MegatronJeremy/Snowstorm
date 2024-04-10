@@ -1,8 +1,10 @@
 #pragma once
+#include <queue>
 #include <vulkan/vulkan_core.h>
 
 #include "VulkanGraphicsPipeline.h"
 #include "VulkanRenderPass.h"
+#include "VulkanVertexArray.h"
 #include "Platform/Windows/WindowsWindow.h"
 
 namespace Snowstorm
@@ -14,18 +16,50 @@ namespace Snowstorm
 		std::vector<VkPresentModeKHR> presentModes;
 	};
 
+	class VulkanSwapChainQueue
+	{
+	public:
+		static VulkanSwapChainQueue* GetInstance()
+		{
+			if (m_Instance == nullptr)
+			{
+				m_Instance = new VulkanSwapChainQueue;
+			}
+			return m_Instance;
+		}
+
+		void AddVertexArray(const VulkanVertexArray& vertexArray);
+
+		const VulkanVertexArray* GetNextVertexArray();
+
+	private:
+		VulkanSwapChainQueue() = default;
+
+	private:
+		static inline VulkanSwapChainQueue* m_Instance = nullptr;
+
+		std::queue<const VulkanVertexArray*> m_VertexArrays;
+	};
+
 	class VulkanSwapChain
 	{
 	public:
 		explicit VulkanSwapChain(VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface,
 		                         GLFWwindow* window);
+		~VulkanSwapChain();
 
 		VulkanSwapChain(const VulkanSwapChain& other) = delete;
 		VulkanSwapChain(VulkanSwapChain&& other) = delete;
 		VulkanSwapChain& operator=(const VulkanSwapChain& other) = delete;
 		VulkanSwapChain& operator=(VulkanSwapChain&& other) = delete;
 
-		~VulkanSwapChain();
+		operator VkSwapchainKHR() const
+		{
+			return m_SwapChain;
+		}
+
+		void RecordCommandBuffer(const VkCommandBuffer commandBuffer, const uint32_t imageIndex) const;
+
 
 		static VulkanSwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 

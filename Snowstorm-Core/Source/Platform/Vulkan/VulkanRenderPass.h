@@ -7,15 +7,14 @@ namespace Snowstorm
 	{
 	public:
 		VulkanRenderPass(VkDevice device, VkFormat swapChainImageFormat);
+		~VulkanRenderPass();
 
 		VulkanRenderPass(const VulkanRenderPass& other) = delete;
 		VulkanRenderPass(VulkanRenderPass&& other) = delete;
 		VulkanRenderPass& operator=(const VulkanRenderPass& other) = delete;
 		VulkanRenderPass& operator=(VulkanRenderPass&& other) = delete;
 
-		~VulkanRenderPass();
-
-		VkRenderPass GetVkRenderPass() const
+		operator VkRenderPass() const
 		{
 			return m_RenderPass;
 		}

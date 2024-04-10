@@ -17,12 +17,12 @@ namespace Snowstorm
 		RendererAPI& operator=(const RendererAPI& other) = delete;
 		RendererAPI& operator=(RendererAPI&& other) = delete;
 
-
 		enum class API
 		{
 			None = 0,
 			// For headless execution
-			OpenGL = 1
+			OpenGL = 1,
+			Vulkan = 2
 		};
 
 	public:
@@ -37,6 +37,6 @@ namespace Snowstorm
 		static API GetAPI() { return s_API; }
 
 	private:
-		inline static API s_API = API::OpenGL;
+		inline static API s_API = API::Vulkan;
 	};
 }

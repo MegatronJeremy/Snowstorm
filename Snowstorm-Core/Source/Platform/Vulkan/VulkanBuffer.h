@@ -10,13 +10,17 @@ namespace Snowstorm
 	public:
 		explicit VulkanVertexBuffer(uint32_t size);
 		VulkanVertexBuffer(const float* vertices, uint32_t size);
+		~VulkanVertexBuffer() override;
 
 		VulkanVertexBuffer(const VulkanVertexBuffer& other) = delete;
 		VulkanVertexBuffer(VulkanVertexBuffer&& other) = delete;
 		VulkanVertexBuffer& operator=(const VulkanVertexBuffer& other) = delete;
 		VulkanVertexBuffer& operator=(VulkanVertexBuffer&& other) = delete;
 
-		~VulkanVertexBuffer() override;
+		operator VkBuffer() const
+		{
+			return m_VertexBuffer;
+		}
 
 		void Bind() const override;
 		void Unbind() const override;
@@ -25,6 +29,11 @@ namespace Snowstorm
 
 		const BufferLayout& GetLayout() const override { return m_Layout; }
 		void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
+
+		uint64_t GetHandle() const override
+		{
+			return reinterpret_cast<uint64_t>(m_VertexBuffer);
+		}
 
 	private:
 		VkDevice m_Device = VK_NULL_HANDLE;
@@ -39,18 +48,27 @@ namespace Snowstorm
 	{
 	public:
 		VulkanIndexBuffer(const uint32_t* indices, uint32_t count);
+		~VulkanIndexBuffer() override;
 
 		VulkanIndexBuffer(const VulkanIndexBuffer& other) = delete;
 		VulkanIndexBuffer(VulkanIndexBuffer&& other) = delete;
 		VulkanIndexBuffer& operator=(const VulkanIndexBuffer& other) = delete;
 		VulkanIndexBuffer& operator=(VulkanIndexBuffer&& other) = delete;
 
-		~VulkanIndexBuffer() override;
+		operator VkBuffer() const
+		{
+			return m_IndexBuffer;
+		}
 
 		void Bind() const override;
 		void Unbind() const override;
 
 		uint32_t GetCount() const override { return m_Count; }
+
+		uint64_t GetHandle() const override
+		{
+			return reinterpret_cast<uint64_t>(m_IndexBuffer);
+		}
 
 	private:
 		VkDevice m_Device = VK_NULL_HANDLE;

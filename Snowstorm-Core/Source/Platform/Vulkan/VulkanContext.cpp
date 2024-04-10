@@ -7,8 +7,6 @@
 
 namespace Snowstorm
 {
-#define MAX_FRAMES_IN_FLIGHT 2
-
 	VulkanContext::VulkanContext(GLFWwindow* windowHandle)
 		: m_WindowHandle(windowHandle)
 	{
@@ -34,12 +32,10 @@ namespace Snowstorm
 
 		m_VulkanDevice = CreateRef<VulkanDevice>(m_Surface);
 		m_Device = m_VulkanDevice->GetVkDevice();
-
-		m_VulkanCommandPool = CreateRef<VulkanCommandPool>(m_VulkanDevice->GetVkDevice(),
-		                                                   m_VulkanDevice->GetVkPhysicalDevice(), m_Surface);
+		m_PhysicalDevice = m_VulkanDevice->GetVkPhysicalDevice();
 
 		VulkanInstance::GetInstance()->SetVulkanDevice(m_VulkanDevice);
-		VulkanInstance::GetInstance()->SetVulkanCommandPool(m_VulkanCommandPool);
+		VulkanInstance::GetInstance()->SetVulkanCommandPool(m_CommandPool);
 
 		VkPhysicalDeviceProperties deviceProperties;
 		vkGetPhysicalDeviceProperties(VulkanInstance::GetInstance()->GetVulkanDevice()->GetVkPhysicalDevice(),
@@ -63,11 +59,23 @@ namespace Snowstorm
 		SS_CORE_ASSERT(deviceMajor < requiredMajor || (deviceMajor == requiredMajor && deviceMinor < requiredMinor),
 		               "Snowstorm requires at least Vulkan version 1.1!");
 #endif
-		// Create sync objects
-		m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-		m_InFlightSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 
-		// TODO create swap-chain here?
+		// Assign queues
+		m_GraphicsQueue = m_VulkanDevice->GetVkGraphicsQueue();
+		m_PresentQueue = m_VulkanDevice->GetVkPresentQueue();
+
+		// Create swap chain
+		m_SwapChain = CreateScope<VulkanSwapChain>(m_Device, m_PhysicalDevice, m_Surface, m_WindowHandle);
+
+		m_CommandPool = CreateRef<VulkanCommandPool>(m_Device, m_PhysicalDevice, m_Surface);
+
+		m_CommandBuffers = CreateScope<VulkanCommandBuffers>(m_Device, static_cast<VkCommandPool>(*m_CommandPool),
+		                                                     MAX_FRAMES_IN_FLIGHT);
+
+		// Create sync objects
+		m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+		m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 	}
 
 	void VulkanContext::SwapBuffers()
@@ -78,8 +86,8 @@ namespace Snowstorm
 		m_InFlightFences[m_CurrentFrame].Wait();
 
 		uint32_t imageIndex;
-		VkResult result = vkAcquireNextImageKHR(m_Device, swapChain, UINT64_MAX,
-		                                        imageAvailableSemaphores[currentFrame],
+		VkResult result = vkAcquireNextImageKHR(m_Device, *m_SwapChain, UINT64_MAX,
+		                                        m_ImageAvailableSemaphores[m_CurrentFrame],
 		                                        VK_NULL_HANDLE,
 		                                        &imageIndex);
 
@@ -91,41 +99,40 @@ namespace Snowstorm
 			// recreate the swap chain and try drawing again in the next frame
 			return;
 		}
-		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
-		{
-			throw std::runtime_error("failed to acquire swap chain image!");
-		}
+
+		SS_CORE_ASSERT(result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR,
+		               "Failed to acquire swap chain image!");
 
 		// Only reset the fence if we are submitting work
-		m_InFlightFences[m_CurrentFrame].Reset();
+		m_InFlightFences[m_CurrentFrame].Reset(); // manually reset
 
 		// record the command buffer
-		vkResetCommandBuffer(commandBuffers[currentFrame], 0);
+		const VkCommandBuffer commandBuffer = (*m_CommandBuffers)[m_CurrentFrame];
+		vkResetCommandBuffer(commandBuffer, 0);
 		// call this explicitly first to make sure it can be recorded to
-		RecordCommandBuffer(commandBuffers[currentFrame], imageIndex);
+		m_SwapChain->RecordCommandBuffer((*m_CommandBuffers)[m_CurrentFrame], imageIndex);
 
-		// submit the the command buffer
+		// submit the the m_Command buffer
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-		const VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+		const VkSemaphore waitSemaphores[] = {m_ImageAvailableSemaphores[m_CurrentFrame]};
 		constexpr VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 		submitInfo.waitSemaphoreCount = 1;
 		submitInfo.pWaitSemaphores = waitSemaphores; // we want to wait until the image is available to start writing
 		submitInfo.pWaitDstStageMask = waitStages;
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
+		submitInfo.pCommandBuffers = &commandBuffer;
 
-		const VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
+		const VkSemaphore signalSemaphores[] = {m_RenderFinishedSemaphores[m_CurrentFrame]};
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
 		// submit the command buffer to the graphics queue
-		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to submit draw command buffer!");
-		}
-		// the CPU will wait for the command buffer to finish executing before recording new commands into it
+		result = vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
+		SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to submit draw command buffer!");
+
+		// the CPU will wait for the m_Command buffer to finish executing before recording new commands into it
 
 		// last step of drawing the frame - submitting the result back to the swap chain to have it show up on screen
 		VkPresentInfoKHR presentInfo{};
@@ -134,7 +141,7 @@ namespace Snowstorm
 		presentInfo.waitSemaphoreCount = 1;
 		presentInfo.pWaitSemaphores = signalSemaphores;
 
-		const VkSwapchainKHR swapChains[] = {swapChain}; // almost always a single one
+		const VkSwapchainKHR swapChains[] = {*m_SwapChain}; // almost always a single one
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = swapChains;
 		presentInfo.pImageIndices = &imageIndex;
@@ -142,19 +149,19 @@ namespace Snowstorm
 		presentInfo.pResults = nullptr; // Optional - specifying an array of VkResult to check for every swap chain
 
 		// submit a request for presentation
-		result = vkQueuePresentKHR(presentQueue, &presentInfo);
+		result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
 
-		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
+		const bool recreateSwapchainCondition = result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
+			m_FramebufferResized;
+		if (recreateSwapchainCondition)
 		{
 			// same values with the same meaning as above
 			// we want the best possible result here, so we will recreate even if suboptimal
-			framebufferResized = false;
+			m_FramebufferResized = false;
 			RecreateSwapChain();
 		}
-		else if (result != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to present swap chain image!");
-		}
+
+		SS_CORE_ASSERT(recreateSwapchainCondition || result == VK_SUCCESS, "Failed to present swap chain image!");
 
 		// go to the next frame -> while the GPU is rendering we will prepare the next one on the CPU side without waiting
 		m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -174,15 +181,8 @@ namespace Snowstorm
 		// we shouldn't touch resources that may still be in use
 		vkDeviceWaitIdle(m_Device);
 
-		// make sure the old versions of these objects are cleaned up first
-		CleanupSwapChain();
-
-		// we won't recreate the render pass, technically we may need to if moving to a different monitor,
-		// but we won't take this into account
-
-		CreateSwapChain();
-		CreateImageViews();
-		CreateFramebuffers();
+		// Create new swap chain
+		m_SwapChain = CreateScope<VulkanSwapChain>(m_Device, m_PhysicalDevice, m_Surface, m_WindowHandle);
 	}
 
 

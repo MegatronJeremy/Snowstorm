@@ -50,10 +50,8 @@ namespace Snowstorm
 			bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // will only be used from the graphics queue
 			// flags - for sparse buffer memory, we will leave it at 0 for now
 
-			if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
-			{
-				throw std::runtime_error("failed to create vertex buffer!");
-			}
+			VkResult result = vkCreateBuffer(device, &bufferInfo, nullptr, &buffer);
+			SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to create vertex buffer!");
 
 			// allocate the memory on the GPU for the buffer
 			VkMemoryRequirements memRequirements;
@@ -71,7 +69,7 @@ namespace Snowstorm
 			// TODO create a custom allocator that splits up a single allocation among different objects by using the offset param
 			// TODO see: https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
 			// TODO from: https://vulkan-tutorial.com/en/Vertex_buffers/Staging_buffer
-			const VkResult result = vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory);
+			result = vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory);
 			SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to allocate vertex buffer memory!");
 
 			// if everything was successful, we can now associate this memory with the buffer
@@ -85,7 +83,7 @@ namespace Snowstorm
 			// First allocate a temporary command buffer
 			// TODO create a separate command pool for these kinds of short-lived buffers
 			// TODO using VK_COMMAND_POOL_CREATE_TRANSIENT_BIT flag during command pool generation
-			const VkCommandPool commandPool = VulkanInstance::GetInstance()->GetVulkanCommandPool()->GetVkCommandPool();
+			const VkCommandPool commandPool = *VulkanInstance::GetInstance()->GetVulkanCommandPool();
 			const VkQueue graphicsQueue = VulkanInstance::GetInstance()->GetVulkanDevice()->GetVkGraphicsQueue();
 
 			VkCommandBufferAllocateInfo allocInfo{};

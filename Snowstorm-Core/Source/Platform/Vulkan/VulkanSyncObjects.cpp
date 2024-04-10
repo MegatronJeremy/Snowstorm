@@ -19,13 +19,10 @@ namespace Snowstorm
 		vkDestroySemaphore(m_Device, m_Semaphore, nullptr);
 	}
 
-	void VulkanSemaphore::Wait()
-	{
-		vkWaitSemaphores(m_Device, 1, m_Semaphore, VK_TRUE, UINT64_MAX);
-	}
 
-	void VulkanSemaphore::Signal()
+	VulkanSemaphore::operator VkSemaphore_T*() const
 	{
+		return m_Semaphore;
 	}
 
 	VulkanFence::VulkanFence(const VkDevice device, const bool signaled)
@@ -44,6 +41,11 @@ namespace Snowstorm
 	VulkanFence::~VulkanFence()
 	{
 		vkDestroyFence(m_Device, m_Fence, nullptr);
+	}
+
+	VulkanFence::operator VkFence() const
+	{
+		return m_Fence;
 	}
 
 	void VulkanFence::Wait() const
