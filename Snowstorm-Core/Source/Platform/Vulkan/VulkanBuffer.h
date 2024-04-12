@@ -25,7 +25,7 @@ namespace Snowstorm
 		void Bind() const override;
 		void Unbind() const override;
 
-		void SetData(const void* data, uint32_t size) override;
+		void SetData(const void* vertices, uint32_t size) override;
 
 		const BufferLayout& GetLayout() const override { return m_Layout; }
 		void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }

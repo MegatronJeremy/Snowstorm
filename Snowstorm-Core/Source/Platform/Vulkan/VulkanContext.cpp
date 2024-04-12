@@ -95,7 +95,7 @@ namespace Snowstorm
 		{
 			// usually happens after a windows resize - the swap-chain has become incompatible with the surface
 			// suboptimal - the surface properties are no longer matched exactly
-			RecreateSwapChain();
+			m_SwapChain->RecreateSwapChain();
 			// recreate the swap chain and try drawing again in the next frame
 			return;
 		}
@@ -158,7 +158,7 @@ namespace Snowstorm
 			// same values with the same meaning as above
 			// we want the best possible result here, so we will recreate even if suboptimal
 			m_FramebufferResized = false;
-			RecreateSwapChain();
+			m_SwapChain->RecreateSwapChain();
 		}
 
 		SS_CORE_ASSERT(recreateSwapchainCondition || result == VK_SUCCESS, "Failed to present swap chain image!");
@@ -166,24 +166,4 @@ namespace Snowstorm
 		// go to the next frame -> while the GPU is rendering we will prepare the next one on the CPU side without waiting
 		m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
-
-	void VulkanContext::RecreateSwapChain()
-	{
-		int width = 0, height = 0;
-		glfwGetFramebufferSize(m_WindowHandle, &width, &height);
-		while (width == 0 || height == 0)
-		{
-			// if width or height is 0 -> the window is minimized, so do nothing here
-			glfwGetFramebufferSize(m_WindowHandle, &width, &height);
-			glfwWaitEvents();
-		}
-
-		// we shouldn't touch resources that may still be in use
-		vkDeviceWaitIdle(m_Device);
-
-		// Create new swap chain
-		m_SwapChain = CreateScope<VulkanSwapChain>(m_Device, m_PhysicalDevice, m_Surface, m_WindowHandle);
-	}
-
-
 }

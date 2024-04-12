@@ -142,8 +142,8 @@ namespace Snowstorm
 	{
 		SS_PROFILE_FUNCTION();
 
-		const uint32_t dataSize = reinterpret_cast<uint8_t*>(s_Data.QuadVertexBufferPtr)
-			- reinterpret_cast<uint8_t*>(s_Data.QuadVertexBufferBase);
+		const uint32_t dataSize = reinterpret_cast<uint8_t*>(s_Data.QuadVertexBufferPtr) - reinterpret_cast<uint8_t*>(
+			s_Data.QuadVertexBufferBase);
 		s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertexBufferBase, dataSize);
 
 		Flush();

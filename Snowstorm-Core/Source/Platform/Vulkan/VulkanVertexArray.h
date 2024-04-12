@@ -19,7 +19,6 @@ namespace Snowstorm
 
 		void Unbind() const override
 		{
-			
 		}
 
 		void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) override

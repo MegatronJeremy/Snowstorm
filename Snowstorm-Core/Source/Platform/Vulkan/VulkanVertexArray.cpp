@@ -9,13 +9,4 @@ namespace Snowstorm
 	{
 		VulkanSwapChainQueue::GetInstance()->AddVertexArray(*this);
 	}
-
-	std::vector<VkBuffer> VulkanVertexArray::GetVertexBuffers()
-	{
-	}
-
-	VkBuffer VulkanVertexArray::GetIndexBuffer()
-	{
-		return *dynamic_cast<VulkanIndexBuffer*>(&*m_IndexBuffer);
-	}
 }

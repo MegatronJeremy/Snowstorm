@@ -58,8 +58,9 @@ namespace Snowstorm
 			return m_SwapChain;
 		}
 
-		void RecordCommandBuffer(const VkCommandBuffer commandBuffer, const uint32_t imageIndex) const;
+		void RecreateSwapChain();
 
+		void RecordCommandBuffer(const VkCommandBuffer commandBuffer, const uint32_t imageIndex) const;
 
 		static VulkanSwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 
@@ -70,12 +71,20 @@ namespace Snowstorm
 
 		static VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window);
 
+		void CleanupSwapChain() const;
+
+		void CreateSwapChain();
+
 		void CreateImageViews();
 
 		void CreateFramebuffers();
 
 	private:
 		VkDevice m_Device = VK_NULL_HANDLE;
+		VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
+		VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
+		GLFWwindow* m_Window = nullptr;
+
 		VkSwapchainKHR m_SwapChain = VK_NULL_HANDLE;
 
 		VkFormat m_SwapChainImageFormat;

@@ -27,10 +27,6 @@ namespace Snowstorm
 		void SwapBuffers() override;
 
 	private:
-		void RecreateSwapChain();
-
-	
-	private:
 		constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
 		GLFWwindow* m_WindowHandle = VK_NULL_HANDLE;

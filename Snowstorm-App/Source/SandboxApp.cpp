@@ -140,9 +140,8 @@ public:
 		m_Texture = Snowstorm::Texture2D::Create("Assets/Textures/Checkerboard.png");
 		m_ChernoLogoTexture = Snowstorm::Texture2D::Create("Assets/Textures/ChernoLogo.png");
 
-		std::dynamic_pointer_cast<Snowstorm::OpenGLShader>(textureShader)->Bind();
-		std::dynamic_pointer_cast<Snowstorm::OpenGLShader>(textureShader)->UploadUniformInt(
-			"u_Texture", 0);
+		textureShader->Bind();
+		textureShader->SetInt("u_Texture", 0);
 	}
 
 	void OnUpdate(const Snowstorm::Timestep ts) override
@@ -160,9 +159,8 @@ public:
 		static bool goingUp = true;
 		const glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 
-		std::dynamic_pointer_cast<Snowstorm::OpenGLShader>(m_FlatColorShader)->Bind();
-		std::dynamic_pointer_cast<Snowstorm::OpenGLShader>(m_FlatColorShader)->UploadUniformFloat3(
-			"u_Color", m_SquareColor);
+		m_FlatColorShader->Bind();
+		m_FlatColorShader->SetFloat3("u_Color", m_SquareColor);
 
 		for (int x = 0; x < 20; x++)
 		{

@@ -146,6 +146,33 @@ namespace Snowstorm
 
 		m_Device = VulkanInstance::GetInstance()->GetVulkanDevice()->GetVkDevice();
 
+		SetData(vertices, size);
+	}
+
+	VulkanVertexBuffer::~VulkanVertexBuffer()
+	{
+		SS_PROFILE_FUNCTION();
+
+		vkDestroyBuffer(m_Device, m_VertexBuffer, nullptr);
+		vkFreeMemory(m_Device, m_VertexBufferMemory, nullptr);
+	}
+
+	void VulkanVertexBuffer::Bind() const
+	{
+		SS_PROFILE_FUNCTION();
+
+		// if everything was successful, we can now associate this memory with the buffer
+	}
+
+	void VulkanVertexBuffer::Unbind() const
+	{
+		SS_PROFILE_FUNCTION();
+	}
+
+	void VulkanVertexBuffer::SetData(const void* vertices, const uint32_t size)
+	{
+		SS_PROFILE_FUNCTION();
+
 		const VkDeviceSize bufferSize = size;
 
 		VkBuffer stagingBuffer;
@@ -178,30 +205,6 @@ namespace Snowstorm
 		// Finally, clean the staging buffer up
 		vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
 		vkFreeMemory(m_Device, stagingBufferMemory, nullptr);
-	}
-
-	VulkanVertexBuffer::~VulkanVertexBuffer()
-	{
-		SS_PROFILE_FUNCTION();
-
-		vkDestroyBuffer(m_Device, m_VertexBuffer, nullptr);
-		vkFreeMemory(m_Device, m_VertexBufferMemory, nullptr);
-	}
-
-	void VulkanVertexBuffer::Bind() const
-	{
-		SS_PROFILE_FUNCTION();
-
-		// if everything was successful, we can now associate this memory with the buffer
-	}
-
-	void VulkanVertexBuffer::Unbind() const
-	{
-		SS_PROFILE_FUNCTION();
-	}
-
-	void VulkanVertexBuffer::SetData(const void* data, uint32_t size)
-	{
 	}
 
 	/////////////////////////////////////////////////////////////////////////////

@@ -9,11 +9,6 @@
 
 namespace Snowstorm
 {
-	namespace
-	{
-		std::queue<VkBuffer> queuedVertexBuffers;
-	}
-
 	void VulkanSwapChainQueue::AddVertexArray(const VulkanVertexArray& vertexArray)
 	{
 		m_VertexArrays.emplace(&vertexArray);
@@ -34,100 +29,13 @@ namespace Snowstorm
 	VulkanSwapChain::VulkanSwapChain(const VkPhysicalDevice physicalDevice, const VkDevice device,
 	                                 const VkSurfaceKHR surface,
 	                                 GLFWwindow* window)
-		: m_Device(device)
+		: m_Device(device), m_PhysicalDevice(physicalDevice), m_Surface(surface), m_Window(window)
 	{
-		const VulkanSwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(physicalDevice, surface);
-
-		const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
-		const VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
-		const VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities, window);
-
-		// recommended to request at least one more image than the minimum -> else we have to wait for internal operations
-		uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
-
-		// also do not exceed the maximum number of images while doing this (0 is a special value - there is no max)
-		if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
-		{
-			imageCount = swapChainSupport.capabilities.maxImageCount;
-		}
-
-		// Now create the actual swap chain
-		VkSwapchainCreateInfoKHR createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-
-		// first specify the surface the swap chain should be tied to
-		createInfo.surface = surface;
-
-		// details of the swap chain images go next
-		createInfo.minImageCount = imageCount;
-		createInfo.imageFormat = surfaceFormat.format;
-		createInfo.imageColorSpace = surfaceFormat.colorSpace;
-		createInfo.imageExtent = extent;
-
-		// amount of layers each image consists of -> always 1 unless with a stereoscopic 3D app
-		createInfo.imageArrayLayers = 1;
-
-		// what kind of operations we'll use the images for -> we render directly to them here
-		// also possible: rendering images to a separate image first, then do post-processing (VK_IMAGE_USAGE_TRANSFER_DST_BIT), then transfer to a swap chain image
-		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-		// Next specify how to handle swap chain images used across multiple queue families
-		// This is the case when the graphics queue family is different from the presentation queue
-		const VulkanQueueFamilyIndices indices = VulkanQueueFamilyIndices::FindQueueFamilies(physicalDevice, surface);
-
-		const uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
-
-		// draw from the graphics queue -> then submit to the presentation queue
-		if (indices.graphicsFamily != indices.presentFamily)
-		{
-			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-			// images can be used concurrently across multiple queue families
-			// TODO we will do ownership transfer later
-
-			createInfo.queueFamilyIndexCount = 2;
-			createInfo.pQueueFamilyIndices = queueFamilyIndices;
-		}
-		else
-		{
-			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-			// best performance - explicit ownership transfer
-
-			createInfo.queueFamilyIndexCount = 0; // Optional
-			createInfo.pQueueFamilyIndices = nullptr; // Optional
-		}
-
-		// if we want to do a pre-transform, like rotating by 90 degrees, etc.
-		createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
-
-		// specifies if the alpha channel should be used for blending with other windows in the window system
-		// we almost always want to ignore this
-		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-
-		// if clipped is VK_TRUE -> we don't care about the color of pixels that are obscured (if another window is in front for example)
-		createInfo.presentMode = presentMode;
-		createInfo.clipped = VK_TRUE;
-
-		// old swap chain -> with Vulkan it is possible that another swap chain becomes invalid/unoptimized (if the window is resized)
-		// in this case, the swap chain needs to be recreated from scratch!
-		// TODO we will do this in the future, for now, only assume one swap chain
-		createInfo.oldSwapchain = VK_NULL_HANDLE;
-
-		if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &m_SwapChain) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to create swap chain!");
-		}
-
-		// we only specified a minimum number of images -> the implementation is allowed to create a swap chain with more
-		vkGetSwapchainImagesKHR(device, m_SwapChain, &imageCount, nullptr);
-		m_SwapChainImages.resize(imageCount);
-		vkGetSwapchainImagesKHR(device, m_SwapChain, &imageCount, m_SwapChainImages.data());
-
-		// store these for later
-		m_SwapChainImageFormat = surfaceFormat.format;
-		m_SwapChainExtent = extent;
+		CreateSwapChain();
 
 		// Create image views
 		CreateImageViews();
+		CreateFramebuffers();
 
 		// Create render pass
 		m_RenderPass = CreateScope<VulkanRenderPass>(m_Device, m_SwapChainImageFormat);
@@ -138,17 +46,31 @@ namespace Snowstorm
 
 	VulkanSwapChain::~VulkanSwapChain()
 	{
-		for (const auto& swapChainFramebuffer : m_SwapChainFramebuffers)
+		CleanupSwapChain();
+	}
+
+	void VulkanSwapChain::RecreateSwapChain()
+	{
+		int width = 0, height = 0;
+		glfwGetFramebufferSize(m_Window, &width, &height);
+		while (width == 0 || height == 0)
 		{
-			vkDestroyFramebuffer(m_Device, swapChainFramebuffer, nullptr);
+			// if width or height is 0 -> the window is minimized, so do nothing here
+			glfwGetFramebufferSize(m_Window, &width, &height);
+			glfwWaitEvents();
 		}
 
-		for (const auto& swapChainImageView : m_SwapChainImageViews)
-		{
-			vkDestroyImageView(m_Device, swapChainImageView, nullptr);
-		}
+		// we shouldn't touch resources that may still be in use
+		vkDeviceWaitIdle(m_Device);
 
-		vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
+		// make sure the old versions of these objects are cleaned up first
+		CleanupSwapChain();
+
+		// we won't recreate the render pass, technically we may need to if moving to a different monitor,
+		// but we won't take this into account
+		CreateSwapChain();
+		CreateImageViews();
+		CreateFramebuffers();
 	}
 
 	void VulkanSwapChain::RecordCommandBuffer(const VkCommandBuffer commandBuffer, const uint32_t imageIndex) const
@@ -245,7 +167,7 @@ namespace Snowstorm
 			// firstInstance: offset for instanced rendering, lowest value of gl_InstanceIndex
 
 			// get next vertex array
-			const VulkanVertexArray* vertexArray = swapChainQueue->GetNextVertexArray();
+			vertexArray = swapChainQueue->GetNextVertexArray();
 		}
 
 		// end the render pass and finish recording the command buffer
@@ -348,6 +270,113 @@ namespace Snowstorm
 		                                 capabilities.maxImageExtent.height);
 
 		return actualExtent;
+	}
+
+	void VulkanSwapChain::CleanupSwapChain() const
+	{
+		for (const auto& swapChainFramebuffer : m_SwapChainFramebuffers)
+		{
+			vkDestroyFramebuffer(m_Device, swapChainFramebuffer, nullptr);
+		}
+
+		for (const auto& swapChainImageView : m_SwapChainImageViews)
+		{
+			vkDestroyImageView(m_Device, swapChainImageView, nullptr);
+		}
+
+		vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
+	}
+
+	void VulkanSwapChain::CreateSwapChain()
+	{
+		const VulkanSwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(m_PhysicalDevice, m_Surface);
+
+		const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
+		const VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
+		const VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities, m_Window);
+
+		// recommended to request at least one more image than the minimum -> else we have to wait for internal operations
+		uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+
+		// also do not exceed the maximum number of images while doing this (0 is a special value - there is no max)
+		if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
+		{
+			imageCount = swapChainSupport.capabilities.maxImageCount;
+		}
+
+		// Now create the actual swap chain
+		VkSwapchainCreateInfoKHR createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+
+		// first specify the surface the swap chain should be tied to
+		createInfo.surface = m_Surface;
+
+		// details of the swap chain images go next
+		createInfo.minImageCount = imageCount;
+		createInfo.imageFormat = surfaceFormat.format;
+		createInfo.imageColorSpace = surfaceFormat.colorSpace;
+		createInfo.imageExtent = extent;
+
+		// amount of layers each image consists of -> always 1 unless with a stereoscopic 3D app
+		createInfo.imageArrayLayers = 1;
+
+		// what kind of operations we'll use the images for -> we render directly to them here
+		// also possible: rendering images to a separate image first, then do post-processing (VK_IMAGE_USAGE_TRANSFER_DST_BIT), then transfer to a swap chain image
+		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+		// Next specify how to handle swap chain images used across multiple queue families
+		// This is the case when the graphics queue family is different from the presentation queue
+		const VulkanQueueFamilyIndices indices = VulkanQueueFamilyIndices::FindQueueFamilies(
+			m_PhysicalDevice, m_Surface);
+
+		const uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+
+		// draw from the graphics queue -> then submit to the presentation queue
+		if (indices.graphicsFamily != indices.presentFamily)
+		{
+			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+			// images can be used concurrently across multiple queue families
+			// TODO we will do ownership transfer later
+
+			createInfo.queueFamilyIndexCount = 2;
+			createInfo.pQueueFamilyIndices = queueFamilyIndices;
+		}
+		else
+		{
+			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			// best performance - explicit ownership transfer
+
+			createInfo.queueFamilyIndexCount = 0; // Optional
+			createInfo.pQueueFamilyIndices = nullptr; // Optional
+		}
+
+		// if we want to do a pre-transform, like rotating by 90 degrees, etc.
+		createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+
+		// specifies if the alpha channel should be used for blending with other windows in the window system
+		// we almost always want to ignore this
+		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+
+		// if clipped is VK_TRUE -> we don't care about the color of pixels that are obscured (if another window is in front for example)
+		createInfo.presentMode = presentMode;
+		createInfo.clipped = VK_TRUE;
+
+		// old swap chain -> with Vulkan it is possible that another swap chain becomes invalid/unoptimized (if the window is resized)
+		// in this case, the swap chain needs to be recreated from scratch!
+		// TODO we will do this in the future, for now, only assume one swap chain
+		createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+		const VkResult result = vkCreateSwapchainKHR(m_Device, &createInfo, nullptr, &m_SwapChain);
+		SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to create swap chain!");
+
+		// we only specified a minimum number of images -> the implementation is allowed to create a swap chain with more
+		vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &imageCount, nullptr);
+		m_SwapChainImages.resize(imageCount);
+		vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &imageCount, m_SwapChainImages.data());
+
+		// store these for later
+		m_SwapChainImageFormat = surfaceFormat.format;
+		m_SwapChainExtent = extent;
 	}
 
 	void VulkanSwapChain::CreateImageViews()
