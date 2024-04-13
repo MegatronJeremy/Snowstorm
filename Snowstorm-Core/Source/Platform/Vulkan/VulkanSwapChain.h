@@ -21,24 +21,29 @@ namespace Snowstorm
 	public:
 		static VulkanSwapChainQueue* GetInstance()
 		{
-			if (m_Instance == nullptr)
+			if (s_Instance == nullptr)
 			{
-				m_Instance = new VulkanSwapChainQueue;
+				s_Instance = new VulkanSwapChainQueue;
 			}
-			return m_Instance;
+			return s_Instance;
 		}
 
-		void AddVertexArray(const Ref<VertexArray>& vertexArray);
+		void AddVertexArray(const Ref<VertexArray>& vertexArray, const uint32_t indexCount);
 
-		Ref<VertexArray> GetNextVertexArray();
+		std::pair<Ref<VertexArray>, uint32_t> GetNextVertexArray();
+
+		bool IsEmpty() const
+		{
+			return m_VertexArrays.empty();
+		}
 
 	private:
 		VulkanSwapChainQueue() = default;
 
 	private:
-		static inline VulkanSwapChainQueue* m_Instance = nullptr;
+		static inline VulkanSwapChainQueue* s_Instance = nullptr;
 
-		std::queue<Ref<VertexArray>> m_VertexArrays;
+		std::queue<std::pair<Ref<VertexArray>, uint32_t>> m_VertexArrays;
 	};
 
 	class VulkanSwapChain
@@ -64,6 +69,16 @@ namespace Snowstorm
 
 		static VulkanSwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 
+		static void SetViewport(const VkViewport& viewport)
+		{
+			s_Viewport = viewport;
+		}
+
+		static void SetClearValue(const VkClearValue& clearValue)
+		{
+			s_ClearValue = clearValue;
+		}
+
 	private:
 		static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 
@@ -80,6 +95,9 @@ namespace Snowstorm
 		void CreateFramebuffers();
 
 	private:
+		static inline VkViewport s_Viewport;
+		static inline VkClearValue s_ClearValue = {0.0f, 0.0f, 0.0f, 1.0f};
+
 		VkDevice m_Device = VK_NULL_HANDLE;
 		VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
 		VkSurfaceKHR m_Surface = VK_NULL_HANDLE;

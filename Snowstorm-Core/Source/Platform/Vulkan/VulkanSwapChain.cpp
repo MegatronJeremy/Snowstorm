@@ -9,21 +9,22 @@
 
 namespace Snowstorm
 {
-	void VulkanSwapChainQueue::AddVertexArray(const Ref<VertexArray>& vertexArray)
+	void VulkanSwapChainQueue::AddVertexArray(const Ref<VertexArray>& vertexArray, const uint32_t indexCount)
 	{
-		m_VertexArrays.emplace(vertexArray);
+		m_VertexArrays.emplace(vertexArray, indexCount == 0 ? vertexArray->GetIndexBuffer()->GetCount() : indexCount);
 	}
 
-	Ref<VertexArray> VulkanSwapChainQueue::GetNextVertexArray()
+	std::pair<Ref<VertexArray>, uint32_t> VulkanSwapChainQueue::GetNextVertexArray()
 	{
-		Ref<VertexArray> nextVertexArray = nullptr;
 		if (!m_VertexArrays.empty())
 		{
-			nextVertexArray = m_VertexArrays.front();
+			auto [nextVertexArray, indexCount] = m_VertexArrays.front();
 			m_VertexArrays.pop();
+
+			return {nextVertexArray, indexCount};
 		}
 
-		return nextVertexArray;
+		return {nullptr, 0};
 	}
 
 	VulkanSwapChain::VulkanSwapChain(const VkPhysicalDevice physicalDevice, const VkDevice device,
@@ -95,9 +96,8 @@ namespace Snowstorm
 		renderPassInfo.renderArea.extent = m_SwapChainExtent;
 
 		// clear values to use for VK_ATTACHMENT_LOAD_OP_CLEAR
-		constexpr VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
 		renderPassInfo.clearValueCount = 1;
-		renderPassInfo.pClearValues = &clearColor;
+		renderPassInfo.pClearValues = &s_ClearValue;
 
 		// begin the render pass
 		vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -110,14 +110,7 @@ namespace Snowstorm
 		// viewport - the region of the framebuffer that the output will be rendered to
 		// always (0, 0) to (width, height)
 		// here we define the transformation from the image to the framebuffer
-		VkViewport viewport{};
-		viewport.x = 0.0f;
-		viewport.y = 0.0f;
-		viewport.width = static_cast<float>(m_SwapChainExtent.width);
-		viewport.height = static_cast<float>(m_SwapChainExtent.height);
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f; // range of depth values used for the framebuffer
-		vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+		vkCmdSetViewport(commandBuffer, 0, 1, &s_Viewport);
 
 		// next define the scissor rectangle -> basically works like a filter
 		VkRect2D scissor{};
@@ -131,9 +124,11 @@ namespace Snowstorm
 		// TODO see if this works
 		VulkanSwapChainQueue* swapChainQueue = VulkanSwapChainQueue::GetInstance();
 
-		Ref<VertexArray> vertexArray = swapChainQueue->GetNextVertexArray();
-		while (vertexArray != nullptr)
+		while (!swapChainQueue->IsEmpty())
 		{
+			// get next vertex array
+			auto [vertexArray, indexCount] = swapChainQueue->GetNextVertexArray();
+
 			std::vector<VkBuffer> vertexBuffers;
 
 			vertexBuffers.reserve(vertexArray->GetVertexBuffers().size());
@@ -156,7 +151,7 @@ namespace Snowstorm
 			// vkCmdDraw(commandBuffer, vertices.size(), 1, 0, 0);
 
 			// change the drawing command to drawIndexed to utilize the index buffer
-			vkCmdDrawIndexed(commandBuffer, vertexArray->GetIndexBuffer()->GetCount(), 1, 0, 0, 0);
+			vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
 			// first index - offset in the index buffer
 			// 1 instance - we are not using instancing
 			// TODO allocate multiple resources like buffers from a single memory allocation
@@ -165,9 +160,6 @@ namespace Snowstorm
 
 			// firstVertex: lowest value of gl_VertexIndex
 			// firstInstance: offset for instanced rendering, lowest value of gl_InstanceIndex
-
-			// get next vertex array
-			vertexArray = swapChainQueue->GetNextVertexArray();
 		}
 
 		// end the render pass and finish recording the command buffer
