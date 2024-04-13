@@ -16,6 +16,11 @@ namespace Snowstorm
 		OpenGLShader(std::string name, const std::string& vertexSrc, const std::string& fragmentSrc);
 		~OpenGLShader() override;
 
+		OpenGLShader(const OpenGLShader& other) = delete;
+		OpenGLShader(OpenGLShader&& other) = delete;
+		OpenGLShader& operator=(const OpenGLShader& other) = delete;
+		OpenGLShader& operator=(OpenGLShader&& other) = delete;
+
 		void Bind() const override;
 		void Unbind() const override;
 

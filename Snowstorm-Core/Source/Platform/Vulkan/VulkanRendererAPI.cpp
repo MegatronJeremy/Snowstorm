@@ -24,7 +24,7 @@ namespace Snowstorm
 
 	void VulkanRendererAPI::SetViewport(const uint32_t x, const uint32_t y, const uint32_t width, const uint32_t height)
 	{
-		// TODO make this a delayed submission of a render command
+		// this is a delayed submission of a render command
 		// Set viewport
 		VkViewport viewport{};
 		viewport.x = static_cast<float>(x);
@@ -39,7 +39,6 @@ namespace Snowstorm
 
 	void VulkanRendererAPI::SetClearColor(const glm::vec4& color)
 	{
-		// TODO make this a delayed submission of a render command
 		const VkClearValue clearColor = {{color.r, color.g, color.b, color.a}};
 
 		VulkanSwapChain::SetClearValue(clearColor);
