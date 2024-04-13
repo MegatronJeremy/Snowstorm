@@ -2,6 +2,7 @@
 #include "Platform/Vulkan/VulkanBuffer.h"
 
 #include "VulkanDevice.h"
+#include "VulkanCommandPool.h"
 
 namespace Snowstorm
 {
@@ -173,6 +174,19 @@ namespace Snowstorm
 	{
 		SS_PROFILE_FUNCTION();
 
+		// TODO fix all this crap
+		if (size == 0)
+		{
+			return;
+		}
+
+		bool verticesCreated = false;
+		if (vertices == nullptr)
+		{
+			verticesCreated = true;
+			vertices = new char[size];
+		}
+
 		const VkDeviceSize bufferSize = size;
 
 		VkBuffer stagingBuffer;
@@ -205,6 +219,11 @@ namespace Snowstorm
 		// Finally, clean the staging buffer up
 		vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
 		vkFreeMemory(m_Device, stagingBufferMemory, nullptr);
+
+		if (verticesCreated)
+		{
+			delete static_cast<const char*>(vertices);
+		}
 	}
 
 	/////////////////////////////////////////////////////////////////////////////

@@ -18,7 +18,7 @@ namespace Snowstorm
 
 	VulkanDevice::~VulkanDevice()
 	{
-		vkDestroyDevice(m_VkDevice, nullptr);
+		vkDestroyDevice(m_Device, nullptr);
 	}
 
 
@@ -28,10 +28,7 @@ namespace Snowstorm
 		uint32_t deviceCount = 0;
 		vkEnumeratePhysicalDevices(vkInstance, &deviceCount, nullptr);
 
-		if (deviceCount == 0)
-		{
-			throw std::runtime_error("failed to find GPUs with Vulkan support!");
-		}
+		SS_CORE_ASSERT(deviceCount != 0, "Failed to find GPUs with Vulkan support!");
 
 		std::multimap<int, VkPhysicalDevice> candidates;
 
@@ -45,12 +42,11 @@ namespace Snowstorm
 
 			if (candidates.rbegin()->first > 0)
 			{
-				m_VkPhysicalDevice = candidates.rbegin()->second;
+				m_PhysicalDevice = candidates.rbegin()->second;
 			}
 			else
 			{
-				// TODO replace this with asserts
-				throw std::runtime_error("failed to find a suitable GPU!");
+				SS_CORE_ASSERT(false, "Failed to find a suitable GPU!");
 			}
 		}
 	}
@@ -58,7 +54,7 @@ namespace Snowstorm
 	void VulkanDevice::CreateLogicalDevice() 
 	{
 		const VulkanQueueFamilyIndices indices = VulkanQueueFamilyIndices::FindQueueFamilies(
-			m_VkPhysicalDevice, m_Surface);
+			m_PhysicalDevice, m_Surface);
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
@@ -82,7 +78,7 @@ namespace Snowstorm
 		}
 
 
-		// next specify the set of m_VkDevice features that you'll be using
+		// next specify the set of device features that you'll be using
 		VkPhysicalDeviceFeatures deviceFeatures{};
 		// right now we don't need anything special, so leave it empty
 
@@ -94,7 +90,7 @@ namespace Snowstorm
 
 		createInfo.pEnabledFeatures = &deviceFeatures;
 
-		// Next specify extensions/validation layers, but m_VkDevice specific this time
+		// Next specify extensions/validation layers, but device specific this time
 		// We only need to do this for backwards compatibility, though
 
 		// The swap-chain extension though, has to be explicitly enabled at this point
@@ -103,7 +99,7 @@ namespace Snowstorm
 
 		if (VulkanInstance::GetInstance()->EnabledValidationLayers())
 		{
-			std::vector<const char*> validationLayers = VulkanInstance::GetInstance()->GetValidationLayers();
+			auto& validationLayers = VulkanInstance::GetInstance()->GetValidationLayers();
 
 			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 			createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -113,16 +109,14 @@ namespace Snowstorm
 			createInfo.enabledLayerCount = 0;
 		}
 
-		// Finally, instantiate the logical m_VkDevice
-		if (vkCreateDevice(m_VkPhysicalDevice, &createInfo, nullptr, &m_VkDevice) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to create logical m_VkDevice!");
-		}
+		// Finally, instantiate the logical device
+		const VkResult result = vkCreateDevice(m_PhysicalDevice, &createInfo, nullptr, &m_Device);
+		SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to create logical device!");
 
 		// get the actual graphics queue
 		// these two queue families most likely the same - the handles will have the same value
-		vkGetDeviceQueue(m_VkDevice, indices.graphicsFamily.value(), 0, &m_GraphicsQueue);
-		vkGetDeviceQueue(m_VkDevice, indices.presentFamily.value(), 0, &m_PresentQueue);
+		vkGetDeviceQueue(m_Device, indices.graphicsFamily.value(), 0, &m_GraphicsQueue);
+		vkGetDeviceQueue(m_Device, indices.presentFamily.value(), 0, &m_PresentQueue);
 	}
 
 	bool VulkanDevice::CheckDeviceExtensionSupport(const VkPhysicalDevice device) const
@@ -174,7 +168,7 @@ namespace Snowstorm
 		}
 
 		// Application can't function without geometry shaders or valid queue families
-		// Or if swap chain is not supported (needed m_VkDevice extensions)
+		// Or if swap chain is not supported (needed device extensions)
 		if (!physicalDeviceFeatures.geometryShader || !indices.IsComplete() || !extensionsSupported || !
 			swapChainAdequate)
 		{

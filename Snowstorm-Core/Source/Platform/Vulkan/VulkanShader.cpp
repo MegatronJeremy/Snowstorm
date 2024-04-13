@@ -4,7 +4,79 @@
 
 namespace Snowstorm
 {
+	namespace
+	{
+		VkShaderStageFlagBits ShaderTypeFromString(const std::string& type)
+		{
+			if (type == "vertex")
+				return VK_SHADER_STAGE_VERTEX_BIT;
+			if (type == "fragment" || type == "pixel")
+				return VK_SHADER_STAGE_FRAGMENT_BIT;
+
+			SS_CORE_ASSERT(false, "Unknown shader type!");
+			return VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
+		}
+	}
+
+
+
 	VulkanShader::VulkanShader(const std::string& filepath)
+	{
+		// load the code
+		// TODO make this actually work as intended
+		// const auto vertShaderCode = ReadFile(filepath);
+		//
+		// // create the shaders with a wrapper
+		// const VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
+		//
+		// // assign the actual shaders to a specific pipeline stage
+		// VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+		// vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		// vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT; // enum for each programmable stage
+		// vertShaderStageInfo.module = vertShaderModule;
+		// vertShaderStageInfo.pName = "main"; // entry point (we can combine multiple shaders into a single file this way)
+		// // pSpecializationInfo -> you can specify values for shader constants
+		//
+		// VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+		// fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		// fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		// fragShaderStageInfo.module = fragShaderModule;
+		// fragShaderStageInfo.pName = "main";
+	}
+
+	VulkanShader::~VulkanShader()
+	{
+	}
+
+	void VulkanShader::Bind() const
+	{
+	}
+
+	void VulkanShader::Unbind() const
+	{
+	}
+
+	void VulkanShader::SetInt(const std::string& name, int value)
+	{
+	}
+
+	void VulkanShader::SetIntArray(const std::string& name, int* values, uint32_t count)
+	{
+	}
+
+	void VulkanShader::SetFloat(const std::string& name, float value)
+	{
+	}
+
+	void VulkanShader::SetFloat3(const std::string& name, const glm::vec3& value)
+	{
+	}
+
+	void VulkanShader::SetFloat4(const std::string& name, const glm::vec4& value)
+	{
+	}
+
+	void VulkanShader::SetMat4(const std::string& name, const glm::mat4& value)
 	{
 	}
 }

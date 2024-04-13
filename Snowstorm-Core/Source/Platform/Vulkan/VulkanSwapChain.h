@@ -65,7 +65,7 @@ namespace Snowstorm
 
 		void RecreateSwapChain();
 
-		void RecordCommandBuffer(const VkCommandBuffer commandBuffer, const uint32_t imageIndex) const;
+		void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) const;
 
 		static VulkanSwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 

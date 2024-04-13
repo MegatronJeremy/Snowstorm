@@ -8,7 +8,7 @@
 
 #include "VulkanInstance.h"
 #include "VulkanSwapChain.h"
-
+#include "VulkanCommandPool.h"
 
 namespace Snowstorm
 {
@@ -17,7 +17,7 @@ namespace Snowstorm
 		SS_PROFILE_FUNCTION();
 
 		VkDevice device = VulkanInstance::GetInstance()->GetVulkanDevice()->GetVkDevice();
-		VkCommandPool commandPool = VulkanInstance::GetInstance()->GetVulkanCommandPool()->GetVkCommandPool();
+		VkCommandPool commandPool = *VulkanInstance::GetInstance()->GetVulkanCommandPool();
 
 		m_VulkanCommandBuffer = CreateScope<VulkanCommandBuffers>(device, commandPool, 1);
 	}

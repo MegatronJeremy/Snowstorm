@@ -4,6 +4,7 @@
 #include "Snowstorm/Renderer/Renderer.h"
 
 #include "Platform/OpenGL/OpenGLFramebuffer.h"
+#include "Platform/Vulkan/VulkanFramebuffer.h"
 
 namespace Snowstorm
 {
@@ -16,6 +17,8 @@ namespace Snowstorm
 			return nullptr;
 		case RendererAPI::API::OpenGL:
 			return CreateRef<OpenGLFrameBuffer>(spec);
+		case RendererAPI::API::Vulkan:
+			return CreateRef<VulkanFrameBuffer>(spec);
 		}
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");

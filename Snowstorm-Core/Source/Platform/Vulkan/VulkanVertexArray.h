@@ -1,9 +1,11 @@
 #pragma once
+#include <vulkan/vulkan_core.h>
+
 #include "Snowstorm/Renderer/VertexArray.h"
 
 namespace Snowstorm
 {
-	class VulkanVertexArray final : VertexArray
+	class VulkanVertexArray final : public VertexArray
 	{
 	public:
 		VulkanVertexArray() = default;
@@ -22,10 +24,7 @@ namespace Snowstorm
 		{
 		}
 
-		void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) override
-		{
-			m_VertexBuffers.push_back(vertexBuffer);
-		}
+		void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) override;
 
 		void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) override
 		{
@@ -35,7 +34,20 @@ namespace Snowstorm
 		const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const override { return m_VertexBuffers; }
 		const Ref<IndexBuffer>& GetIndexBuffer() const override { return m_IndexBuffer; }
 
+		static VkVertexInputBindingDescription GetBindingDescription()
+		{
+			return s_BindingDescription;
+		}
+
+		static const std::vector<VkVertexInputAttributeDescription>& GetAttributeDescriptions()
+		{
+			return s_AttributeDescriptions;
+		}
+
 	private:
+		static inline VkVertexInputBindingDescription s_BindingDescription;
+		static inline std::vector<VkVertexInputAttributeDescription> s_AttributeDescriptions;
+
 		std::vector<Ref<VertexBuffer>> m_VertexBuffers;
 		Ref<IndexBuffer> m_IndexBuffer;
 	};

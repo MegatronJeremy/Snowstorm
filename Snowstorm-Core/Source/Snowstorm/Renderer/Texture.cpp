@@ -3,6 +3,7 @@
 
 #include "Renderer.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
+#include "Platform/Vulkan/VulkanTexture.h"
 
 namespace Snowstorm
 {
@@ -15,6 +16,8 @@ namespace Snowstorm
 			return nullptr;
 		case RendererAPI::API::OpenGL:
 			return CreateRef<OpenGLTexture2D>(width, height);
+		case RendererAPI::API::Vulkan:
+			return CreateRef<VulkanTexture2D>(width, height);
 		}
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -30,6 +33,8 @@ namespace Snowstorm
 			return nullptr;
 		case RendererAPI::API::OpenGL:
 			return CreateRef<OpenGLTexture2D>(path);
+		case RendererAPI::API::Vulkan:
+			return CreateRef<VulkanTexture2D>(path);
 		}
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");

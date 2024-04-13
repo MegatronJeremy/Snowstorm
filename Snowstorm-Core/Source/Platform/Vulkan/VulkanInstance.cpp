@@ -2,15 +2,38 @@
 
 #include "VulkanInstance.h"
 
+#define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
 
 namespace Snowstorm
 {
+	Ref<VulkanDevice> VulkanInstance::GetVulkanDevice() const
+	{
+		SS_CORE_ASSERT(m_VulkanDevice != nullptr, "Vulkan device not registered to Vulkan instance!");
+		return m_VulkanDevice;
+	}
+
+	void VulkanInstance::SetVulkanDevice(const Ref<VulkanDevice>& vulkanDevice)
+	{
+		m_VulkanDevice = vulkanDevice;
+	}
+
+	Ref<VulkanCommandPool> VulkanInstance::GetVulkanCommandPool() const
+	{
+		SS_CORE_ASSERT(m_VulkanCommandPool != nullptr, "Vulkan command pool not registered to Vulkan instance!");
+		return m_VulkanCommandPool;
+	}
+
+	void VulkanInstance::SetVulkanCommandPool(const Ref<VulkanCommandPool>& vulkanCommandPool)
+	{
+		m_VulkanCommandPool = vulkanCommandPool;
+	}
+
 	VulkanInstance::VulkanInstance()
 	{
 		SS_PROFILE_FUNCTION();
 
-		SS_CORE_ASSERT(m_EnabledValidationLayers && !CheckValidationLayerSupport(),
+		SS_CORE_ASSERT(!m_EnabledValidationLayers || CheckValidationLayerSupport(),
 		               "Validation layers requested, but not available!")
 
 		// useful info that the driver can use to optimize our application

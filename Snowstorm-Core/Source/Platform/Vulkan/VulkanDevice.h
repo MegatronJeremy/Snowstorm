@@ -17,12 +17,12 @@ namespace Snowstorm
 
 		VkPhysicalDevice GetVkPhysicalDevice() const
 		{
-			return m_VkPhysicalDevice;
+			return m_PhysicalDevice;
 		}
 
 		VkDevice GetVkDevice() const
 		{
-			return m_VkDevice;
+			return m_Device;
 		}
 
 		VkQueue GetVkGraphicsQueue() const
@@ -45,13 +45,13 @@ namespace Snowstorm
 		int RateDeviceSuitability(VkPhysicalDevice device) const;
 
 	private:
-		VkPhysicalDevice m_VkPhysicalDevice = VK_NULL_HANDLE;
-		VkDevice m_VkDevice = VK_NULL_HANDLE; // logical m_VkDevice - to interface with the physical m_VkDevice
+		VkPhysicalDevice m_PhysicalDevice;
+		VkDevice m_Device; // logical device - to interface with the physical device
 
-		VkSurfaceKHR m_Surface = VK_NULL_HANDLE;
+		VkSurfaceKHR m_Surface;
 
-		VkQueue m_GraphicsQueue = VK_NULL_HANDLE; // implicitly destroyed when the device is destroyed
-		VkQueue m_PresentQueue = VK_NULL_HANDLE;
+		VkQueue m_GraphicsQueue; // implicitly destroyed when the device is destroyed
+		VkQueue m_PresentQueue;
 
 		std::vector<const char*> m_DeviceExtensions = {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME

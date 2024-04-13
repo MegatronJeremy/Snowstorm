@@ -2,11 +2,10 @@
 
 #include "VulkanQueueFamilyIndices.h"
 
-#include <GLFW/glfw3.h>
-
 namespace Snowstorm
 {
-	VulkanQueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice device, const VkSurfaceKHR surface)
+	VulkanQueueFamilyIndices VulkanQueueFamilyIndices::FindQueueFamilies(
+		const VkPhysicalDevice device, const VkSurfaceKHR surface)
 	{
 		VulkanQueueFamilyIndices indices;
 
@@ -41,7 +40,6 @@ namespace Snowstorm
 
 			i++;
 		}
-
 
 		return indices;
 	}

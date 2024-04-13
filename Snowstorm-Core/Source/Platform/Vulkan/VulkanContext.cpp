@@ -34,6 +34,8 @@ namespace Snowstorm
 		m_Device = m_VulkanDevice->GetVkDevice();
 		m_PhysicalDevice = m_VulkanDevice->GetVkPhysicalDevice();
 
+		m_CommandPool = CreateRef<VulkanCommandPool>(m_Device, m_PhysicalDevice, m_Surface);
+
 		VulkanInstance::GetInstance()->SetVulkanDevice(m_VulkanDevice);
 		VulkanInstance::GetInstance()->SetVulkanCommandPool(m_CommandPool);
 
@@ -56,7 +58,7 @@ namespace Snowstorm
 		const uint32_t deviceMajor = VK_VERSION_MAJOR(deviceProperties.apiVersion);
 		const uint32_t deviceMinor = VK_VERSION_MINOR(deviceProperties.apiVersion);
 
-		SS_CORE_ASSERT(deviceMajor < requiredMajor || (deviceMajor == requiredMajor && deviceMinor < requiredMinor),
+		SS_CORE_ASSERT(deviceMajor >= requiredMajor && (deviceMajor != requiredMajor || deviceMinor >= requiredMinor),
 		               "Snowstorm requires at least Vulkan version 1.1!");
 #endif
 
@@ -65,7 +67,7 @@ namespace Snowstorm
 		m_PresentQueue = m_VulkanDevice->GetVkPresentQueue();
 
 		// Create swap chain
-		m_SwapChain = CreateScope<VulkanSwapChain>(m_Device, m_PhysicalDevice, m_Surface, m_WindowHandle);
+		m_SwapChain = CreateScope<VulkanSwapChain>(m_PhysicalDevice, m_Device, m_Surface, m_WindowHandle);
 
 		m_CommandPool = CreateRef<VulkanCommandPool>(m_Device, m_PhysicalDevice, m_Surface);
 
@@ -73,9 +75,12 @@ namespace Snowstorm
 		                                                     MAX_FRAMES_IN_FLIGHT);
 
 		// Create sync objects
-		m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-		m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-		m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			m_ImageAvailableSemaphores.emplace_back(CreateScope<VulkanSemaphore>(m_Device));
+			m_RenderFinishedSemaphores.emplace_back(CreateScope<VulkanSemaphore>(m_Device));
+			m_InFlightFences.emplace_back(CreateScope<VulkanFence>(m_Device, true));
+		}
 	}
 
 	void VulkanContext::SwapBuffers()
@@ -83,11 +88,11 @@ namespace Snowstorm
 		SS_PROFILE_FUNCTION();
 
 		// wait for the previous frame to finish
-		m_InFlightFences[m_CurrentFrame].Wait();
+		m_InFlightFences[m_CurrentFrame]->Wait();
 
 		uint32_t imageIndex;
 		VkResult result = vkAcquireNextImageKHR(m_Device, *m_SwapChain, UINT64_MAX,
-		                                        m_ImageAvailableSemaphores[m_CurrentFrame],
+		                                        *m_ImageAvailableSemaphores[m_CurrentFrame],
 		                                        VK_NULL_HANDLE,
 		                                        &imageIndex);
 
@@ -105,7 +110,7 @@ namespace Snowstorm
 
 		// Only reset the fence if we are submitting work
 		// TODO MOVE THIS TO RENDER API DRAW CALL
-		m_InFlightFences[m_CurrentFrame].Reset(); // manually reset
+		m_InFlightFences[m_CurrentFrame]->Reset(); // manually reset
 
 		// record the command buffer
 		const VkCommandBuffer commandBuffer = (*m_CommandBuffers)[m_CurrentFrame];
@@ -117,7 +122,7 @@ namespace Snowstorm
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-		const VkSemaphore waitSemaphores[] = {m_ImageAvailableSemaphores[m_CurrentFrame]};
+		const VkSemaphore waitSemaphores[] = {*m_ImageAvailableSemaphores[m_CurrentFrame]};
 		constexpr VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 		submitInfo.waitSemaphoreCount = 1;
 		submitInfo.pWaitSemaphores = waitSemaphores; // we want to wait until the image is available to start writing
@@ -125,12 +130,12 @@ namespace Snowstorm
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffer;
 
-		const VkSemaphore signalSemaphores[] = {m_RenderFinishedSemaphores[m_CurrentFrame]};
+		const VkSemaphore signalSemaphores[] = {*m_RenderFinishedSemaphores[m_CurrentFrame]};
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
 		// submit the command buffer to the graphics queue
-		result = vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
+		result = vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, *m_InFlightFences[m_CurrentFrame]);
 		SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to submit draw command buffer!");
 		// TODO MOVE THIS TO RENDER API DRAW CALL
 

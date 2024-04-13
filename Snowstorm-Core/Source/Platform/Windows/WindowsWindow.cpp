@@ -6,6 +6,7 @@
 #include "Snowstorm/Events/MouseEvent.h"
 
 #include "Platform/OpenGL/OpenGLContext.h"
+#include "Snowstorm/Renderer/Renderer.h"
 
 namespace Snowstorm
 {
@@ -73,6 +74,13 @@ namespace Snowstorm
 			SS_PROFILE_SCOPE("glfwInit");
 			const int success = glfwInit();
 			SS_CORE_ASSERT(success, "Could not initialize GLFW!");
+
+			if (Renderer::GetAPI() == RendererAPI::API::Vulkan)
+			{
+				// force it to not use OpenGL (default)
+				glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+			}
+
 			glfwSetErrorCallback(GlfwErrorCallback);
 		}
 

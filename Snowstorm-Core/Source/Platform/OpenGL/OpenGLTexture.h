@@ -13,6 +13,11 @@ namespace Snowstorm
 		explicit OpenGLTexture2D(std::string path);
 		~OpenGLTexture2D() override;
 
+		OpenGLTexture2D(const OpenGLTexture2D& other) = delete;
+		OpenGLTexture2D(OpenGLTexture2D&& other) = delete;
+		OpenGLTexture2D& operator=(const OpenGLTexture2D& other) = delete;
+		OpenGLTexture2D& operator=(OpenGLTexture2D&& other) = delete;
+
 		uint32_t GetWidth() const override { return m_Width; }
 		uint32_t GetHeight() const override { return m_Height; }
 

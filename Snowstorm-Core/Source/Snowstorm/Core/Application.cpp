@@ -22,8 +22,8 @@ namespace Snowstorm
 
 		Renderer::Init();
 
-		m_ImGuiLayer = new ImGuiLayer();
-		PushOverlay(m_ImGuiLayer);
+		// m_ImGuiLayer = new ImGuiLayer();
+		// PushOverlay(m_ImGuiLayer);
 	}
 
 	Application::~Application()
@@ -55,14 +55,14 @@ namespace Snowstorm
 				}
 			}
 
-			m_ImGuiLayer->Begin();
-			{
-				SS_PROFILE_SCOPE("LayerStack OnImGuiRender");
+			// m_ImGuiLayer->Begin();
+			// {
+			// SS_PROFILE_SCOPE("LayerStack OnImGuiRender");
 
-				for (Layer* layer : m_LayerStack)
-					layer->OnImGuiRender();
-			}
-			m_ImGuiLayer->End();
+			// for (Layer* layer : m_LayerStack)
+			// layer->OnImGuiRender();
+			// }
+			// m_ImGuiLayer->End();
 
 			m_Window->OnUpdate();
 		}

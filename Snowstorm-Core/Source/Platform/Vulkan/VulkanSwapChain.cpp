@@ -34,15 +34,15 @@ namespace Snowstorm
 	{
 		CreateSwapChain();
 
-		// Create image views
-		CreateImageViews();
-		CreateFramebuffers();
-
 		// Create render pass
 		m_RenderPass = CreateScope<VulkanRenderPass>(m_Device, m_SwapChainImageFormat);
 
 		// Create graphics pipeline
 		m_GraphicsPipeline = CreateScope<VulkanGraphicsPipeline>(m_Device, *m_RenderPass);
+
+		// Create image views
+		CreateImageViews();
+		CreateFramebuffers();
 	}
 
 	VulkanSwapChain::~VulkanSwapChain()

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "VulkanDevice.h"
 
 namespace Snowstorm

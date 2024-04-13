@@ -702,7 +702,7 @@ namespace Snowstorm
 	{
 		glfwInit();
 
-		// force it to not use Vulkan (default)
+		// force it to not use OpenGL (default)
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 		// set the window to not be resizable - optional
@@ -1667,6 +1667,7 @@ namespace Snowstorm
 		}
 
 		vkDestroyCommandPool(device, commandPool, nullptr);
+
 
 		vkDestroyDevice(device, nullptr);
 

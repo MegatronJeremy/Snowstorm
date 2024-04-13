@@ -4,7 +4,7 @@
 
 namespace Snowstorm
 {
-	class VulkanShader final : Shader
+	class VulkanShader final : public Shader
 	{
 	public:
 		explicit VulkanShader(const std::string& filepath);

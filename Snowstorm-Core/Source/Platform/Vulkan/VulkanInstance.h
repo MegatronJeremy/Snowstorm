@@ -1,11 +1,14 @@
 #pragma once
 #include <vulkan/vulkan_core.h>
 
-#include "VulkanCommandPool.h"
 #include "VulkanDebugMessenger.h"
+
 
 namespace Snowstorm
 {
+	class VulkanDevice;
+	class VulkanCommandPool;
+
 	class VulkanInstance
 	{
 		// Singleton class that holds the vulkan m_Instance
@@ -31,32 +34,18 @@ namespace Snowstorm
 			return m_EnabledValidationLayers;
 		}
 
-		std::vector<const char*> GetValidationLayers() const
+		const std::vector<const char*>& GetValidationLayers() const
 		{
 			return m_ValidationLayers;
 		}
 
-		Ref<VulkanDevice> GetVulkanDevice() const
-		{
-			SS_CORE_ASSERT(m_VulkanDevice != nullptr, "Vulkan device not registered to Vulkan instance!");
-			return m_VulkanDevice;
-		}
+		Ref<VulkanDevice> GetVulkanDevice() const;
 
-		void SetVulkanDevice(const Ref<VulkanDevice>& vulkanDevice)
-		{
-			m_VulkanDevice = vulkanDevice;
-		}
+		void SetVulkanDevice(const Ref<VulkanDevice>& vulkanDevice);
 
-		Ref<VulkanCommandPool> GetVulkanCommandPool() const
-		{
-			SS_CORE_ASSERT(m_VulkanCommandPool != nullptr, "Vulkan command pool not registered to Vulkan instance!");
-			return m_VulkanCommandPool;
-		}
+		Ref<VulkanCommandPool> GetVulkanCommandPool() const;
 
-		void SetVulkanCommandPool(const Ref<VulkanCommandPool>& vulkanCommandPool)
-		{
-			m_VulkanCommandPool = vulkanCommandPool;
-		}
+		void SetVulkanCommandPool(const Ref<VulkanCommandPool>& vulkanCommandPool);
 
 	private:
 		VulkanInstance();
@@ -75,7 +64,12 @@ namespace Snowstorm
 			"VK_LAYER_KHRONOS_validation"
 		};
 
-		bool m_EnabledValidationLayers = SS_DEBUG;
+#ifdef SS_DEBUG
+		bool m_EnabledValidationLayers = true;
+#else
+		bool m_EnabledValidationLayers = false;
+#endif
+
 
 		Scope<VulkanDebugMessenger> m_VulkanDebugMessenger = nullptr;
 

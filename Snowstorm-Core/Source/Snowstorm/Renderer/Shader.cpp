@@ -3,6 +3,7 @@
 
 #include "Renderer.h"
 #include "Platform/OpenGL/OpenGLShader.h"
+#include "Platform/Vulkan/VulkanShader.h"
 
 namespace Snowstorm
 {
@@ -16,6 +17,8 @@ namespace Snowstorm
 			return nullptr;
 		case RendererAPI::API::OpenGL:
 			return CreateRef<OpenGLShader>(filepath);
+		case RendererAPI::API::Vulkan:
+			return CreateRef<VulkanShader>(filepath);
 		}
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -32,6 +35,8 @@ namespace Snowstorm
 			return nullptr;
 		case RendererAPI::API::OpenGL:
 			return CreateRef<OpenGLShader>(name, vertexSrc, fragmentSrc);
+		case RendererAPI::API::Vulkan:
+			SS_CORE_ASSERT(false, "Runtime shader compilation not yet supported with Vulkan!");
 		}
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -74,7 +79,7 @@ namespace Snowstorm
 
 	bool ShaderLibrary::Exists(const std::string& name) const
 	{
-		return m_Shaders.find(name) != m_Shaders.end();
+		return m_Shaders.contains(name);
 	}
 #pragma endregion
 }

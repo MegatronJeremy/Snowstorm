@@ -9,7 +9,13 @@ namespace Snowstorm
 	class Texture
 	{
 	public:
+		Texture() = default;
 		virtual ~Texture() = default;
+
+		Texture(const Texture& other) = delete;
+		Texture(Texture&& other) = delete;
+		Texture& operator=(const Texture& other) = delete;
+		Texture& operator=(Texture&& other) = delete;
 
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;

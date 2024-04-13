@@ -27,7 +27,7 @@ namespace Snowstorm
 		void SwapBuffers() override;
 
 	private:
-		constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+		const int MAX_FRAMES_IN_FLIGHT = 2;
 
 		GLFWwindow* m_WindowHandle = VK_NULL_HANDLE;
 		VkSurfaceKHR m_Surface = VK_NULL_HANDLE; // window m_Surface - tied to the GLFW window
@@ -41,9 +41,9 @@ namespace Snowstorm
 
 		Scope<VulkanSwapChain> m_SwapChain;
 
-		std::vector<VulkanSemaphore> m_ImageAvailableSemaphores;
-		std::vector<VulkanSemaphore> m_RenderFinishedSemaphores;
-		std::vector<VulkanFence> m_InFlightFences;
+		std::vector<Scope<VulkanSemaphore>> m_ImageAvailableSemaphores;
+		std::vector<Scope<VulkanSemaphore>> m_RenderFinishedSemaphores;
+		std::vector<Scope<VulkanFence>> m_InFlightFences;
 
 		uint32_t m_CurrentFrame = 0;
 
@@ -53,4 +53,3 @@ namespace Snowstorm
 		VkQueue m_PresentQueue = VK_NULL_HANDLE;
 	};
 }
-

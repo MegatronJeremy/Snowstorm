@@ -3,7 +3,7 @@
 
 #include <vulkan/vulkan_core.h>
 
-#include "VulkanVertex.h"
+#include "VulkanVertexArray.h"
 
 namespace Snowstorm
 {
@@ -52,6 +52,7 @@ namespace Snowstorm
 		: m_Device(device), m_RenderPass(renderPass)
 	{
 		// load the code
+		// TODO move this to shader
 		const auto vertShaderCode = ReadFile("Assets/Shaders/vert.spv");
 		const auto fragShaderCode = ReadFile("Assets/Shaders/frag.spv");
 
@@ -82,8 +83,8 @@ namespace Snowstorm
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-		auto bindingDescription = Vertex::GetBindingDescription();
-		auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+		auto bindingDescription = VulkanVertexArray::GetBindingDescription();
+		auto attributeDescriptions = VulkanVertexArray::GetAttributeDescriptions();
 
 		vertexInputInfo.vertexBindingDescriptionCount = 1;
 		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
