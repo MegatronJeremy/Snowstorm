@@ -104,6 +104,7 @@ namespace Snowstorm
 		               "Failed to acquire swap chain image!");
 
 		// Only reset the fence if we are submitting work
+		// TODO MOVE THIS TO RENDER API DRAW CALL
 		m_InFlightFences[m_CurrentFrame].Reset(); // manually reset
 
 		// record the command buffer
@@ -112,7 +113,7 @@ namespace Snowstorm
 		// call this explicitly first to make sure it can be recorded to
 		m_SwapChain->RecordCommandBuffer((*m_CommandBuffers)[m_CurrentFrame], imageIndex);
 
-		// submit the the m_Command buffer
+		// submit the command buffer
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -131,6 +132,7 @@ namespace Snowstorm
 		// submit the command buffer to the graphics queue
 		result = vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
 		SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to submit draw command buffer!");
+		// TODO MOVE THIS TO RENDER API DRAW CALL
 
 		// the CPU will wait for the m_Command buffer to finish executing before recording new commands into it
 
@@ -149,6 +151,7 @@ namespace Snowstorm
 		presentInfo.pResults = nullptr; // Optional - specifying an array of VkResult to check for every swap chain
 
 		// submit a request for presentation
+		// this is basically swap buffers
 		result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
 
 		const bool recreateSwapchainCondition = result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||

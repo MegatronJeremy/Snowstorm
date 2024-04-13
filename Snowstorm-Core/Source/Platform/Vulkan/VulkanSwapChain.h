@@ -28,9 +28,9 @@ namespace Snowstorm
 			return m_Instance;
 		}
 
-		void AddVertexArray(const VulkanVertexArray& vertexArray);
+		void AddVertexArray(const Ref<VertexArray>& vertexArray);
 
-		const VulkanVertexArray* GetNextVertexArray();
+		Ref<VertexArray> GetNextVertexArray();
 
 	private:
 		VulkanSwapChainQueue() = default;
@@ -38,7 +38,7 @@ namespace Snowstorm
 	private:
 		static inline VulkanSwapChainQueue* m_Instance = nullptr;
 
-		std::queue<const VulkanVertexArray*> m_VertexArrays;
+		std::queue<Ref<VertexArray>> m_VertexArrays;
 	};
 
 	class VulkanSwapChain

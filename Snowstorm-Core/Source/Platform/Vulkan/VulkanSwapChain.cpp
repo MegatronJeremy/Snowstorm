@@ -9,14 +9,14 @@
 
 namespace Snowstorm
 {
-	void VulkanSwapChainQueue::AddVertexArray(const VulkanVertexArray& vertexArray)
+	void VulkanSwapChainQueue::AddVertexArray(const Ref<VertexArray>& vertexArray)
 	{
-		m_VertexArrays.emplace(&vertexArray);
+		m_VertexArrays.emplace(vertexArray);
 	}
 
-	const VulkanVertexArray* VulkanSwapChainQueue::GetNextVertexArray()
+	Ref<VertexArray> VulkanSwapChainQueue::GetNextVertexArray()
 	{
-		const VulkanVertexArray* nextVertexArray = nullptr;
+		Ref<VertexArray> nextVertexArray = nullptr;
 		if (!m_VertexArrays.empty())
 		{
 			nextVertexArray = m_VertexArrays.front();
@@ -131,7 +131,7 @@ namespace Snowstorm
 		// TODO see if this works
 		VulkanSwapChainQueue* swapChainQueue = VulkanSwapChainQueue::GetInstance();
 
-		const VulkanVertexArray* vertexArray = swapChainQueue->GetNextVertexArray();
+		Ref<VertexArray> vertexArray = swapChainQueue->GetNextVertexArray();
 		while (vertexArray != nullptr)
 		{
 			std::vector<VkBuffer> vertexBuffers;

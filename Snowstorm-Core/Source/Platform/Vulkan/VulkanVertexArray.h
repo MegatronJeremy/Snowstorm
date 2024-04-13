@@ -1,5 +1,4 @@
 #pragma once
-#include "VulkanBuffer.h"
 #include "Snowstorm/Renderer/VertexArray.h"
 
 namespace Snowstorm
@@ -15,7 +14,9 @@ namespace Snowstorm
 		VulkanVertexArray& operator=(const VulkanVertexArray& other) = delete;
 		VulkanVertexArray& operator=(VulkanVertexArray&& other) = delete;
 
-		void Bind() const override;
+		void Bind() const override
+		{
+		}
 
 		void Unbind() const override
 		{
