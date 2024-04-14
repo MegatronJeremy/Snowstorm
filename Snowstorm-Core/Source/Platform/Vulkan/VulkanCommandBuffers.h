@@ -20,6 +20,7 @@ namespace Snowstorm
 		VkDevice m_Device;
 		VkCommandPool m_CommandPool;
 
+
 		std::vector<VkCommandBuffer> m_CommandBuffers;
 		uint32_t m_Count;
 	};

@@ -28,7 +28,7 @@ namespace Snowstorm
 		const VkResult result = glfwCreateWindowSurface(VulkanInstance::GetInstance()->GetVulkanInstance(),
 		                                                m_WindowHandle, nullptr,
 		                                                &m_Surface);
-		SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to create window m_Surface!")
+		SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to create window surface!")
 
 		m_VulkanDevice = CreateRef<VulkanDevice>(m_Surface);
 		m_Device = m_VulkanDevice->GetVkDevice();

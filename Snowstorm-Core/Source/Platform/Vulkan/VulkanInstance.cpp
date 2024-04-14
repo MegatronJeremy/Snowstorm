@@ -39,9 +39,9 @@ namespace Snowstorm
 		// useful info that the driver can use to optimize our application
 		VkApplicationInfo appInfo{};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = "Hello Triangle";
+		appInfo.pApplicationName = "APP";
 		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.pEngineName = "No Engine";
+		appInfo.pEngineName = "SNOWSTORM";
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 		appInfo.apiVersion = VK_API_VERSION_1_0;
 		// appInfo.pNext -> points to an extension in the future
@@ -63,11 +63,11 @@ namespace Snowstorm
 		std::vector<VkExtensionProperties> availableExtensions(extensionCount);
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, availableExtensions.data());
 
-		std::cout << "available extensions:\n";
+		SS_CORE_INFO("Available extensions:");
 
 		for (const auto& extension : availableExtensions)
 		{
-			std::cout << "\t" << extension.extensionName << '\n';
+			SS_CORE_INFO("	{0}", extension.extensionName);
 			if (strcmp(extension.extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0)
 			{
 				// this is required now because of certain MacOS MoltenVK sdk-s
@@ -103,7 +103,7 @@ namespace Snowstorm
 		// 3. Pointer to the variable that stores the handle to the new object
 
 		const VkResult result = vkCreateInstance(&createInfo, nullptr, &m_VkInstance);
-		SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to create Vulkan m_Instance!")
+		SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to create Vulkan instance!")
 
 		// setup debug messenger after creating the m_Instance
 		SetupDebugMessenger();

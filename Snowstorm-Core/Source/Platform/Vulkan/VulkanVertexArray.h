@@ -34,15 +34,9 @@ namespace Snowstorm
 		const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const override { return m_VertexBuffers; }
 		const Ref<IndexBuffer>& GetIndexBuffer() const override { return m_IndexBuffer; }
 
-		static VkVertexInputBindingDescription GetBindingDescription()
-		{
-			return s_BindingDescription;
-		}
+		static VkVertexInputBindingDescription GetBindingDescription();
 
-		static const std::vector<VkVertexInputAttributeDescription>& GetAttributeDescriptions()
-		{
-			return s_AttributeDescriptions;
-		}
+		static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
 
 	private:
 		static inline VkVertexInputBindingDescription s_BindingDescription;

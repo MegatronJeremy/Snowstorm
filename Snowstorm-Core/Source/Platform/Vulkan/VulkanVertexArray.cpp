@@ -64,4 +64,54 @@ namespace Snowstorm
 
 		m_VertexBuffers.push_back(vertexBuffer);
 	}
+
+	VkVertexInputBindingDescription VulkanVertexArray::GetBindingDescription()
+	{
+		// TODO fix this crap
+		const BufferLayout layout{
+			{ShaderDataType::Float3, "a_Position"},
+			{ShaderDataType::Float4, "a_Color"},
+			{ShaderDataType::Float2, "a_TexCoord"},
+			{ShaderDataType::Float, "a_TextureIndex"},
+			{ShaderDataType::Float, "a_TilingFactor"}
+		};
+
+		VkVertexInputBindingDescription bindingDescription{};
+		bindingDescription.binding = 0; // only one binding for now
+		bindingDescription.stride = layout.GetStride();
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+		return bindingDescription;
+	}
+
+	std::vector<VkVertexInputAttributeDescription> VulkanVertexArray::GetAttributeDescriptions()
+	{
+		// TODO fix this crap
+		const BufferLayout layout{
+			{ShaderDataType::Float3, "a_Position"},
+			{ShaderDataType::Float4, "a_Color"},
+			{ShaderDataType::Float2, "a_TexCoord"},
+			{ShaderDataType::Float, "a_TextureIndex"},
+			{ShaderDataType::Float, "a_TilingFactor"}
+		};
+
+
+		std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
+
+		uint32_t elementIndex = 0;
+		for (const auto& element : layout)
+		{
+			VkVertexInputAttributeDescription attributeDescription{};
+			attributeDescription.binding = 0; // assuming only one binding for now
+			attributeDescription.location = elementIndex; // location of the input in the vertex shader
+			attributeDescription.format = ShaderDataTypeToVulkanFormat(element.Type); 
+			attributeDescription.offset = element.Offset;
+
+			elementIndex++;
+
+			attributeDescriptions.push_back(attributeDescription);
+		}
+
+		return attributeDescriptions;
+	}
 }

@@ -202,14 +202,16 @@ namespace Snowstorm
 		colorBlending.blendConstants[3] = 0.0f; // Optional
 
 		// uniform values - to be specified by the VkPipelineLayout object
-		// TODO we will be using this at a later stage, keep it empty for now
+		CreateDescriptorSetLayout(); // create descriptor set layouts first
+
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+		VkDescriptorSetLayout descriptorSetLayout = *m_DescriptorSetLayout;
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 0; // Optional
-		pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+		pipelineLayoutInfo.setLayoutCount = 1;
+		pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
 		pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 		pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
-		// push constants -> another way of passing dynamic values to shaders
+		// push constants -> another way of passing dynamic values to shad
 
 		VkResult result = vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &m_PipelineLayout);
 		SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to create pipeline layout!");
@@ -262,5 +264,26 @@ namespace Snowstorm
 	{
 		vkDestroyPipeline(m_Device, m_GraphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(m_Device, m_PipelineLayout, nullptr);
+	}
+
+	void VulkanGraphicsPipeline::CreateDescriptorSetLayout()
+	{
+		// TODO make this actually parameterized
+		VkDescriptorSetLayoutBinding uboLayoutBinding{};
+		uboLayoutBinding.binding = 0;
+		uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		uboLayoutBinding.descriptorCount = 1;
+		uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
+
+		VkDescriptorSetLayoutBinding texLayoutBinding{};
+		texLayoutBinding.binding = 1;
+		texLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		texLayoutBinding.descriptorCount = 32;
+		texLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		texLayoutBinding.pImmutableSamplers = nullptr; // Optional
+
+		std::vector bindings = {uboLayoutBinding, texLayoutBinding};
+		m_DescriptorSetLayout = CreateScope<VulkanDescriptorSetLayout>(m_Device, bindings);
 	}
 }

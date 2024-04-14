@@ -75,7 +75,7 @@ namespace Snowstorm
 			const int success = glfwInit();
 			SS_CORE_ASSERT(success, "Could not initialize GLFW!");
 
-			if (Renderer::GetAPI() == RendererAPI::API::Vulkan)
+			if (Renderer::GetAPI() != RendererAPI::API::OpenGL)
 			{
 				// force it to not use OpenGL (default)
 				glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -117,7 +117,7 @@ namespace Snowstorm
 			data.EventCallback(event);
 		});
 
-		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, const int key, const int scancode, const int action,
+		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, const int key, const int scanCode, const int action,
 		                                const int mods)
 		{
 			const WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));

@@ -1,4 +1,5 @@
 #pragma once
+#include "VulkanDescriptorSetLayout.h"
 #include "VulkanDevice.h"
 
 namespace Snowstorm
@@ -20,12 +21,18 @@ namespace Snowstorm
 		}
 
 	private:
+		void CreateDescriptorSetLayout();
+
+	private:
 		VkDevice m_Device;
+
 
 		VkPipelineLayout m_PipelineLayout;
 
 		VkRenderPass m_RenderPass;
 
 		VkPipeline m_GraphicsPipeline;
+
+		Scope<VulkanDescriptorSetLayout> m_DescriptorSetLayout;
 	};
 }
