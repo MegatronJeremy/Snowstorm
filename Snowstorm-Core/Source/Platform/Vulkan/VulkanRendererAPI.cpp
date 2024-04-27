@@ -54,4 +54,15 @@ namespace Snowstorm
 		// Draw indexed
 		VulkanSwapChainQueue::GetInstance()->AddVertexArray(vertexArray, indexCount);
 	}
+
+	void VulkanRendererAPI::BeginFrame()
+	{
+		 // record the command buffer
+		 // const VkCommandBuffer commandBuffer = (*m_CommandBuffers)[VulkanContext::s_CurrentFrame];
+		 // vkResetCommandBuffer(commandBuffer, 0);
+	}
+
+	void VulkanRendererAPI::EndFrame()
+	{
+	}
 }

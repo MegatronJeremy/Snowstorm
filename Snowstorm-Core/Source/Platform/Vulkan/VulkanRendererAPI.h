@@ -18,6 +18,9 @@ namespace Snowstorm
 
 		void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount) override;
 
+		void BeginFrame();
+		void EndFrame();
+
 	private:
 		Scope<VulkanCommandBuffers> m_VulkanCommandBuffer;
 	};

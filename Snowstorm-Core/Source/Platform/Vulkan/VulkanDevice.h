@@ -35,6 +35,11 @@ namespace Snowstorm
 			return m_PresentQueue;
 		}
 
+		operator VkDevice() const
+		{
+			return m_Device;
+		}
+		
 	private:
 		void PickPhysicalDevice();
 

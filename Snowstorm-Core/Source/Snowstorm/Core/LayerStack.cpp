@@ -24,7 +24,7 @@ namespace Snowstorm
 
 	void LayerStack::PopLayer(const Layer* layer)
 	{
-		if (const auto it = std::find(m_Layers.begin(), m_Layers.end(), layer); it != m_Layers.end())
+		if (const auto it = std::ranges::find(m_Layers, layer); it != m_Layers.end())
 		{
 			m_Layers.erase(it);
 			m_LayerInsertIndex--;
@@ -33,7 +33,7 @@ namespace Snowstorm
 
 	void LayerStack::PopOverlay(const Layer* overlay)
 	{
-		if (const auto it = std::find(m_Layers.begin(), m_Layers.end(), overlay); it != m_Layers.end())
+		if (const auto it = std::ranges::find(m_Layers, overlay); it != m_Layers.end())
 		{
 			m_Layers.erase(it);
 		}
