@@ -60,27 +60,27 @@ namespace Snowstorm
 
     void VulkanShader::SetInt(const std::string& name, const int value)
     {
-        VulkanSwapChainQueue::GetInstance()->SetUniformBufferValue(name, &value, sizeof(int));
+        VulkanSwapChainQueue::GetInstance()->EnqueueUniformBufferValue(name, &value, sizeof(int));
     }
 
     void VulkanShader::SetIntArray(const std::string& name, int* values, const uint32_t count)
     {
-        VulkanSwapChainQueue::GetInstance()->SetUniformBufferValue(name, values, count * sizeof(int));
+        VulkanSwapChainQueue::GetInstance()->EnqueueUniformBufferValue(name, values, count * sizeof(int));
     }
 
     void VulkanShader::SetFloat(const std::string& name, const float value)
     {
-        VulkanSwapChainQueue::GetInstance()->SetUniformBufferValue(name, &value, sizeof(float));
+        VulkanSwapChainQueue::GetInstance()->EnqueueUniformBufferValue(name, &value, sizeof(float));
     }
 
     void VulkanShader::SetFloat3(const std::string& name, const glm::vec3& value)
     {
-        VulkanSwapChainQueue::GetInstance()->SetUniformBufferValue(name, &value, sizeof(glm::vec3));
+        VulkanSwapChainQueue::GetInstance()->EnqueueUniformBufferValue(name, &value, sizeof(glm::vec3));
     }
 
     void VulkanShader::SetFloat4(const std::string& name, const glm::vec4& value)
     {
-        VulkanSwapChainQueue::GetInstance()->SetUniformBufferValue(name, &value, sizeof(glm::vec4));
+        VulkanSwapChainQueue::GetInstance()->EnqueueUniformBufferValue(name, &value, sizeof(glm::vec4));
     }
 
     void VulkanShader::SetMat4(const std::string& name, const glm::mat4& value)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <queue>
+
 #include "VulkanDevice.h"
 #include "Snowstorm/Renderer/Buffer.h"
 
@@ -119,6 +121,9 @@ namespace Snowstorm
         VulkanUniformBuffer& operator=(VulkanUniformBuffer&& other) = delete;
 
         void SetData(const void* data, uint32_t dataSize) const;
+        void EnqueueData(const void* data, uint32_t dataSize);
+        void SetDataFromQueue();
+
         VkDeviceSize GetBufferSize() const { return m_BufferSize; }
 
         operator VkBuffer() const { return m_UniformBuffer; }
@@ -130,5 +135,7 @@ namespace Snowstorm
         VkDeviceSize m_BufferSize;
         VkDeviceMemory m_UniformBufferMemory;
         void* m_MappedMemory;
+
+        std::deque<std::pair<char*, uint32_t>> m_DataQueue;
     };
 }

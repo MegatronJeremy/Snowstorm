@@ -303,6 +303,31 @@ namespace Snowstorm
 
     void VulkanUniformBuffer::SetData(const void* data, const uint32_t dataSize) const
     {
-        memcpy(m_MappedMemory, data, dataSize);
+        memcpy_s(m_MappedMemory, dataSize, data, dataSize);
+    }
+
+    void VulkanUniformBuffer::EnqueueData(const void* data, const uint32_t dataSize)
+    {
+        SS_CORE_INFO("Enqueuing data for uniform buffer!");
+
+        auto queuedData = new char[dataSize];
+        memcpy_s(queuedData, dataSize, data, dataSize);
+
+        m_DataQueue.emplace_back(queuedData, dataSize);
+    }
+
+    void VulkanUniformBuffer::SetDataFromQueue()
+    {
+        SS_CORE_INFO("Setting data from queue for uniform buffer!");
+
+        if (m_DataQueue.empty())
+        {
+            return;
+        }
+
+        auto [data, dataSize] = m_DataQueue.front();
+        SetData(data, dataSize);
+
+        delete[] data;
     }
 }

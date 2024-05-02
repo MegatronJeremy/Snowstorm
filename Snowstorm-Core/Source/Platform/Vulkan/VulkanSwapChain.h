@@ -6,6 +6,7 @@
 #include "VulkanGraphicsPipeline.h"
 #include "VulkanRenderPass.h"
 #include "VulkanVertexArray.h"
+#include "glm/glm.hpp"
 #include "Platform/Windows/WindowsWindow.h"
 
 namespace Snowstorm
@@ -15,6 +16,18 @@ namespace Snowstorm
         VkSurfaceCapabilitiesKHR capabilities;
         std::vector<VkSurfaceFormatKHR> formats;
         std::vector<VkPresentModeKHR> presentModes;
+    };
+
+    struct UniformBufferObject
+    {
+        alignas(16) glm::mat4 viewProjection;
+    };
+
+    struct VulkanDrawCallCommand
+    {
+        Ref<VertexArray> vertexArray;
+        uint32_t indexCount;
+        UniformBufferObject uniformBufferObject;
     };
 
     class VulkanSwapChainQueue
@@ -29,21 +42,18 @@ namespace Snowstorm
             return s_Instance;
         }
 
-        void AddVertexArray(const Ref<VertexArray>& vertexArray, uint32_t indexCount);
+        void AddDrawCall(const VulkanDrawCallCommand& command);
+        VulkanDrawCallCommand GetNextDrawCall();
 
-        std::pair<Ref<VertexArray>, uint32_t> GetNextVertexArray();
-
-        void SetUniformBufferValue(const std::string& name, const void* data, uint32_t bufferSize);
-
+        void EnqueueUniformBufferValue(const std::string& name, const void* data, uint32_t bufferSize);
         Ref<VulkanUniformBuffer> GetUniformBuffer(const std::string& name);
 
         void SetDescriptorSetLayout(const std::string& name, const Ref<VulkanDescriptorSetLayout>& descriptorSetLayout);
-
         Ref<VulkanDescriptorSetLayout> GetDescriptorSetLayout(const std::string& name);
 
         bool IsEmpty() const
         {
-            return m_VertexArrays.empty();
+            return m_DrawCalls.empty();
         }
 
     private:
@@ -51,7 +61,7 @@ namespace Snowstorm
 
         static inline VulkanSwapChainQueue* s_Instance = nullptr;
 
-        std::queue<std::pair<Ref<VertexArray>, uint32_t>> m_VertexArrays;
+        std::queue<VulkanDrawCallCommand> m_DrawCalls;
 
         std::unordered_map<std::string, Ref<VulkanUniformBuffer>> m_UniformBuffers;
 
@@ -79,6 +89,8 @@ namespace Snowstorm
 
         void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex,
                                  const VkDescriptorSet& descriptorSet) const;
+
+        VkPipelineLayout GetPipelineLayout() const { return m_GraphicsPipeline->GetPipelineLayout(); }
 
         static VulkanSwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 

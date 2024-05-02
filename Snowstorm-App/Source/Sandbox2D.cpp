@@ -92,9 +92,7 @@ void Sandbox2D::OnUpdate(const Snowstorm::Timestep ts)
         Snowstorm::Renderer2D::DrawRotatedQuad({-2.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, glm::radians(rotation),
                                                m_CheckerboardTexture, 20.0f,
                                                glm::vec4(1.0f, 0.9f, 0.9f, 1.0f));
-        Snowstorm::Renderer::EndScene();
 
-        Snowstorm::Renderer2D::BeginScene(m_CameraController.GetCamera());
         for (float y = -5.0f; y < 5.0f; y += 0.5f)
         {
             for (float x = -5.0f; x < 5.0f; x += 0.5f)

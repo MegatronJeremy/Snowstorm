@@ -68,7 +68,7 @@ namespace Snowstorm
         m_PresentQueue = m_VulkanDevice->GetVkPresentQueue();
 
         // Create swap chain
-        m_SwapChain = CreateScope<VulkanSwapChain>(m_PhysicalDevice, m_Device, m_Surface, m_WindowHandle);
+        m_SwapChain = CreateRef<VulkanSwapChain>(m_PhysicalDevice, m_Device, m_Surface, m_WindowHandle);
 
         m_CommandPool = CreateRef<VulkanCommandPool>(m_Device, m_PhysicalDevice, m_Surface);
 
@@ -87,6 +87,9 @@ namespace Snowstorm
         CreateUniformBuffers();
         CreateDescriptorPool();
         CreateDescriptorSets();
+
+        // Assign context
+        s_VulkanContext = this;
     }
 
     void VulkanContext::SwapBuffers()
@@ -98,11 +101,10 @@ namespace Snowstorm
         // wait for the previous frame to finish
         m_InFlightFences[s_CurrentFrame]->Wait();
 
-        uint32_t imageIndex;
         VkResult result = vkAcquireNextImageKHR(m_Device, *m_SwapChain, UINT64_MAX,
                                                 *m_ImageAvailableSemaphores[s_CurrentFrame],
                                                 VK_NULL_HANDLE,
-                                                &imageIndex);
+                                                &m_CurrentImageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
         {
@@ -123,9 +125,10 @@ namespace Snowstorm
         const VkCommandBuffer commandBuffer = (*m_CommandBuffers)[s_CurrentFrame];
         vkResetCommandBuffer(commandBuffer, 0);
         // call this explicitly first to make sure it can be recorded to
-        // TODO move this to render call draw
-        m_SwapChain->RecordCommandBuffer((*m_CommandBuffers)[s_CurrentFrame], imageIndex,
+
+        m_SwapChain->RecordCommandBuffer((*m_CommandBuffers)[s_CurrentFrame], m_CurrentImageIndex,
                                          (*m_DescriptorSets)[s_CurrentFrame]);
+
 
         // submit the command buffer
         VkSubmitInfo submitInfo{};
@@ -147,8 +150,7 @@ namespace Snowstorm
         result = vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, *m_InFlightFences[s_CurrentFrame]);
         SS_CORE_ASSERT(result == VK_SUCCESS, "Failed to submit draw command buffer!");
 
-
-        // the CPU will wait for the m_Command buffer to finish executing before recording new commands into it
+        // the CPU will wait for the command buffer to finish executing before recording new commands into it
 
         // last step of drawing the frame - submitting the result back to the swap chain to have it show up on screen
         VkPresentInfoKHR presentInfo{};
@@ -160,7 +162,7 @@ namespace Snowstorm
         const VkSwapchainKHR swapChains[] = {*m_SwapChain}; // almost always a single one
         presentInfo.swapchainCount = 1;
         presentInfo.pSwapchains = swapChains;
-        presentInfo.pImageIndices = &imageIndex;
+        presentInfo.pImageIndices = &m_CurrentImageIndex;
 
         presentInfo.pResults = nullptr; // Optional - specifying an array of VkResult to check for every swap chain
 
@@ -186,10 +188,46 @@ namespace Snowstorm
 
     void VulkanContext::UpdateViewProjection(const glm::mat4& mat)
     {
-        s_ViewProjection.viewProjection = mat;
+        s_UniformBufferObject.viewProjection = mat;
 
-        s_UniformBuffers[s_CurrentFrame]->SetData(&s_ViewProjection, sizeof(s_ViewProjection));
+        // the Vulkan normalized coordinates are inverted in regards to OpenGL, so need to flip the Y coordinate
+        // TODO see why this isn't working
+        // s_ViewProjection.viewProjection[1][1] *= -1.0;
+
+        // s_UniformBuffers[s_CurrentFrame]->SetData(&s_ViewProjection, sizeof(s_ViewProjection));
     }
+
+    const UniformBufferObject& VulkanContext::GetUniformBufferObject()
+    {
+        return s_UniformBufferObject;
+    }
+
+    void VulkanContext::SubmitUniformBufferObject(const UniformBufferObject& uniformBufferObject)
+    {
+        s_UniformBuffers[s_CurrentFrame]->SetData(&uniformBufferObject, sizeof(uniformBufferObject));
+    }
+
+    VulkanContext* VulkanContext::Get()
+    {
+        SS_CORE_ASSERT(s_VulkanContext != nullptr, "Vulkan context is set to null!");
+        return s_VulkanContext;
+    }
+
+    const Ref<VulkanSwapChain>& VulkanContext::GetCurrentSwapChain()
+    {
+        return m_SwapChain;
+    }
+
+    VkCommandBuffer VulkanContext::GetCurrentFrameCommandBuffer() const
+    {
+        return (*m_CommandBuffers)[s_CurrentFrame];
+    }
+
+    VkDescriptorSet VulkanContext::GetCurrentFrameDescriptorSet() const
+    {
+        return (*m_DescriptorSets)[s_CurrentFrame];
+    }
+
 
     void VulkanContext::CreateDescriptorPool()
     {

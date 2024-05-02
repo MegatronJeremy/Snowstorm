@@ -5,37 +5,34 @@
 #include <queue>
 #include <GLFW/glfw3.h>
 
+#include "VulkanContext.h"
 #include "VulkanQueueFamilyIndices.h"
 
 namespace Snowstorm
 {
-    void VulkanSwapChainQueue::AddVertexArray(const Ref<VertexArray>& vertexArray, const uint32_t indexCount)
+    void VulkanSwapChainQueue::AddDrawCall(const VulkanDrawCallCommand& command)
     {
-        m_VertexArrays.emplace(vertexArray, indexCount == 0 ? vertexArray->GetIndexBuffer()->GetCount() : indexCount);
+        m_DrawCalls.emplace(command);
     }
 
-    std::pair<Ref<VertexArray>, uint32_t> VulkanSwapChainQueue::GetNextVertexArray()
+    VulkanDrawCallCommand VulkanSwapChainQueue::GetNextDrawCall()
     {
-        if (!m_VertexArrays.empty())
-        {
-            auto [nextVertexArray, indexCount] = m_VertexArrays.front();
-            m_VertexArrays.pop();
+        SS_CORE_ASSERT(!m_DrawCalls.empty(), "No draw calls available!");
 
-            return {nextVertexArray, indexCount};
-        }
+        auto nextDrawCall = m_DrawCalls.front();
+        m_DrawCalls.pop();
 
-        return {nullptr, 0};
+        return nextDrawCall;
     }
 
-
-    void VulkanSwapChainQueue::SetUniformBufferValue(const std::string& name, const void* data, uint32_t bufferSize)
+    void VulkanSwapChainQueue::EnqueueUniformBufferValue(const std::string& name, const void* data, uint32_t bufferSize)
     {
         if (!m_UniformBuffers.contains(name))
         {
             m_UniformBuffers.emplace(name, CreateRef<VulkanUniformBuffer>(bufferSize));
         }
 
-        m_UniformBuffers[name]->SetData(data, bufferSize);
+        m_UniformBuffers[name]->EnqueueData(data, bufferSize);
     }
 
     Ref<VulkanUniformBuffer> VulkanSwapChainQueue::GetUniformBuffer(const std::string& name)
@@ -157,7 +154,10 @@ namespace Snowstorm
         while (!swapChainQueue->IsEmpty())
         {
             // get next vertex array
-            auto [vertexArray, indexCount] = swapChainQueue->GetNextVertexArray();
+            auto [vertexArray, indexCount, uniformBufferObject] = swapChainQueue->GetNextDrawCall();
+
+            // bind the uniform buffer data
+            VulkanContext::SubmitUniformBufferObject(uniformBufferObject);
 
             std::vector<VkBuffer> vertexBuffers;
 

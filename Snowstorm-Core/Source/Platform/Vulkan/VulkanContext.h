@@ -16,23 +16,33 @@ namespace Snowstorm
     {
     public:
         explicit VulkanContext(GLFWwindow* windowHandle);
+        ~VulkanContext() override;
 
         VulkanContext(const VulkanContext& other) = delete;
         VulkanContext(VulkanContext&& other) = delete;
         VulkanContext& operator=(const VulkanContext& other) = delete;
         VulkanContext& operator=(VulkanContext&& other) = delete;
 
-        ~VulkanContext() override;
-
         void Init() override;
         void SwapBuffers() override;
 
         static void UpdateViewProjection(const glm::mat4& mat);
+        static const UniformBufferObject& GetUniformBufferObject();
+
+        static void SubmitUniformBufferObject(const UniformBufferObject& uniformBufferObject);
+
+        static VulkanContext* Get();
+
+        const Ref<VulkanSwapChain>& GetCurrentSwapChain();
+        VkCommandBuffer GetCurrentFrameCommandBuffer() const;
+        VkDescriptorSet GetCurrentFrameDescriptorSet() const;
 
     private:
         static void CreateUniformBuffers();
         void CreateDescriptorPool();
         void CreateDescriptorSets();
+
+        void SubmitDrawCall(const Ref<VertexArray>& vertexArray, uint32_t indexCount) const;
 
         GLFWwindow* m_WindowHandle = VK_NULL_HANDLE;
         VkSurfaceKHR m_Surface = VK_NULL_HANDLE; // window m_Surface - tied to the GLFW window
@@ -44,12 +54,11 @@ namespace Snowstorm
         Ref<VulkanCommandPool> m_CommandPool;
         Scope<VulkanCommandBuffers> m_CommandBuffers;
 
-        Scope<VulkanSwapChain> m_SwapChain;
+        Ref<VulkanSwapChain> m_SwapChain;
 
         std::vector<Scope<VulkanSemaphore>> m_ImageAvailableSemaphores;
         std::vector<Scope<VulkanSemaphore>> m_RenderFinishedSemaphores;
         std::vector<Scope<VulkanFence>> m_InFlightFences;
-
 
         bool m_FramebufferResized = false;
 
@@ -59,13 +68,14 @@ namespace Snowstorm
         Scope<VulkanDescriptorPool> m_DescriptorPool;
         Scope<VulkanDescriptorSets> m_DescriptorSets;
 
+        uint32_t m_CurrentImageIndex = 0;
+
         static inline uint32_t s_CurrentFrame = 0;
 
-        static inline struct UniformBufferObject
-        {
-            alignas(16) glm::mat4 viewProjection;
-        } s_ViewProjection{};
+        static inline UniformBufferObject s_UniformBufferObject{};
 
         static inline std::vector<Ref<VulkanUniformBuffer>> s_UniformBuffers{};
+
+        static inline VulkanContext* s_VulkanContext = nullptr;
     };
 }
