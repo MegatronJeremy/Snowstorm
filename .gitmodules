@@ -1,6 +1,3 @@
-[submodule "Snowstorm-Core/Vendor/glm"]
-	path = Snowstorm-Core/Vendor/glm
-	url = https://github.com/g-truc/glm
 [submodule "Snowstorm-Core/Vendor/GLFW"]
 	path = Snowstorm-Core/Vendor/GLFW
 	url = https://github.com/glfw/glfw
