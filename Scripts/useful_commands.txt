@@ -1,2 +1,0 @@
-- Replace Windows endline with a Unix one - needed for bash scripts saved under Windows:
-sed -i 's/\r$//' filename
