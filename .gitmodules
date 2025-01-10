@@ -4,3 +4,9 @@
 [submodule "Snowstorm-Core/Vendor/imgui"]
 	path = Snowstorm-Core/Vendor/imgui
 	url = https://github.com/MegatronJeremy/imgui
+[submodule "Snowstorm-Core/Vendor/GLFW"]
+	path = Snowstorm-Core/Vendor/GLFW
+	url = https://github.com/MegatronJeremy/GLFW
+[submodule "Snowstorm-Core/Vendor/glm"]
+	path = Snowstorm-Core/Vendor/glm
+	url = https://github.com/MegatronJeremy/glm
