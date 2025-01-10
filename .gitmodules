@@ -1,3 +1,6 @@
 [submodule "Snowstorm-Core/Vendor/spdlog"]
 	path = Snowstorm-Core/Vendor/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "Snowstorm-Core/Vendor/imgui"]
+	path = Snowstorm-Core/Vendor/imgui
+	url = https://github.com/MegatronJeremy/imgui
