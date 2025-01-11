@@ -10,3 +10,9 @@
 [submodule "Snowstorm-Core/Vendor/glm"]
 	path = Snowstorm-Core/Vendor/glm
 	url = https://github.com/MegatronJeremy/glm
+[submodule "Snowstorm-Core/Vendor/Vulkan-Headers"]
+	path = Snowstorm-Core/Vendor/Vulkan-Headers
+	url = https://github.com/KhronosGroup/Vulkan-Headers
+[submodule "Snowstorm-Core/Vendor/Vulkan-Loader"]
+	path = Snowstorm-Core/Vendor/Vulkan-Loader
+	url = https://github.com/MegatronJeremy/Vulkan-Loader
