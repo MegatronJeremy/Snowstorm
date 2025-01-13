@@ -1,5 +1,6 @@
 # Directories
 .vs/
+.idea/
 Binaries/
 
 # Files
@@ -9,6 +10,7 @@ Binaries/
 *.sln
 *.log
 *.json
+*.exe
 Makefile
 
 # Exclude
