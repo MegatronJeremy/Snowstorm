@@ -12,9 +12,9 @@ files {"Source/**.h", "Source/**.cpp", "Vendor/stb_image/**.h", "Vendor/stb_imag
              "Vendor/glm/glm/**.hpp", "Vendor/glm/glm/**.inl"}
 
 includedirs {"Source", "%{IncludeDir.spdlog}", "%{IncludeDir.GLFW}", "%{IncludeDir.glm}", "%{IncludeDir.Glad}",
-             "%{IncludeDir.ImGui}", "%{IncludeDir.stb_image}", "%{IncludeDir.entt}", "%{IncludeDir.VulkanSDK}"}
+             "%{IncludeDir.ImGui}", "%{IncludeDir.stb_image}", "%{IncludeDir.entt}", "%{IncludeDir.VulkanHeaders}"}
 
-links {"GLFW", "Glad", "ImGui", "opengl32.lib", "%{Library.Vulkan}"}
+links {"GLFW", "Glad", "ImGui", "opengl32.lib", "Vulkan-Loader"}
 
 targetdir("../Binaries/" .. OutputDir .. "/%{prj.name}")
 objdir("../Binaries/Intermediates/" .. OutputDir .. "/%{prj.name}")

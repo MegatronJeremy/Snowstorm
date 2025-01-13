@@ -10,7 +10,7 @@ IncludeDir["glm"] = "%{wks.location}/Snowstorm-Core/Vendor/glm"
 IncludeDir["ImGui"] = "%{wks.location}/Snowstorm-Core/Vendor/imgui"
 IncludeDir["stb_image"] = "%{wks.location}/Snowstorm-Core/Vendor/stb_image"
 IncludeDir["entt"] = "%{wks.location}/Snowstorm-Core/Vendor/entt/include"
-IncludeDir["VulkanSDK"] = "%{VULKAN_SDK}/Include"
+IncludeDir["VulkanHeaders"] = "%{wks.location}/Snowstorm-Core/Vendor/Vulkan-Headers/include"
 
 LibraryDir = {}
 

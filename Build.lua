@@ -16,6 +16,7 @@ group "Dependencies"
 include "Snowstorm-Core/Vendor/GLFW/Build-GLFW.lua"
 include "Snowstorm-Core/Vendor/Glad/Build-Glad.lua"
 include "Snowstorm-Core/Vendor/imgui/Build-ImGui.lua"
+include "Snowstorm-Core/Vendor/Vulkan-Loader/Build-VulkanLoader.lua"
 group ""
 
 include "Snowstorm-App/Build-App.lua"
