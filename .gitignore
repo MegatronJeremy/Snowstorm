@@ -2,6 +2,7 @@
 .vs/
 .idea/
 Binaries/
+build/
 
 # Files
 *.vcxproj
@@ -11,6 +12,8 @@ Binaries/
 *.log
 *.json
 *.exe
+*.DotSettings
+*.DotSettings.user
 Makefile
 
 # Exclude
