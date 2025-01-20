@@ -3,6 +3,7 @@
 .idea/
 Binaries/
 build/
+venv/
 
 # Files
 *.vcxproj
