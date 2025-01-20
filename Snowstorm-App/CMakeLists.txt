@@ -1,7 +1,7 @@
 # Snowstorm-App CMake Configuration
 add_executable(Snowstorm-App)
 
-# Set the C++ standard
+# Set C++ standard
 set_target_properties(Snowstorm-App PROPERTIES
     CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
@@ -19,20 +19,11 @@ target_sources(Snowstorm-App PRIVATE ${APP_SOURCES})
 target_include_directories(Snowstorm-App PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/Source
     ${CMAKE_SOURCE_DIR}/Snowstorm-Core/Source
-    ${CMAKE_SOURCE_DIR}/Vendor/glm
-    ${CMAKE_SOURCE_DIR}/Vendor/entt/include
-    ${CMAKE_SOURCE_DIR}/Vendor/ImGui
-    ${CMAKE_SOURCE_DIR}/Vendor/spdlog/include
 )
 
-# Link the Snowstorm-Core library
-target_link_libraries(Snowstorm-App PRIVATE Snowstorm-Core)
-
-# Output directories
-set_target_properties(Snowstorm-App PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries/$<CONFIG>/Snowstorm-App
-    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries/$<CONFIG>/Snowstorm-App
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries/$<CONFIG>/Snowstorm-App
+# Link libraries
+target_link_libraries(Snowstorm-App PRIVATE
+    Snowstorm-Core  # Link the core library
 )
 
 # Platform-specific settings
@@ -49,10 +40,8 @@ target_compile_definitions(Snowstorm-App PRIVATE
 )
 
 # Runtime library options
-target_compile_options(Snowstorm-App PRIVATE
-    $<$<CONFIG:Debug>:/MDd> # Dynamic Debug runtime
-    $<$<CONFIG:Release>:/MD> # Dynamic Release runtime
-    $<$<CONFIG:Dist>:/MD>    # Dynamic Distribution runtime
+set_target_properties(Snowstorm-App PROPERTIES
+    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
 )
 
 # Optimization flags for Release and Dist
