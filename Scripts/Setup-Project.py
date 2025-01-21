@@ -45,7 +45,7 @@ def ensure_pip_in_venv(venv_dir):
 
 def ensure_conan_profile(conan_executable):
     """
-    Ensure the default Conan profile exists.
+    Ensure the default Conan profile exists and set C++ standard to 20.
     """
     conan_home = os.path.expanduser("~/.conan2")
     default_profile = os.path.join(conan_home, "profiles", "default")
@@ -53,8 +53,6 @@ def ensure_conan_profile(conan_executable):
         print("Default Conan profile not found. Detecting and creating it...")
         run_command(f'"{conan_executable}" profile detect')
         print("Default Conan profile created.")
-    else:
-        print("Default Conan profile already exists.")
 
 
 def configure_cmake(build_dir, project_root):
@@ -63,7 +61,7 @@ def configure_cmake(build_dir, project_root):
     """
     cmake_command = (
         f'cmake -G "Visual Studio 17 2022" -A x64 '
-        f'-DCMAKE_TOOLCHAIN_FILE="{os.path.join(build_dir, "conan_toolchain.cmake")}" '
+        f'-DCMAKE_TOOLCHAIN_FILE="{build_dir}/generators/conan_toolchain.cmake" '
         f'-S "{project_root}" -B "{build_dir}"'
     )
     print("Configuring the CMake project...")
@@ -99,7 +97,10 @@ def main():
     print("Running Conan install...")
     conan_install_command = (
         f'"{conan_executable}" install "{project_root}" '
-        f'--output-folder="{build_dir}" --build=missing'
+        f'--build=missing '
+        f'-s os=Windows -s arch=x86_64 -s build_type=Release '
+        f'-s compiler=msvc -s compiler.version=193 -s compiler.runtime=dynamic '
+        f'-s compiler.cppstd=20'
     )
     run_command(conan_install_command)
 
