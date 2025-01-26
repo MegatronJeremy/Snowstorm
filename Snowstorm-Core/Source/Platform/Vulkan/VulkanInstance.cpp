@@ -52,9 +52,7 @@ namespace Snowstorm
         createInfo.pApplicationInfo = &appInfo;
 
         // platform agnostic - need an extension to interface with the window system
-        auto requiredExtensions = GetRequiredExtensions();
-        createInfo.enabledExtensionCount = static_cast<uint32_t>(requiredExtensions.size());
-        createInfo.ppEnabledExtensionNames = requiredExtensions.data();
+        auto enabledExtensions = GetRequiredExtensions();
 
         // check for other available extensions
         uint32_t extensionCount = 0;
@@ -63,19 +61,20 @@ namespace Snowstorm
         std::vector<VkExtensionProperties> availableExtensions(extensionCount);
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, availableExtensions.data());
 
-        // SS_CORE_INFO("Available extensions:");
-
+        // Check for additional extension
         for (const auto& extension : availableExtensions)
         {
-            // SS_CORE_INFO("	{0}", extension.extensionName);
+            // Check for macOS MoltenVK sdk (required now)
             if (strcmp(extension.extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0)
             {
-                // this is required now because of certain MacOS MoltenVK sdk-s
-                requiredExtensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+                enabledExtensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 
                 createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
             }
         }
+
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(enabledExtensions.size());
+        createInfo.ppEnabledExtensionNames = enabledExtensions.data();
 
         // handle validation layers
         // and add additional debug messenger just for vkCreateInstance

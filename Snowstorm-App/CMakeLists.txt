@@ -26,31 +26,10 @@ target_link_libraries(Snowstorm-App PRIVATE
     Snowstorm-Core  # Link the core library
 )
 
-# Platform-specific settings
-if(WIN32)
-    target_compile_definitions(Snowstorm-App PRIVATE WINDOWS)
-    target_compile_options(Snowstorm-App PRIVATE /EHsc)
-endif()
-
-# Configuration-specific settings
-target_compile_definitions(Snowstorm-App PRIVATE
-    $<$<CONFIG:Debug>:DEBUG>
-    $<$<CONFIG:Release>:RELEASE>
-    $<$<CONFIG:Dist>:DIST>
+# Copy assets to build directory
+add_custom_command(TARGET Snowstorm-App
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/Assets
+    ${CMAKE_CURRENT_BINARY_DIR}/Assets
 )
-
-# Runtime library options
-set_target_properties(Snowstorm-App PROPERTIES
-    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>"
-)
-
-# Optimization flags for Release and Dist
-target_compile_options(Snowstorm-App PRIVATE
-    $<$<CONFIG:Release>:/O2>
-    $<$<CONFIG:Dist>:/O2>
-)
-
-# Symbols for Debug builds
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_options(Snowstorm-App PRIVATE /Z7)
-endif()

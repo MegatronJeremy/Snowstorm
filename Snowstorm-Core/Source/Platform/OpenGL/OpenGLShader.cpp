@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "OpenGLShader.h"
 
-#include <glad/glad.h>
+#include <GL/glew.h>
 
 #include <glm/gtc/type_ptr.hpp>
 

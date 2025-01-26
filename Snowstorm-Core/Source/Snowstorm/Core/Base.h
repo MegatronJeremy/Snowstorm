@@ -4,6 +4,11 @@
 
 #include <memory>
 
+// TODO see what to do with this define
+#ifdef _DEBUG
+#define SS_DEBUG
+#endif
+
 #ifdef SS_DEBUG
 #if defined(SS_PLATFORM_WINDOWS)
 #define SS_DEBUGBREAK() __debugbreak()

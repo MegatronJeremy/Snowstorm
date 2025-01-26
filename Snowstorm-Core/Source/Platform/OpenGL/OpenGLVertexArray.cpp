@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "OpenGLVertexArray.h"
 
-#include <glad/glad.h>
+#include <GL/glew.h>
 
 namespace Snowstorm
 {

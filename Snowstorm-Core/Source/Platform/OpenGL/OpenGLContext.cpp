@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "OpenGLContext.h"
 
-#include <glad/glad.h>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 namespace Snowstorm
@@ -17,8 +17,10 @@ namespace Snowstorm
 		SS_PROFILE_FUNCTION();
 
 		glfwMakeContextCurrent(m_WindowHandle);
-		const int status = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
-		SS_CORE_ASSERT(status, "Failed to initialize Glad!")
+
+		glewExperimental = GL_TRUE;
+		const GLenum status = glewInit();
+		SS_CORE_ASSERT(!status, fmt::format("Failed to initialize glew: {}", reinterpret_cast<const char*>(glewGetErrorString(status))));
 
 		SS_CORE_INFO("  Vendor: {0}", reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
 		SS_CORE_INFO("  Renderer: {0}", reinterpret_cast<const char*>(glGetString(GL_RENDERER)));

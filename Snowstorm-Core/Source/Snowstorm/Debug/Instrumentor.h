@@ -1,10 +1,10 @@
 #pragma once
 
-#include <string>
 #include <algorithm>
 #include <fstream>
-
+#include <string>
 #include <thread>
+#include <windows.h>
 
 namespace Snowstorm
 {
@@ -24,9 +24,7 @@ namespace Snowstorm
 	{
 	public:
 		Instrumentor()
-			: m_CurrentSession(nullptr), m_ProfileCount(0)
-		{
-		}
+			: m_CurrentSession(nullptr), m_ProfileCount(0) {}
 
 		void BeginSession(const std::string& name, const std::string& filepath = "results.json")
 		{

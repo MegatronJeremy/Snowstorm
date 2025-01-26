@@ -3,7 +3,6 @@
 
 #include "VulkanDebugMessenger.h"
 
-
 namespace Snowstorm
 {
     namespace Vulkan

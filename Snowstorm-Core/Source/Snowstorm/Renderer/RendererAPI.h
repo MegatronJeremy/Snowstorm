@@ -36,6 +36,6 @@ namespace Snowstorm
         static API GetAPI() { return s_API; }
 
     private:
-        inline static auto s_API = API::OpenGL;
+        inline static auto s_API = API::Vulkan;
     };
 }

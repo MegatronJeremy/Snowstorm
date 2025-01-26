@@ -1,8 +1,7 @@
 #include "pch.h"
 #include "OpenGLRendererAPI.h"
 
-#include <glad/glad.h>
-#include <vulkan/vulkan_core.h>
+#include <GL/glew.h>
 
 namespace Snowstorm
 {

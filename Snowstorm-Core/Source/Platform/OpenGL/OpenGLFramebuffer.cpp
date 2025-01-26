@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "OpenGLFramebuffer.h"
 
-#include <glad/glad.h>
+#include <GL/glew.h>
 
 namespace Snowstorm
 {

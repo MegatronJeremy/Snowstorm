@@ -55,16 +55,28 @@ def ensure_conan_profile(conan_executable):
         print("Default Conan profile created.")
 
 
-def configure_cmake(build_dir, project_root):
+def install_conan(conan_executable, project_root, build_type):
     """
-    Configure the CMake project using the Conan toolchain file.
+    Install Conan dependencies for the specified build type.
     """
-    cmake_command = (
-        f'cmake -G "Visual Studio 17 2022" -A x64 '
-        f'-DCMAKE_TOOLCHAIN_FILE="{build_dir}/generators/conan_toolchain.cmake" '
-        f'-S "{project_root}" -B "{build_dir}"'
+    print(f"Running Conan install for {build_type} configuration...")
+    conan_install_command = (
+        f'"{conan_executable}" install "{project_root}" '
+        f'--build=missing '
+        f'-s os=Windows -s arch=x86_64 -s build_type={build_type} '
+        f'-s compiler=msvc -s compiler.version=193 -s compiler.runtime=dynamic '
+        f'-s compiler.cppstd=20'
     )
-    print("Configuring the CMake project...")
+    run_command(conan_install_command)
+
+
+def configure_cmake():
+    """
+    Configure the CMake project for the specified build type using presets.
+    """
+    cmake_preset = f"conan-default"
+    cmake_command = f'cmake --preset {cmake_preset}'
+    print(f"Configuring the CMake project using preset: {cmake_preset}...")
     run_command(cmake_command)
 
 
@@ -93,28 +105,17 @@ def main():
     # Step 4: Ensure the default Conan profile exists
     ensure_conan_profile(conan_executable)
 
-    # Step 5: Run Conan install using the executable
-    print("Running Conan install...")
-    conan_install_command = (
-        f'"{conan_executable}" install "{project_root}" '
-        f'--build=missing '
-        f'-s os=Windows -s arch=x86_64 -s build_type=Release '
-        f'-s compiler=msvc -s compiler.version=193 -s compiler.runtime=dynamic '
-        f'-s compiler.cppstd=20'
-    )
-    run_command(conan_install_command)
+    # Step 5: Install Conan dependencies and configure CMake for all build types
+    build_types = ["Release", "Debug", "RelWithDebInfo"]
 
-    # Step 6: Create the build directory if it doesn't exist
-    if not os.path.exists(build_dir):
-        os.makedirs(build_dir)
-        print(f"Created build directory at {build_dir}.")
-    else:
-        print(f"Build directory already exists at {build_dir}.")
+    for build_type in build_types:
+        # Install Conan for this build type
+        install_conan(conan_executable, project_root, build_type)
 
-    # Step 7: Configure the CMake project
-    configure_cmake(build_dir, project_root)
+    # Configure CMake for multi-configuration generator
+    configure_cmake()
 
-    print("\nSetup completed successfully. You can now open the Visual Studio project file.")
+    print("\nSetup completed successfully. You can now open the Visual Studio project files.")
     print(f"Path: {os.path.join(build_dir, 'Snowstorm.sln')}")
 
 if __name__ == "__main__":

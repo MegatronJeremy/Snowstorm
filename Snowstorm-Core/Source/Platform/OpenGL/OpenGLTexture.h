@@ -2,7 +2,7 @@
 
 #include "Snowstorm/Renderer/Texture.h"
 
-#include <glad/glad.h>
+#include <GL/glew.h>
 
 namespace Snowstorm
 {
