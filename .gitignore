@@ -4,6 +4,7 @@
 Binaries/
 build/
 venv/
+Snowstorm-Core/Source/Platform/OpenGL/backends
 
 # Files
 *.vcxproj
