@@ -1,4 +1,7 @@
 # Snowstorm-App CMake Configuration
+cmake_minimum_required(VERSION 3.15)
+project(Snowstorm-App VERSION 1.0 LANGUAGES CXX)
+
 add_executable(Snowstorm-App)
 
 # Set C++ standard

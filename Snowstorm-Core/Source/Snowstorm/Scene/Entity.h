@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene.h"
+#include "Snowstorm/Core/Log.h"
 
 #include <entt/entt.hpp>
 
