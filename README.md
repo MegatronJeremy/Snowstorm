@@ -1,4 +1,4 @@
-# Megatron Game Engine
+# Megatron Engine
 
 Next generation Vulkan game engine.
 
