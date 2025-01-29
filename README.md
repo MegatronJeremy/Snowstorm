@@ -2,11 +2,12 @@
 
 If God permits this will one day be a full-fledged Vulkan game engine.
 
-There are two included projects - one called _Core_, and one called _App_. [Premake](https://github.com/premake/premake-core) is used to generate project files.
+There are three included projects - __Core__, __App__ and __Editor__. __CMake__ in conjunction with __Conan2__ is used to generate project files.
 
-Core builds into a static library and is meant to contain common code intended for use in multiple applications. App builds into an executable and links the Core static library, as well as provides an include path to Core's code.
+Core builds into a static library and is meant to contain common code intended for use in multiple applications. 
+App and Editor build into an executable and link the Core static library, as well as having an include path to Core's code.
 
-The `Scripts/` directory contains build scripts for Windows and Linux, and the `Vendor/` directory contains Premake binaries (currently version `5.0-beta2`).
+The `Scripts/` directory contains a generate solution script for a Visual Studio solution file, as well as a build script.
 
 ## License
 - UNLICENSE for this repository (see `UNLICENSE.txt` for more details)
