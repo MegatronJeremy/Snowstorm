@@ -16,6 +16,7 @@ Snowstorm-Core/Source/Platform/OpenGL/backends
 *.exe
 *.DotSettings
 *.DotSettings.user
+*.ini
 Makefile
 
 # Exclude
