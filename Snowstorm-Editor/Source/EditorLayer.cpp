@@ -25,20 +25,20 @@ namespace Snowstorm
 		m_ActiveScene = CreateRef<Scene>();
 
 		// Entity
-		auto square = m_ActiveScene->CreateEntity("Amazing Square");
-		square.AddComponent<SpriteRendererComponent>(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
-		square.GetComponent<TransformComponent>().Transform[3][0] += 2.0f;
+		auto square = m_ActiveScene->createEntity("Amazing Square");
+		square.addComponent<SpriteRendererComponent>(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
+		square.getComponent<TransformComponent>().Transform[3][0] += 2.0f;
 
-		auto redSquare = m_ActiveScene->CreateEntity("Red Square");
-		redSquare.AddComponent<SpriteRendererComponent>(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
+		auto redSquare = m_ActiveScene->createEntity("Red Square");
+		redSquare.addComponent<SpriteRendererComponent>(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
 
 		m_SquareEntity = square;
 
-		m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
-		m_CameraEntity.AddComponent<CameraComponent>();
+		m_CameraEntity = m_ActiveScene->createEntity("Camera Entity");
+		m_CameraEntity.addComponent<CameraComponent>();
 
-		m_SecondCamera = m_ActiveScene->CreateEntity("Clip-Space Entity");
-		auto& cc = m_SecondCamera.AddComponent<CameraComponent>();
+		m_SecondCamera = m_ActiveScene->createEntity("Clip-Space Entity");
+		auto& cc = m_SecondCamera.addComponent<CameraComponent>();
 		cc.Primary = false;
 
 		class CameraController : public ScriptableEntity
@@ -46,13 +46,13 @@ namespace Snowstorm
 		public:
 			void OnCreate() override
 			{
-				auto& transform = GetComponent<TransformComponent>().Transform;
+				auto& transform = getComponent<TransformComponent>().Transform;
 				transform[3][0] = rand() % 10 - 5.0f;
 			}
 
 			void OnUpdate(const Timestep ts) override
 			{
-				auto& transform = GetComponent<TransformComponent>().Transform;
+				auto& transform = getComponent<TransformComponent>().Transform;
 				constexpr float speed = 5.0f;
 
 				if (Input::IsKeyPressed(Key::A))
@@ -66,8 +66,8 @@ namespace Snowstorm
 			}
 		};
 
-		m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
-		m_SecondCamera.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+		m_CameraEntity.addComponent<NativeScriptComponent>().Bind<CameraController>();
+		m_SecondCamera.addComponent<NativeScriptComponent>().Bind<CameraController>();
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 	}
@@ -90,7 +90,7 @@ namespace Snowstorm
 			m_Framebuffer->Resize(static_cast<uint32_t>(m_ViewportSize.x), static_cast<uint32_t>(m_ViewportSize.y));
 			m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
-			m_ActiveScene->OnViewportResize(static_cast<uint32_t>(m_ViewportSize.x),
+			m_ActiveScene->onViewportResize(static_cast<uint32_t>(m_ViewportSize.x),
 			                                static_cast<uint32_t>(m_ViewportSize.y));
 		}
 
@@ -105,7 +105,7 @@ namespace Snowstorm
 		RenderCommand::Clear();
 
 		// Update scene
-		m_ActiveScene->OnUpdate(ts);
+		m_ActiveScene->onUpdate(ts);
 
 		m_Framebuffer->Unbind();
 	}
@@ -131,7 +131,7 @@ namespace Snowstorm
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 			windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-				ImGuiWindowFlags_NoMove;
+			ImGuiWindowFlags_NoMove;
 			windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 		}
 		else
@@ -194,24 +194,24 @@ namespace Snowstorm
 		if (m_SquareEntity)
 		{
 			ImGui::Separator();
-			ImGui::Text("%s", m_SquareEntity.GetComponent<TagComponent>().Tag.c_str());
+			ImGui::Text("%s", m_SquareEntity.getComponent<TagComponent>().Tag.c_str());
 
-			auto& squareColor = m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;
+			auto& squareColor = m_SquareEntity.getComponent<SpriteRendererComponent>().Color;
 			ImGui::ColorEdit4("Square Color", value_ptr(squareColor));
 			ImGui::Separator();
 		}
 
 		ImGui::DragFloat3("Camera Transform", value_ptr(
-			                  m_CameraEntity.GetComponent<TransformComponent>().Transform[3]));
+			                  m_CameraEntity.getComponent<TransformComponent>().Transform[3]));
 
 		if (ImGui::Checkbox("Camera A", &m_PrimaryCamera))
 		{
-			m_CameraEntity.GetComponent<CameraComponent>().Primary = m_PrimaryCamera;
-			m_SecondCamera.GetComponent<CameraComponent>().Primary = !m_PrimaryCamera;
+			m_CameraEntity.getComponent<CameraComponent>().Primary = m_PrimaryCamera;
+			m_SecondCamera.getComponent<CameraComponent>().Primary = !m_PrimaryCamera;
 		}
 
 		{
-			auto& camera = m_SecondCamera.GetComponent<CameraComponent>().Camera;
+			auto& camera = m_SecondCamera.getComponent<CameraComponent>().Camera;
 			float orthoSize = camera.GetOrthographicSize();
 			if (ImGui::DragFloat("Second Camera Ortho Size", &orthoSize))
 				camera.SetOrthographicSize(orthoSize);

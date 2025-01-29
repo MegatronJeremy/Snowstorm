@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Scene.h"
-#include "Snowstorm/Core/Log.h"
+#include "Scene.hpp"
+#include <Snowstorm/Core/Log.h>
 
 #include <entt/entt.hpp>
 
@@ -22,30 +22,30 @@ namespace Snowstorm
 		Entity& operator=(Entity&&) = default;
 
 		template <typename T, typename... Args>
-		T& AddComponent(Args&&... args)
+		T& addComponent(Args&&... args)
 		{
-			SS_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
-			return m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+			SS_CORE_ASSERT(!hasComponent<T>(), "Entity already has component!");
+			return m_Scene->getRegistry().emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
 		}
 
 		template <typename T>
-		T& GetComponent()
+		T& getComponent()
 		{
-			SS_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-			return m_Scene->m_Registry.get<T>(m_EntityHandle);
+			SS_CORE_ASSERT(hasComponent<T>(), "Entity does not have component!");
+			return m_Scene->getRegistry().get<T>(m_EntityHandle);
 		}
 
 		template <typename T>
-		bool HasComponent() const
+		[[nodiscard]] bool hasComponent() const
 		{
-			return m_Scene->m_Registry.any_of<T>(m_EntityHandle);
+			return m_Scene->getRegistry().any_of<T>(m_EntityHandle);
 		}
 
 		template <typename T>
-		void RemoveComponent() const
+		void removeComponent() const
 		{
-			SS_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-			m_Scene->m_Registry.remove<T>(m_EntityHandle);
+			SS_CORE_ASSERT(hasComponent<T>(), "Entity does not have component!");
+			m_Scene->getRegistry().remove<T>(m_EntityHandle);
 		}
 
 		operator bool() const { return m_EntityHandle != entt::null; }
@@ -61,9 +61,8 @@ namespace Snowstorm
 			return !(*this == other);
 		}
 
-
 	private:
 		entt::entity m_EntityHandle = entt::null;
-		Scene* m_Scene = nullptr; 
+		Scene* m_Scene = nullptr;
 	};
 }

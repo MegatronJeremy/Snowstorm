@@ -4,27 +4,25 @@
 
 namespace Snowstorm
 {
-	class ScriptableEntity
+	class ScriptableEntity : NonCopyable
 	{
 	public:
-		virtual ~ScriptableEntity() = default;
-
 		template <typename T>
-		T& GetComponent()
+		T& getComponent()
 		{
-			return m_Entity.GetComponent<T>();
+			return m_Entity.getComponent<T>();
 		}
 
 	protected:
-		virtual void OnCreate()
+		virtual void onCreate()
 		{
 		}
 
-		virtual void OnDestroy()
+		virtual void onDestroy()
 		{
 		}
 
-		virtual void OnUpdate(Timestep ts)
+		virtual void onUpdate(Timestep ts)
 		{
 		}
 

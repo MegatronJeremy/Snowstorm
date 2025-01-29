@@ -12,12 +12,12 @@ namespace Snowstorm
 		SetContext(context);
 	}
 
-	void SceneHierarchyPanel::SetContext(const Ref<Scene>& context) 
+	void SceneHierarchyPanel::SetContext(const Ref<Scene>& context)
 	{
 		m_Context = context;
 	}
 
-	void SceneHierarchyPanel::OnImGuiRender() 
+	void SceneHierarchyPanel::OnImGuiRender()
 	{
 		ImGui::Begin("Scene Hierarchy");
 
@@ -47,11 +47,11 @@ namespace Snowstorm
 
 	void SceneHierarchyPanel::DrawEntityNode(Entity entity)
 	{
-		const auto& tag = entity.GetComponent<TagComponent>().Tag;
+		const auto& tag = entity.getComponent<TagComponent>().Tag;
 
 		const ImGuiTreeNodeFlags flags =
-			((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0)
-			| ImGuiTreeNodeFlags_OpenOnArrow;
+		((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0)
+		| ImGuiTreeNodeFlags_OpenOnArrow;
 
 		const bool opened = ImGui::TreeNodeEx(reinterpret_cast<void*>(typeid(TransformComponent).hash_code()),
 		                                      flags,
@@ -69,9 +69,9 @@ namespace Snowstorm
 
 	void SceneHierarchyPanel::DrawComponents(Entity entity)
 	{
-		if (entity.HasComponent<TagComponent>())
+		if (entity.hasComponent<TagComponent>())
 		{
-			auto& tag = entity.GetComponent<TagComponent>().Tag;
+			auto& tag = entity.getComponent<TagComponent>().Tag;
 
 			char buffer[256] = {0};
 			strcpy_s(buffer, sizeof(buffer), tag.c_str());
@@ -81,26 +81,26 @@ namespace Snowstorm
 			}
 		}
 
-		if (entity.HasComponent<TransformComponent>())
+		if (entity.hasComponent<TransformComponent>())
 		{
 			if (ImGui::TreeNodeEx(reinterpret_cast<void*>(typeid(TransformComponent).hash_code()),
 			                      ImGuiTreeNodeFlags_DefaultOpen,
 			                      "Transform"))
 			{
-				auto& transform = entity.GetComponent<TransformComponent>().Transform;
+				auto& transform = entity.getComponent<TransformComponent>().Transform;
 				ImGui::DragFloat3("Position", value_ptr(transform[3]), 0.5f);
 
 				ImGui::TreePop();
 			}
 		}
 
-		if (entity.HasComponent<CameraComponent>())
+		if (entity.hasComponent<CameraComponent>())
 		{
 			if (ImGui::TreeNodeEx(reinterpret_cast<void*>(typeid(CameraComponent).hash_code()),
 			                      ImGuiTreeNodeFlags_DefaultOpen,
 			                      "Camera"))
 			{
-				auto& cameraComponent = entity.GetComponent<CameraComponent>();
+				auto& cameraComponent = entity.getComponent<CameraComponent>();
 				auto& camera = cameraComponent.Camera;
 
 				ImGui::Checkbox("Primary", &cameraComponent.Primary);

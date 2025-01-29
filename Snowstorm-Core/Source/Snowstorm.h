@@ -16,7 +16,7 @@
 
 #include "Snowstorm/ImGui/ImGuiLayer.h"
 
-#include "Snowstorm/Scene/Scene.h"
+#include "Snowstorm/Scene/Scene.hpp"
 #include "Snowstorm/Scene/Entity.h"
 #include "Snowstorm/Scene/ScriptableEntity.h"
 #include "Snowstorm/Scene/Components.h"
