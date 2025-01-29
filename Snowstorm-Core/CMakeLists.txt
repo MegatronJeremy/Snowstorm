@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.15)
-project(Snowstorm-Core VERSION 1.0 LANGUAGES CXX)
 
 add_library(Snowstorm-Core STATIC)
 
