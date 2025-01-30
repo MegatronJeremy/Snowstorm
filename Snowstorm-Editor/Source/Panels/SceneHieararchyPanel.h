@@ -12,14 +12,14 @@ namespace Snowstorm
 		SceneHierarchyPanel() = default;
 		explicit SceneHierarchyPanel(const Ref<Scene>& context);
 
-		void SetContext(const Ref<Scene>& context);
+		void setContext(const Ref<Scene>& context);
 
-		void OnImGuiRender();
+		void onImGuiRender();
 
 	private:
-		void DrawEntityNode(Entity entity);
+		void drawEntityNode(Entity entity);
 
-		static void DrawComponents(Entity entity);
+		static void drawComponents(Entity entity);
 
 		Ref<Scene> m_Context = nullptr;
 		Entity m_SelectionContext;

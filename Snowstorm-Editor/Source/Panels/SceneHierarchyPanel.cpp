@@ -9,24 +9,23 @@ namespace Snowstorm
 {
 	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& context)
 	{
-		SetContext(context);
+		setContext(context);
 	}
 
-	void SceneHierarchyPanel::SetContext(const Ref<Scene>& context)
+	void SceneHierarchyPanel::setContext(const Ref<Scene>& context)
 	{
 		m_Context = context;
 	}
 
-	void SceneHierarchyPanel::OnImGuiRender()
+	void SceneHierarchyPanel::onImGuiRender()
 	{
 		ImGui::Begin("Scene Hierarchy");
-
 
 		// TODO fix this
 		for (const auto [entityID] : m_Context->getRegistry().m_Registry.storage<entt::entity>().each())
 		{
 			const Entity entity{entityID, m_Context.get()};
-			DrawEntityNode(entity);
+			drawEntityNode(entity);
 		}
 
 
@@ -40,13 +39,13 @@ namespace Snowstorm
 		ImGui::Begin("Properties");
 		if (m_SelectionContext)
 		{
-			DrawComponents(m_SelectionContext);
+			drawComponents(m_SelectionContext);
 		}
 
 		ImGui::End();
 	}
 
-	void SceneHierarchyPanel::DrawEntityNode(Entity entity)
+	void SceneHierarchyPanel::drawEntityNode(Entity entity)
 	{
 		const auto& tag = entity.getComponent<TagComponent>().Tag;
 
@@ -68,7 +67,7 @@ namespace Snowstorm
 		}
 	}
 
-	void SceneHierarchyPanel::DrawComponents(Entity entity)
+	void SceneHierarchyPanel::drawComponents(Entity entity)
 	{
 		if (entity.hasComponent<TagComponent>())
 		{
@@ -108,7 +107,7 @@ namespace Snowstorm
 
 				const char* projectionTypeStrings[] = {"Perspective", "Orthographic"};
 				const char* currentProjectionTypeString = projectionTypeStrings[static_cast<int>(camera.
-					GetProjectionType())];
+					getProjectionType())];
 
 				if (ImGui::BeginCombo("Projection", currentProjectionTypeString))
 				{
@@ -118,7 +117,7 @@ namespace Snowstorm
 						if (ImGui::Selectable(projectionTypeStrings[i], isSelected))
 						{
 							currentProjectionTypeString = projectionTypeStrings[i];
-							camera.SetProjectionType(static_cast<SceneCamera::ProjectionType>(i));
+							camera.setProjectionType(static_cast<SceneCamera::ProjectionType>(i));
 						}
 
 						if (isSelected)
@@ -128,7 +127,7 @@ namespace Snowstorm
 					ImGui::EndCombo();
 				}
 
-				if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)
+				if (camera.getProjectionType() == SceneCamera::ProjectionType::Perspective)
 				{
 					float perspectiveFOV = glm::degrees(camera.GetPerspectiveVerticalFOV());
 					if (ImGui::DragFloat("FOV", &perspectiveFOV))
@@ -143,19 +142,19 @@ namespace Snowstorm
 						camera.SetPerspectiveFarClip(perspectiveFar);
 				}
 
-				if (camera.GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
+				if (camera.getProjectionType() == SceneCamera::ProjectionType::Orthographic)
 				{
-					float orthoSize = camera.GetOrthographicSize();
+					float orthoSize = camera.getOrthographicSize();
 					if (ImGui::DragFloat("Size", &orthoSize))
-						camera.SetOrthographicSize(orthoSize);
+						camera.setOrthographicSize(orthoSize);
 
-					float orthoNear = camera.GetOrthographicNearClip();
+					float orthoNear = camera.getOrthographicNearClip();
 					if (ImGui::DragFloat("Near", &orthoNear))
-						camera.SetOrthographicNearClip(orthoNear);
+						camera.setOrthographicNearClip(orthoNear);
 
-					float orthoFar = camera.GetOrthographicFarClip();
+					float orthoFar = camera.getOrthographicFarClip();
 					if (ImGui::DragFloat("Far", &orthoFar))
-						camera.SetOrthographicFarClip(orthoFar);
+						camera.setOrthographicFarClip(orthoFar);
 
 					ImGui::Checkbox("Fixed Aspect Ratio", &cameraComponent.FixedAspectRatio);
 				}

@@ -7,37 +7,37 @@ namespace Snowstorm
 {
 	SceneCamera::SceneCamera()
 	{
-		RecalculateProjection();
+		recalculateProjection();
 	}
 
-	void SceneCamera::SetOrthographic(const float size, const float nearClip, const float farClip)
+	void SceneCamera::setOrthographic(const float size, const float nearClip, const float farClip)
 	{
 		m_ProjectionType = ProjectionType::Orthographic;
 		m_OrthographicSize = size;
 		m_OrthographicNear = nearClip;
 		m_OrthographicFar = farClip;
 
-		RecalculateProjection();
+		recalculateProjection();
 	}
 
-	void SceneCamera::SetPerspective(const float verticalFOV, const float nearClip, const float farClip)
+	void SceneCamera::setPerspective(const float verticalFOV, const float nearClip, const float farClip)
 	{
 		m_ProjectionType = ProjectionType::Perspective;
 		m_PerspectiveFOV = verticalFOV;
 		m_PerspectiveNear = nearClip;
 		m_PerspectiveFar = farClip;
 
-		RecalculateProjection();
+		recalculateProjection();
 	}
 
-	void SceneCamera::SetViewportSize(const uint32_t width, const uint32_t height)
+	void SceneCamera::setViewportSize(const uint32_t width, const uint32_t height)
 	{
 		m_AspectRatio = static_cast<float>(width) / static_cast<float>(height);
 
-		RecalculateProjection();
+		recalculateProjection();
 	}
 
-	void SceneCamera::RecalculateProjection()
+	void SceneCamera::recalculateProjection()
 	{
 		if (m_ProjectionType == ProjectionType::Perspective)
 		{

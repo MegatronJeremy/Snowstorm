@@ -19,7 +19,7 @@ namespace Snowstorm
 		void OnEvent(Event& event) override;
 
 	private:
-		OrthographicCameraController m_CameraController;
+		// OrthographicCameraController m_CameraController;
 
 		Ref<VertexArray> m_SquareVA;
 		Ref<Shader> m_FlatColorShader;

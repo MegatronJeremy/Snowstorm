@@ -6,8 +6,8 @@
 namespace Snowstorm
 {
 	EditorLayer::EditorLayer()
-		: Layer("EditorLayer"),
-		  m_CameraController(1280.0f / 720.0f, true)
+		: Layer("EditorLayer")
+	// m_CameraController(1280.0f / 720.0f, true)
 	{
 	}
 
@@ -70,7 +70,7 @@ namespace Snowstorm
 		m_CameraEntity.addComponent<NativeScriptComponent>().bind<CameraController>();
 		m_SecondCamera.addComponent<NativeScriptComponent>().bind<CameraController>();
 
-		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+		m_SceneHierarchyPanel.setContext(m_ActiveScene);
 	}
 
 	void EditorLayer::OnDetach()
@@ -89,17 +89,17 @@ namespace Snowstorm
 				|| spec.Height != static_cast<uint32_t>(m_ViewportSize.y)))
 		{
 			m_Framebuffer->Resize(static_cast<uint32_t>(m_ViewportSize.x), static_cast<uint32_t>(m_ViewportSize.y));
-			m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
+			// m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
 			m_ActiveScene->onViewportResize(static_cast<uint32_t>(m_ViewportSize.x),
 			                                static_cast<uint32_t>(m_ViewportSize.y));
 		}
 
 		// Update
-		if (m_ViewportFocused)
-		{
-			m_CameraController.OnUpdate(ts);
-		}
+		// if (m_ViewportFocused)
+		// {
+		// m_CameraController.OnUpdate(ts);
+		// }
 
 		// Render
 		Renderer2D::ResetStats();
@@ -183,7 +183,7 @@ namespace Snowstorm
 
 		ImGui::End();
 
-		m_SceneHierarchyPanel.OnImGuiRender();
+		m_SceneHierarchyPanel.onImGuiRender();
 
 		ImGui::Begin("Settings");
 
@@ -215,9 +215,9 @@ namespace Snowstorm
 
 		{
 			auto& camera = m_SecondCamera.getComponent<CameraComponent>().Camera;
-			float orthoSize = camera.GetOrthographicSize();
+			float orthoSize = camera.getOrthographicSize();
 			if (ImGui::DragFloat("Second Camera Ortho Size", &orthoSize))
-				camera.SetOrthographicSize(orthoSize);
+				camera.setOrthographicSize(orthoSize);
 		}
 
 		ImGui::End();
@@ -241,6 +241,6 @@ namespace Snowstorm
 
 	void EditorLayer::OnEvent(Event& event)
 	{
-		m_CameraController.OnEvent(event);
+		// m_CameraController.OnEvent(event);
 	}
 }

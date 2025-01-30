@@ -47,12 +47,12 @@ namespace Snowstorm
 		m_ViewportHeight = height;
 
 		// Resize all non-fixed aspect ratio cameras
-		// TODO move this to a system?
+		// TODO create an event system for this
 		for (const auto view = m_SystemManager->getRegistry().m_Registry.view<CameraComponent>(); const auto entity : view)
 		{
 			if (auto& cameraComponent = view.get<CameraComponent>(entity); !cameraComponent.FixedAspectRatio)
 			{
-				cameraComponent.Camera.SetViewportSize(width, height);
+				cameraComponent.Camera.setViewportSize(width, height);
 			}
 		}
 	}

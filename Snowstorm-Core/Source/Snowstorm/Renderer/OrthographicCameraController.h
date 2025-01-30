@@ -7,6 +7,7 @@
 
 namespace Snowstorm
 {
+	// TODO remove this/move it to a camera controller system
 	struct OrthographicCameraBounds
 	{
 		float Left, Right;
@@ -45,7 +46,6 @@ namespace Snowstorm
 		bool OnMouseScrolled(const MouseScrolledEvent& e);
 		bool OnWindowResized(const WindowResizeEvent& e);
 
-	private:
 		float m_AspectRatio;
 		float m_ZoomLevel = 1.0f;
 		OrthographicCameraBounds m_Bounds;
