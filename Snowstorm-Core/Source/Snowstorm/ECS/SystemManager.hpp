@@ -1,14 +1,12 @@
 #pragma once
 
-#include <entt/entity/registry.hpp>
-
 #include "System.hpp"
+#include "TrackedRegistry.hpp"
+
 #include "Snowstorm/Core/Base.h"
 
 namespace Snowstorm
 {
-	class System;
-
 	class SystemManager final : public NonCopyable
 	{
 	public:
@@ -16,21 +14,23 @@ namespace Snowstorm
 		void registerSystem(Args&&... args)
 		{
 			static_assert(std::is_base_of_v<System, T>, "T must inherit from BaseSystem");
-			m_Systems.emplace_back(CreateScope<T>(&m_Registry, std::forward<Args>(args)...));
+			m_Systems.emplace_back(CreateScope<T>(std::forward<Args>(args)...));
 		}
 
-		void executeSystems(const Timestep ts) const
+		void executeSystems(const Timestep ts)
 		{
-			for (auto& system : m_Systems)
+			for (const auto& system : m_Systems)
 			{
 				system->execute(ts);
 			}
+
+			m_Registry.clearTrackedComponents();
 		}
 
-		entt::registry& getRegistry() { return m_Registry; }
+		TrackedRegistry& getRegistry() { return m_Registry; }
 
 	private:
-		entt::registry m_Registry;
+		TrackedRegistry m_Registry;
 		std::vector<Scope<System>> m_Systems;
 	};
 }

@@ -30,5 +30,6 @@ namespace Snowstorm
 		Entity m_Entity;
 
 		friend class Scene;
+		friend class ScriptSystem;
 	};
 }

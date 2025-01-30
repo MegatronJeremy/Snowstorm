@@ -7,7 +7,7 @@ namespace Snowstorm
 	class RenderSystem final : public System
 	{
 	public:
-		explicit RenderSystem(const RegistryRef& registry) : System(registry)
+		explicit RenderSystem(const SceneRef context) : System(context)
 		{
 		}
 

@@ -3,6 +3,7 @@
 #include "Snowstorm/Core/PlatformDetection.h"
 
 #include <memory>
+#include <filesystem>
 
 // TODO see what to do with this define
 #ifdef _DEBUG
@@ -73,4 +74,3 @@ namespace Snowstorm
 		return std::make_shared<T>(std::forward<Args>(args)...);
 	}
 }
-

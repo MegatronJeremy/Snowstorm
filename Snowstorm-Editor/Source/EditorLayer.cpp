@@ -36,6 +36,7 @@ namespace Snowstorm
 
 		m_CameraEntity = m_ActiveScene->createEntity("Camera Entity");
 		m_CameraEntity.addComponent<CameraComponent>();
+		m_CameraEntity.getComponent<CameraComponent>();
 
 		m_SecondCamera = m_ActiveScene->createEntity("Clip-Space Entity");
 		auto& cc = m_SecondCamera.addComponent<CameraComponent>();
@@ -44,13 +45,13 @@ namespace Snowstorm
 		class CameraController : public ScriptableEntity
 		{
 		public:
-			void OnCreate() override
+			void onCreate() override
 			{
 				auto& transform = getComponent<TransformComponent>().Transform;
 				transform[3][0] = rand() % 10 - 5.0f;
 			}
 
-			void OnUpdate(const Timestep ts) override
+			void onUpdate(const Timestep ts) override
 			{
 				auto& transform = getComponent<TransformComponent>().Transform;
 				constexpr float speed = 5.0f;
@@ -66,8 +67,8 @@ namespace Snowstorm
 			}
 		};
 
-		m_CameraEntity.addComponent<NativeScriptComponent>().Bind<CameraController>();
-		m_SecondCamera.addComponent<NativeScriptComponent>().Bind<CameraController>();
+		m_CameraEntity.addComponent<NativeScriptComponent>().bind<CameraController>();
+		m_SecondCamera.addComponent<NativeScriptComponent>().bind<CameraController>();
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 	}
@@ -96,7 +97,9 @@ namespace Snowstorm
 
 		// Update
 		if (m_ViewportFocused)
+		{
 			m_CameraController.OnUpdate(ts);
+		}
 
 		// Render
 		Renderer2D::ResetStats();

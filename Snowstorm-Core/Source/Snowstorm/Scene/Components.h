@@ -65,20 +65,21 @@ namespace Snowstorm
 	{
 		ScriptableEntity* Instance = nullptr;
 
-		ScriptableEntity* (*InstantiateScript)();
-		void (*DestroyScript)(NativeScriptComponent*);
+		std::function<void()> InstantiateScript;
+		std::function<void()> DestroyScript;
 
 		template <typename T>
-		void Bind()
+		void bind()
 		{
-			InstantiateScript = []
+			InstantiateScript = [this]
 			{
-				return static_cast<ScriptableEntity*>(new T());
+				Instance = new T();
 			};
-			DestroyScript = [](NativeScriptComponent* nsc)
+
+			DestroyScript = [this]
 			{
-				delete nsc->Instance;
-				nsc->Instance = nullptr;
+				delete Instance;
+				Instance = nullptr;
 			};
 		}
 	};

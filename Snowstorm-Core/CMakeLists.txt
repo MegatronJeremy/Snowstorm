@@ -10,6 +10,7 @@ set_target_properties(Snowstorm-Core PROPERTIES
 
 file(GLOB_RECURSE CORE_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.h"
 )
 target_sources(Snowstorm-Core PRIVATE ${CORE_SOURCES})
