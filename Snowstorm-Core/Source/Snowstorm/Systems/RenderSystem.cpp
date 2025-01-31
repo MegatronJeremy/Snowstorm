@@ -1,6 +1,9 @@
 #include "RenderSystem.hpp"
+
 #include <Snowstorm/Renderer/Renderer2D.h>
 
+#include "Snowstorm/Events/ApplicationEvent.h"
+#include "Snowstorm/Events/Event.h"
 #include "Snowstorm/Scene/Components.h"
 
 namespace Snowstorm
@@ -9,9 +12,10 @@ namespace Snowstorm
 	{
 		const auto cameraView = view<TransformComponent, CameraComponent>();
 		const auto spriteView = view<TransformComponent, SpriteRendererComponent>();
+		auto& eventsHandler = singletonView<EventsHandlerSingleton>();
 
 		const Camera* mainCamera = nullptr;
-		const glm::mat4* cameraTransform = nullptr;
+		glm::mat4 cameraTransform{};
 
 		for (const auto entity : cameraView)
 		{
@@ -19,14 +23,26 @@ namespace Snowstorm
 			if (camera.Primary)
 			{
 				mainCamera = &camera.Camera;
-				cameraTransform = &transform.Transform;
+				cameraTransform = transform;
 				break;
+			}
+		}
+
+		for (const auto& windowResizeEvent : eventsHandler.process<WindowResizeEvent>())
+		{
+			const uint32_t width = windowResizeEvent->m_Width;
+			const uint32_t height = windowResizeEvent->m_Height;
+
+			for (const auto entity : cameraView)
+			{
+				auto [_, camera] = cameraView.get(entity);
+				camera.Camera.setViewportSize(width, height);
 			}
 		}
 
 		if (mainCamera)
 		{
-			Renderer2D::BeginScene(*mainCamera, *cameraTransform);
+			Renderer2D::BeginScene(*mainCamera, cameraTransform);
 
 			for (const auto entity : spriteView)
 			{

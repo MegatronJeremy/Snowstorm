@@ -87,8 +87,8 @@ namespace Snowstorm
 			                      ImGuiTreeNodeFlags_DefaultOpen,
 			                      "Transform"))
 			{
-				auto& transform = entity.getComponent<TransformComponent>().Transform;
-				ImGui::DragFloat3("Position", value_ptr(transform[3]), 0.5f);
+				auto& position = entity.getComponent<TransformComponent>().Position;
+				ImGui::DragFloat3("Position", value_ptr(position), 0.5f);
 
 				ImGui::TreePop();
 			}

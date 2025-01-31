@@ -3,6 +3,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
+#include "Snowstorm/Events/KeyEvent.h"
+
 namespace Snowstorm
 {
 	EditorLayer::EditorLayer()
@@ -27,7 +29,7 @@ namespace Snowstorm
 		// Entity
 		auto square = m_ActiveScene->createEntity("Amazing Square");
 		square.addComponent<SpriteRendererComponent>(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
-		square.getComponent<TransformComponent>().Transform[3][0] += 2.0f;
+		square.getComponent<TransformComponent>().Position[0] += 2.0f;
 
 		auto redSquare = m_ActiveScene->createEntity("Red Square");
 		redSquare.addComponent<SpriteRendererComponent>(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
@@ -36,39 +38,12 @@ namespace Snowstorm
 
 		m_CameraEntity = m_ActiveScene->createEntity("Camera Entity");
 		m_CameraEntity.addComponent<CameraComponent>();
-		m_CameraEntity.getComponent<CameraComponent>();
+		m_CameraEntity.addComponent<CameraControllerComponent>();
 
 		m_SecondCamera = m_ActiveScene->createEntity("Clip-Space Entity");
 		auto& cc = m_SecondCamera.addComponent<CameraComponent>();
+		m_SecondCamera.addComponent<CameraControllerComponent>();
 		cc.Primary = false;
-
-		class CameraController : public ScriptableEntity
-		{
-		public:
-			void onCreate() override
-			{
-				auto& transform = getComponent<TransformComponent>().Transform;
-				transform[3][0] = rand() % 10 - 5.0f;
-			}
-
-			void onUpdate(const Timestep ts) override
-			{
-				auto& transform = getComponent<TransformComponent>().Transform;
-				constexpr float speed = 5.0f;
-
-				if (Input::IsKeyPressed(Key::A))
-					transform[3][0] -= speed * ts;
-				if (Input::IsKeyPressed(Key::D))
-					transform[3][0] += speed * ts;
-				if (Input::IsKeyPressed(Key::W))
-					transform[3][1] += speed * ts;
-				if (Input::IsKeyPressed(Key::S))
-					transform[3][1] -= speed * ts;
-			}
-		};
-
-		m_CameraEntity.addComponent<NativeScriptComponent>().bind<CameraController>();
-		m_SecondCamera.addComponent<NativeScriptComponent>().bind<CameraController>();
 
 		m_SceneHierarchyPanel.setContext(m_ActiveScene);
 	}
@@ -89,17 +64,10 @@ namespace Snowstorm
 				|| spec.Height != static_cast<uint32_t>(m_ViewportSize.y)))
 		{
 			m_Framebuffer->Resize(static_cast<uint32_t>(m_ViewportSize.x), static_cast<uint32_t>(m_ViewportSize.y));
-			// m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
 			m_ActiveScene->onViewportResize(static_cast<uint32_t>(m_ViewportSize.x),
 			                                static_cast<uint32_t>(m_ViewportSize.y));
 		}
-
-		// Update
-		// if (m_ViewportFocused)
-		// {
-		// m_CameraController.OnUpdate(ts);
-		// }
 
 		// Render
 		Renderer2D::ResetStats();
@@ -204,8 +172,8 @@ namespace Snowstorm
 			ImGui::Separator();
 		}
 
-		ImGui::DragFloat3("Camera Transform", value_ptr(
-			                  m_CameraEntity.getComponent<TransformComponent>().Transform[3]));
+		ImGui::DragFloat3("Camera Position", value_ptr(
+			                  m_CameraEntity.getComponent<TransformComponent>().Position));
 
 		if (ImGui::Checkbox("Camera A", &m_PrimaryCamera))
 		{
@@ -241,6 +209,33 @@ namespace Snowstorm
 
 	void EditorLayer::OnEvent(Event& event)
 	{
-		// m_CameraController.OnEvent(event);
+		auto& eventsHandler = m_ActiveScene->getSingletonManager().getSingleton<EventsHandlerSingleton>();
+
+		// TODO have to make this better
+		static const std::unordered_map<EventType, std::function<void(Event&)>> eventMap = {
+			{
+				EventType::MouseScrolled, [&eventsHandler](Event& e)
+				{
+					eventsHandler.pushEvent<MouseScrolledEvent>(dynamic_cast<MouseScrolledEvent&>(e));
+				}
+			},
+			{
+				EventType::WindowResize, [&eventsHandler](Event& e)
+				{
+					eventsHandler.pushEvent<WindowResizeEvent>(dynamic_cast<WindowResizeEvent&>(e));
+				}
+			}
+		};
+
+		// Check if the event type exists in the map
+		if (const auto it = eventMap.find(event.getEventType()); it != eventMap.end())
+		{
+			it->second(event); // Call the corresponding function
+		}
+		else
+		{
+			// Don't do this for now... mouse moved events etc...
+			// SS_ASSERT(false, "Unknown event");
+		}
 	}
 }

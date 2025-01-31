@@ -3,6 +3,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include <ranges>
+
 #include "Snowstorm/Renderer/Renderer.h"
 
 namespace Snowstorm
@@ -51,7 +53,9 @@ namespace Snowstorm
 					SS_PROFILE_SCOPE("LayerStack OnUpdate");
 
 					for (Layer* layer : m_LayerStack)
+					{
 						layer->OnUpdate(timestep);
+					}
 				}
 			}
 
@@ -60,7 +64,9 @@ namespace Snowstorm
 				SS_PROFILE_SCOPE("LayerStack OnImGuiRender");
 
 				for (Layer* layer : m_LayerStack)
+				{
 					layer->OnImGuiRender();
+				}
 			}
 			m_ImGuiLayer->End();
 
@@ -73,14 +79,16 @@ namespace Snowstorm
 		SS_PROFILE_FUNCTION();
 
 		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
-		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));
+		dispatcher.dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
+		dispatcher.dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));
 
-		for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
+		for (const auto& it : std::ranges::reverse_view(m_LayerStack))
 		{
 			if (e.Handled)
+			{
 				break;
-			(*it)->OnEvent(e);
+			}
+			it->OnEvent(e);
 		}
 	}
 
@@ -115,14 +123,14 @@ namespace Snowstorm
 	{
 		SS_PROFILE_FUNCTION();
 
-		if (e.GetWidth() == 0 || e.GetHeight() == 0)
+		if (e.m_Width == 0 || e.m_Height == 0)
 		{
 			m_Minimized = true;
 			return false;
 		}
 
 		m_Minimized = false;
-		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+		Renderer::OnWindowResize(e.m_Height, e.m_Width);
 
 		return false;
 	}

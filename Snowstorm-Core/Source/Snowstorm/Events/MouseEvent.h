@@ -4,81 +4,68 @@
 
 namespace Snowstorm
 {
-	class MouseMovedEvent final : public Event
+	struct MouseMovedEvent final : Event
 	{
-	public:
 		MouseMovedEvent(const float x, const float y)
-			: m_MouseX(x), m_MouseY(y)
+			: mouseX(x), mouseY(y)
 		{
 		}
 
-		float GetX() const { return m_MouseX; }
-		float GetY() const { return m_MouseY; }
-
-		std::string ToString() const override
+		[[nodiscard]] std::string toString() const override
 		{
 			std::stringstream ss;
-			ss << "MouseMovedEvent: " << m_MouseX << ", " << m_MouseY;
+			ss << "MouseMovedEvent: " << mouseX << ", " << mouseY;
 			return ss.str();
 		}
 
 		EVENT_CLASS_TYPE(MouseMoved)
 		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 
-	private:
-		float m_MouseX, m_MouseY;
+		float mouseX, mouseY;
 	};
 
 	class MouseScrolledEvent final : public Event
 	{
 	public:
 		MouseScrolledEvent(const float xOffset, const float yOffset)
-			: m_XOffset(xOffset), m_YOffset(yOffset)
+			: xOffset(xOffset), yOffset(yOffset)
 		{
 		}
 
-		std::string ToString() const override
+		[[nodiscard]] std::string toString() const override
 		{
 			std::stringstream ss;
-			ss << "MouseScrolledEvent: " << m_XOffset << ", " << m_YOffset;
+			ss << "MouseScrolledEvent: " << xOffset << ", " << yOffset;
 			return ss.str();
 		}
-
-		float GetXOffset() const { return m_XOffset; };
-		float GetYOffset() const { return m_YOffset; };
 
 		EVENT_CLASS_TYPE(MouseScrolled)
 		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
 
-	private:
-		float m_XOffset, m_YOffset;
+		float xOffset, yOffset;
 	};
 
-	class MouseButtonEvent : public Event
+	struct MouseButtonEvent : Event
 	{
-	public:
-		int GetMouseButton() const { return m_Button; }
-
 		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
+
+		int m_Button;
 
 	protected:
 		explicit MouseButtonEvent(const int button)
 			: m_Button(button)
 		{
 		}
-
-		int m_Button;
 	};
 
-	class MouseButtonPressedEvent final : public MouseButtonEvent
+	struct MouseButtonPressedEvent final : MouseButtonEvent
 	{
-	public:
 		explicit MouseButtonPressedEvent(const int button)
 			: MouseButtonEvent(button)
 		{
 		}
 
-		std::string ToString() const override
+		[[nodiscard]] std::string toString() const override
 		{
 			std::stringstream ss;
 			ss << "MouseButtonPressedEvent: " << m_Button;
@@ -88,15 +75,14 @@ namespace Snowstorm
 		EVENT_CLASS_TYPE(MouseButtonPressed)
 	};
 
-	class MouseButtonReleasedEvent final : public MouseButtonEvent
+	struct MouseButtonReleasedEvent final : MouseButtonEvent
 	{
-	public:
 		explicit MouseButtonReleasedEvent(const int button)
 			: MouseButtonEvent(button)
 		{
 		}
 
-		std::string ToString() const override
+		[[nodiscard]] std::string toString() const override
 		{
 			std::stringstream ss;
 			ss << "MouseButtonReleasedEvent: " << m_Button;

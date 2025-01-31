@@ -4,33 +4,27 @@
 
 namespace Snowstorm
 {
-	class KeyEvent : public Event // basically an abstract event
+	struct KeyEvent : Event // basically an abstract event
 	{
-	public:
-		int GetKeyCode() const { return m_KeyCode; }
-
 		EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
+
+		int m_KeyCode;
 
 	protected:
 		explicit KeyEvent(const int keycode)
 			: m_KeyCode(keycode)
 		{
 		}
-
-		int m_KeyCode;
 	};
 
-	class KeyPressedEvent final : public KeyEvent
+	struct KeyPressedEvent final : KeyEvent
 	{
-	public:
 		KeyPressedEvent(const int keycode, const int repeatCount)
 			: KeyEvent(keycode), m_RepeatCount(repeatCount)
 		{
 		}
 
-		int GetRepeatCount() const { return m_RepeatCount; }
-
-		std::string ToString() const override
+		std::string toString() const override
 		{
 			std::stringstream ss;
 			ss << "KeyPressedEvent: " << m_KeyCode << " (" << m_RepeatCount << " repeats)";
@@ -39,19 +33,17 @@ namespace Snowstorm
 
 		EVENT_CLASS_TYPE(KeyPressed)
 
-	private:
 		int m_RepeatCount;
 	};
 
-	class KeyReleasedEvent final : public KeyEvent
+	struct KeyReleasedEvent final : KeyEvent
 	{
-	public:
 		explicit KeyReleasedEvent(const int keycode):
 			KeyEvent(keycode)
 		{
 		}
 
-		std::string ToString() const override
+		std::string toString() const override
 		{
 			std::stringstream ss;
 			ss << "KeyReleasedEvent: " << m_KeyCode;
@@ -61,15 +53,14 @@ namespace Snowstorm
 		EVENT_CLASS_TYPE(KeyReleased)
 	};
 
-	class KeyTypedEvent final : public KeyEvent
+	struct KeyTypedEvent final : KeyEvent
 	{
-	public:
 		explicit KeyTypedEvent(const int keycode)
-			: KeyEvent(keycode) 
+			: KeyEvent(keycode)
 		{
 		}
 
-		std::string ToString() const override
+		std::string toString() const override
 		{
 			std::stringstream ss;
 			ss << "KeyTypedEvent: " << m_KeyCode;

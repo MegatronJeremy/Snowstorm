@@ -4,22 +4,32 @@
 #include "Components.h"
 
 #include "Entity.h"
-#include <Snowstorm/Scene/Systems/RenderSystem.hpp>
-#include <Snowstorm/Scene/Systems/ScriptSystem.hpp>
 #include <Snowstorm/ECS/SystemManager.hpp>
+
+#include "Snowstorm/Events/ApplicationEvent.h"
+#include "Snowstorm/Events/Event.h"
+
+#include "Snowstorm/Systems/CameraControllerSystem.hpp"
+#include "Snowstorm/Systems/RenderSystem.hpp"
+#include "Snowstorm/Systems/ScriptSystem.hpp"
 
 namespace Snowstorm
 {
 	Scene::Scene()
-		: m_SystemManager(new SystemManager)
+		: m_SystemManager(new SystemManager),
+		  m_SingletonManager(new SingletonManager)
 	{
 		m_SystemManager->registerSystem<RenderSystem>(this);
 		m_SystemManager->registerSystem<ScriptSystem>(this);
+		m_SystemManager->registerSystem<CameraControllerSystem>(this);
+
+		m_SingletonManager->registerSingleton<EventsHandlerSingleton>();
 	}
 
 	Scene::~Scene()
 	{
 		delete m_SystemManager;
+		delete m_SingletonManager;
 	}
 
 	Entity Scene::createEntity(const std::string& name)
@@ -47,13 +57,7 @@ namespace Snowstorm
 		m_ViewportHeight = height;
 
 		// Resize all non-fixed aspect ratio cameras
-		// TODO create an event system for this
-		for (const auto view = m_SystemManager->getRegistry().m_Registry.view<CameraComponent>(); const auto entity : view)
-		{
-			if (auto& cameraComponent = view.get<CameraComponent>(entity); !cameraComponent.FixedAspectRatio)
-			{
-				cameraComponent.Camera.setViewportSize(width, height);
-			}
-		}
+		auto& eventsHandler = m_SingletonManager->getSingleton<EventsHandlerSingleton>();
+		eventsHandler.pushEvent<WindowResizeEvent>(width, height);
 	}
 }

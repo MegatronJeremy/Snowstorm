@@ -26,7 +26,7 @@ public:
 		};
 
 		const Snowstorm::Ref<Snowstorm::VertexBuffer>
-			vertexBuffer(Snowstorm::VertexBuffer::Create(vertices, sizeof(vertices)));
+		vertexBuffer(Snowstorm::VertexBuffer::Create(vertices, sizeof(vertices)));
 		const Snowstorm::BufferLayout layout = {
 			{Snowstorm::ShaderDataType::Float3, "a_Position"},
 			{Snowstorm::ShaderDataType::Float4, "a_Color"}
@@ -34,7 +34,7 @@ public:
 		vertexBuffer->SetLayout(layout);
 		m_VertexArray->AddVertexBuffer(vertexBuffer);
 
-		constexpr unsigned int indices[3] = {
+		constexpr uint32_t indices[3] = {
 			0, 1, 2
 		};
 		const Snowstorm::Ref<Snowstorm::IndexBuffer> indexBuffer(Snowstorm::IndexBuffer::Create(indices, std::size(indices)));
@@ -57,7 +57,7 @@ public:
 		});
 		m_SquareVA->AddVertexBuffer(squareVB);
 
-		constexpr unsigned int squareIndices[6] = {
+		constexpr uint32_t squareIndices[6] = {
 			0, 1, 2, 2, 3, 0
 		};
 		const Snowstorm::Ref<Snowstorm::IndexBuffer> squareIB(
@@ -195,7 +195,7 @@ public:
 	void OnImGuiRender() override
 	{
 		ImGui::Begin("Settings");
-		ImGui::ColorEdit3("Square Color", glm::value_ptr(m_SquareColor));
+		ImGui::ColorEdit3("Square Color", value_ptr(m_SquareColor));
 		ImGui::End();
 	}
 

@@ -4,7 +4,6 @@
 
 #include <Snowstorm/Core/Timestep.h>
 #include <Snowstorm/Utility/NonCopyable.hpp>
-
 #include "Snowstorm/Scene/Scene.hpp"
 
 namespace Snowstorm
@@ -69,6 +68,13 @@ namespace Snowstorm
 			}
 
 			return entitiesWithRemovedComponents;
+		}
+
+		/// Returns a singleton present in the system's context
+		template <typename T>
+		[[nodiscard]] T& singletonView()
+		{
+			return m_context->getSingletonManager().getSingleton<T>();
 		}
 
 		SceneRef m_context;
