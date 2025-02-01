@@ -14,6 +14,7 @@ set_target_properties(Snowstorm-Editor PROPERTIES
 # Add source files
 file(GLOB_RECURSE EDITOR_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/Source/*.h"
 )
 target_sources(Snowstorm-Editor PRIVATE ${EDITOR_SOURCES})
