@@ -1,13 +1,14 @@
 #include "pch.h"
-#include "Shader.h"
+#include "Shader.hpp"
 
 #include "Renderer.hpp"
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Platform/Vulkan/VulkanShader.h"
 
+#include <filesystem>
+
 namespace Snowstorm
 {
-#pragma region Shader
 	Ref<Shader> Shader::Create(const std::string& filepath)
 	{
 		switch (Renderer::GetAPI())
@@ -25,61 +26,42 @@ namespace Snowstorm
 		return nullptr;
 	}
 
-	Ref<Shader> Shader::Create(const std::string& name,
-	                           const std::string& vertexSrc, const std::string& fragmentSrc)
+	void ShaderLibrarySingleton::Add(const Ref<Shader>& shader)
 	{
-		switch (Renderer::GetAPI())
-		{
-		case RendererAPI::API::None:
-			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
-			return nullptr;
-		case RendererAPI::API::OpenGL:
-			return CreateRef<OpenGLShader>(name, vertexSrc, fragmentSrc);
-		case RendererAPI::API::Vulkan:
-			SS_CORE_ASSERT(false, "Runtime shader compilation not yet supported with Vulkan!");
-		}
-
-		SS_CORE_ASSERT(false, "Unknown RendererAPI!");
-		return nullptr;
-	}
-#pragma endregion
-
-#pragma region ShaderLibrary
-	void ShaderLibrary::Add(const std::string& name, const Ref<Shader>& shader)
-	{
+		auto& name = shader->GetName();
 		SS_CORE_ASSERT(!Exists(name), "Shader already exists!");
 		m_Shaders[name] = shader;
 	}
 
-	void ShaderLibrary::Add(const Ref<Shader>& shader)
-	{
-		auto& name = shader->GetName();
-		Add(name, shader);
-	}
-
-	Ref<Shader> ShaderLibrary::Load(const std::string& filepath)
+	Ref<Shader> ShaderLibrarySingleton::Load(const std::string& filepath)
 	{
 		auto shader = Shader::Create(filepath);
 		Add(shader);
+
+		m_LastModifications[filepath] = std::filesystem::last_write_time(filepath);
+
 		return shader;
 	}
 
-	Ref<Shader> ShaderLibrary::Load(const std::string& name, const std::string& filepath)
-	{
-		auto shader = Shader::Create(filepath);
-		Add(name, shader);
-		return shader;
-	}
-
-	Ref<Shader> ShaderLibrary::Get(const std::string& name)
+	Ref<Shader> ShaderLibrarySingleton::Get(const std::string& name)
 	{
 		SS_CORE_ASSERT(Exists(name), "Shader not found!");
 		return m_Shaders[name];
 	}
 
-	bool ShaderLibrary::Exists(const std::string& name) const
+	bool ShaderLibrarySingleton::Exists(const std::string& name) const
 	{
 		return m_Shaders.contains(name);
 	}
-#pragma endregion
+
+	void ShaderLibrarySingleton::ReloadAll()
+	{
+		for (const auto& [filepath, lastModified] : m_LastModifications)
+		{
+			if (std::filesystem::last_write_time(filepath) > lastModified)
+			{
+				Load(filepath);
+			}
+		}
+	}
 }

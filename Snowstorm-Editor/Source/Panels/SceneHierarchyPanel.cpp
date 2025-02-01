@@ -22,7 +22,7 @@ namespace Snowstorm
 		ImGui::Begin("Scene Hierarchy");
 
 		// TODO fix this
-		for (const auto [entityID] : m_Context->getRegistry().m_Registry.storage<entt::entity>().each())
+		for (const auto [entityID] : m_Context->GetRegistry().m_Registry.storage<entt::entity>().each())
 		{
 			const Entity entity{entityID, m_Context.get()};
 			drawEntityNode(entity);

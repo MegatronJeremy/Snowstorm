@@ -5,11 +5,11 @@
 
 namespace Snowstorm
 {
-	void ScriptSystem::execute(const Timestep ts)
+	void ScriptSystem::Execute(const Timestep ts)
 	{
-		const auto nativeScriptView = view<NativeScriptComponent>();
-		const auto nativeScriptInitView = initView<NativeScriptComponent>();
-		const auto nativeScriptFiniView = finiView<NativeScriptComponent>();
+		const auto nativeScriptView = View<NativeScriptComponent>();
+		const auto nativeScriptInitView = InitView<NativeScriptComponent>();
+		const auto nativeScriptFiniView = FiniView<NativeScriptComponent>();
 
 		// Instantiate scripts if not already created
 		for (const auto entity : nativeScriptInitView)
@@ -18,7 +18,7 @@ namespace Snowstorm
 			SS_CORE_ASSERT(scriptComponent.Instance == nullptr);
 
 			scriptComponent.InstantiateScript();
-			scriptComponent.Instance->m_Entity = Entity{entity, m_scene};
+			scriptComponent.Instance->m_Entity = Entity{entity, m_Scene};
 			scriptComponent.Instance->onCreate();
 		}
 

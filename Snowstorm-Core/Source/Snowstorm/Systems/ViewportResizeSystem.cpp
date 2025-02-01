@@ -5,10 +5,10 @@
 
 namespace Snowstorm
 {
-	void ViewportResizeSystem::execute(Timestep ts)
+	void ViewportResizeSystem::Execute(Timestep ts)
 	{
-		const auto viewportView = view<ViewportComponent, FramebufferComponent>();
-		const auto cameraView = view<CameraComponent, RenderTargetComponent>();
+		const auto viewportView = View<ViewportComponent, FramebufferComponent>();
+		const auto cameraView = View<CameraComponent, RenderTargetComponent>();
 
 		for (const auto entity : viewportView)
 		{

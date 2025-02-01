@@ -21,7 +21,7 @@ namespace Snowstorm
 		{
 			for (const auto& system : m_Systems)
 			{
-				system->execute(ts);
+				system->Execute(ts);
 			}
 
 			m_Registry.clearTrackedComponents();

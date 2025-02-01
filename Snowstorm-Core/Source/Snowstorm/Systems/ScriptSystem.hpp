@@ -11,6 +11,6 @@ namespace Snowstorm
 		{
 		}
 
-		void execute(Timestep ts) override;
+		void Execute(Timestep ts) override;
 	};
 }

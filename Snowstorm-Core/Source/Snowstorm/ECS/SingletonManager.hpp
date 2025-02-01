@@ -13,18 +13,18 @@ namespace Snowstorm
 	{
 	public:
 		template <typename T, typename... Args>
-		void registerSingleton(Args&&... args)
+		void RegisterSingleton(Args&&... args)
 		{
 			static_assert(std::is_base_of_v<Singleton, T>, "T must inherit from Singleton");
 
 			if (const std::type_index typeIndex(typeid(T)); !m_Singletons.contains(typeIndex))
 			{
-				m_Singletons[typeIndex] = CreateScope<T>(std::forward<Args>(args)...);
+				m_Singletons[typeIndex].reset(new T(std::forward<Args>(args)...));
 			}
 		}
 
 		template <typename T>
-		[[nodiscard]] T& getSingleton()
+		[[nodiscard]] T& GetSingleton()
 		{
 			const std::type_index typeIndex(typeid(T));
 

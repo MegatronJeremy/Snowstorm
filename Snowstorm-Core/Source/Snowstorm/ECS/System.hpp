@@ -14,33 +14,33 @@ namespace Snowstorm
 		using SceneRef = Scene*;
 
 		explicit System(const SceneRef context)
-			: m_scene(context)
+			: m_Scene(context)
 		{
 		}
 
 		/// Function that derived systems override
-		virtual void execute(Timestep ts) = 0;
+		virtual void Execute(Timestep ts) = 0;
 
 	protected:
 		/// Standard entity view for active components
 		template <typename... Components>
-		[[nodiscard]] auto view() const
+		[[nodiscard]] auto View() const
 		{
 			static_assert(sizeof...(Components) > 0, "view requires at least one component type.");
 
 			// TODO make this look better
-			return m_scene->getRegistry().m_Registry.view<Components...>();
+			return m_Scene->GetRegistry().m_Registry.view<Components...>();
 		}
 
 		/// Returns a view of entities that had all the specified components added
 		template <typename... Components>
-		[[nodiscard]] auto initView() const
+		[[nodiscard]] auto InitView() const
 		{
 			static_assert(sizeof...(Components) > 0, "initView requires at least one component type.");
 
 			std::unordered_set<entt::entity> entitiesWithAddedComponents;
 
-			for (const auto& [entity, componentTypes] : m_scene->getRegistry().m_AddedComponents)
+			for (const auto& [entity, componentTypes] : m_Scene->GetRegistry().m_AddedComponents)
 			{
 				if ((componentTypes.count(std::type_index(typeid(Components))) && ...))
 				{
@@ -53,13 +53,13 @@ namespace Snowstorm
 
 		/// Returns a view of entities that had all the specified components removed
 		template <typename... Components>
-		[[nodiscard]] auto finiView() const
+		[[nodiscard]] auto FiniView() const
 		{
 			static_assert(sizeof...(Components) > 0, "finiView requires at least one component type.");
 
 			std::unordered_set<entt::entity> entitiesWithRemovedComponents;
 
-			for (const auto& [entity, componentTypes] : m_scene->getRegistry().m_RemovedComponents)
+			for (const auto& [entity, componentTypes] : m_Scene->GetRegistry().m_RemovedComponents)
 			{
 				if ((componentTypes.count(std::type_index(typeid(Components))) && ...))
 				{
@@ -72,11 +72,11 @@ namespace Snowstorm
 
 		/// Returns a singleton present in the system's context
 		template <typename T>
-		[[nodiscard]] T& singletonView()
+		[[nodiscard]] T& SingletonView()
 		{
-			return m_scene->getSingletonManager().getSingleton<T>();
+			return m_Scene->getSingletonManager().GetSingleton<T>();
 		}
 
-		SceneRef m_scene;
+		SceneRef m_Scene;
 	};
 }

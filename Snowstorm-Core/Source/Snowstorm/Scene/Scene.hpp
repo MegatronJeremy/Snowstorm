@@ -16,12 +16,12 @@ namespace Snowstorm
 		Scene();
 		~Scene() override;
 
-		Entity createEntity(const std::string& name = std::string());
+		Entity CreateEntity(const std::string& name = std::string());
 
-		[[nodiscard]] TrackedRegistry& getRegistry() const;
+		[[nodiscard]] TrackedRegistry& GetRegistry() const;
 		[[nodiscard]] SingletonManager& getSingletonManager() const { return *m_SingletonManager; }
 
-		void onUpdate(Timestep ts) const;
+		void OnUpdate(Timestep ts) const;
 
 	private:
 		SystemManager* m_SystemManager;

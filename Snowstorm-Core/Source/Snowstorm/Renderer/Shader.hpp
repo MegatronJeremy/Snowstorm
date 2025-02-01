@@ -6,6 +6,8 @@
 
 #include <glm/glm.hpp>
 
+#include "Snowstorm/ECS/Singleton.hpp"
+
 namespace Snowstorm
 {
 	class Shader
@@ -34,11 +36,9 @@ namespace Snowstorm
 			SetUniformInternal(name, std::vector(values, values + count));
 		}
 
-		virtual const std::string& GetName() const = 0;
+		[[nodiscard]] virtual const std::string& GetName() const = 0;
 
 		static Ref<Shader> Create(const std::string& filepath);
-		static Ref<Shader> Create(const std::string& name,
-		                          const std::string& vertexSrc, const std::string& fragmentSrc);
 
 	protected:
 		// Virtual methods for GPU upload
@@ -74,19 +74,20 @@ namespace Snowstorm
 		}
 	};
 
-	class ShaderLibrary
+	class ShaderLibrarySingleton final : public Singleton
 	{
 	public:
-		void Add(const std::string& name, const Ref<Shader>& shader);
-		void Add(const Ref<Shader>& shader);
 		Ref<Shader> Load(const std::string& filepath);
-		Ref<Shader> Load(const std::string& name, const std::string& filepath);
-
 		Ref<Shader> Get(const std::string& name);
 
 		[[nodiscard]] bool Exists(const std::string& name) const;
 
+		void ReloadAll();
+
 	private:
+		void Add(const Ref<Shader>& shader);
+
 		std::unordered_map<std::string, Ref<Shader>> m_Shaders;
+		std::unordered_map<std::string, std::filesystem::file_time_type> m_LastModifications;
 	};
 }

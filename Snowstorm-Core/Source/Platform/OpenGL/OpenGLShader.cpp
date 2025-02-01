@@ -60,7 +60,6 @@ namespace Snowstorm
 		glDeleteProgram(m_RendererID);
 	}
 
-
 	std::string OpenGLShader::ReadFile(const std::string& filepath)
 	{
 		SS_PROFILE_FUNCTION();

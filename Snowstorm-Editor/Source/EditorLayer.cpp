@@ -20,7 +20,7 @@ namespace Snowstorm
 		m_ActiveScene = CreateRef<Scene>();
 
 		// Entities
-		m_FramebufferEntity = m_ActiveScene->createEntity("Framebuffer");
+		m_FramebufferEntity = m_ActiveScene->CreateEntity("Framebuffer");
 		m_FramebufferEntity.addComponent<ViewportComponent>(glm::vec2{1280.0f, 720.0f});
 
 		FramebufferSpecification fbSpec;
@@ -28,7 +28,9 @@ namespace Snowstorm
 		fbSpec.Height = 720;
 		m_FramebufferEntity.addComponent<FramebufferComponent>(Framebuffer::Create(fbSpec));
 
-		auto checkerboardSquare = m_ActiveScene->createEntity("Amazing Square");
+		auto checkerboardSquare = m_ActiveScene->CreateEntity("Amazing Square");
+
+		checkerboardSquare.addComponent<TransformComponent>();
 
 		auto checkerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
 		checkerboardSquare.addComponent<SpriteRendererComponent>(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, checkerboardTexture, 5.0f);
@@ -36,19 +38,23 @@ namespace Snowstorm
 
 		checkerboardSquare.getComponent<TransformComponent>().Position[0] += 2.0f;
 
-		auto redSquare = m_ActiveScene->createEntity("Red Square");
+		auto redSquare = m_ActiveScene->CreateEntity("Red Square");
+
+		redSquare.addComponent<TransformComponent>();
 
 		redSquare.addComponent<SpriteRendererComponent>(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
 		redSquare.addComponent<RenderTargetComponent>(m_FramebufferEntity);
 
 		m_SquareEntity = checkerboardSquare;
 
-		m_CameraEntity = m_ActiveScene->createEntity("Camera Entity");
+		m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
+		m_CameraEntity.addComponent<TransformComponent>();
 		m_CameraEntity.addComponent<CameraComponent>();
 		m_CameraEntity.addComponent<CameraControllerComponent>();
 		m_CameraEntity.addComponent<RenderTargetComponent>(m_FramebufferEntity);
 
-		m_SecondCamera = m_ActiveScene->createEntity("Clip-Space Entity");
+		m_SecondCamera = m_ActiveScene->CreateEntity("Clip-Space Entity");
+		m_SecondCamera.addComponent<TransformComponent>();
 		auto& cc = m_SecondCamera.addComponent<CameraComponent>();
 		m_SecondCamera.addComponent<CameraControllerComponent>();
 		m_SecondCamera.addComponent<RenderTargetComponent>(m_FramebufferEntity);
@@ -67,7 +73,7 @@ namespace Snowstorm
 		SS_PROFILE_FUNCTION();
 
 		// Update scene
-		m_ActiveScene->onUpdate(ts);
+		m_ActiveScene->OnUpdate(ts);
 	}
 
 	void EditorLayer::OnImGuiRender()
@@ -210,7 +216,7 @@ namespace Snowstorm
 
 	void EditorLayer::OnEvent(Event& event)
 	{
-		auto& eventsHandler = m_ActiveScene->getSingletonManager().getSingleton<EventsHandlerSingleton>();
+		auto& eventsHandler = m_ActiveScene->getSingletonManager().GetSingleton<EventsHandlerSingleton>();
 
 		// TODO have to make this better
 		static const std::unordered_map<EventType, std::function<void(Event&)>> eventMap = {

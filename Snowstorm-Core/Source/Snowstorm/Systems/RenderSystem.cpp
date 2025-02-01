@@ -8,11 +8,11 @@
 
 namespace Snowstorm
 {
-	void RenderSystem::execute(const Timestep ts)
+	void RenderSystem::Execute(const Timestep ts)
 	{
-		const auto framebufferView = view<FramebufferComponent>();
-		const auto cameraView = view<TransformComponent, CameraComponent, RenderTargetComponent>();
-		const auto spriteView = view<TransformComponent, SpriteRendererComponent, RenderTargetComponent>();
+		const auto framebufferView = View<FramebufferComponent>();
+		const auto cameraView = View<TransformComponent, CameraComponent, RenderTargetComponent>();
+		const auto spriteView = View<TransformComponent, SpriteRendererComponent, RenderTargetComponent>();
 
 		// Loop through each framebuffer
 		for (const auto fbEntity : framebufferView)

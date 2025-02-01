@@ -86,7 +86,7 @@ namespace Snowstorm
 		std::function<void()> DestroyScript;
 
 		template <typename T>
-		void bind()
+		void Bind()
 		{
 			InstantiateScript = [this]
 			{

@@ -55,7 +55,7 @@ void Sandbox2D::OnAttach()
 	m_Particle.VelocityVariation = {3.0f, 1.0f};
 	m_Particle.Position = {0.0f, 0.0f};
 
-	m_scene->createEntity();
+	m_scene->CreateEntity();
 
 	m_CameraController.SetZoomLevel(5.0f);
 }

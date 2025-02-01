@@ -4,7 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "RenderCommand.h"
-#include "Shader.h"
+#include "Shader.hpp"
 #include "VertexArray.h"
 
 namespace Snowstorm

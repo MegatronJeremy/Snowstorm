@@ -25,27 +25,27 @@ namespace Snowstorm
 		T& addComponent(Args&&... args)
 		{
 			SS_CORE_ASSERT(!hasComponent<T>(), "Entity already has component!");
-			return m_Scene->getRegistry().emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+			return m_Scene->GetRegistry().emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
 		}
 
 		template <typename T>
 		T& getComponent()
 		{
 			SS_CORE_ASSERT(hasComponent<T>(), "Entity does not have component!");
-			return m_Scene->getRegistry().get<T>(m_EntityHandle);
+			return m_Scene->GetRegistry().get<T>(m_EntityHandle);
 		}
 
 		template <typename T>
 		[[nodiscard]] bool hasComponent() const
 		{
-			return m_Scene->getRegistry().any_of<T>(m_EntityHandle);
+			return m_Scene->GetRegistry().any_of<T>(m_EntityHandle);
 		}
 
 		template <typename T>
 		void removeComponent() const
 		{
 			SS_CORE_ASSERT(hasComponent<T>(), "Entity does not have component!");
-			m_Scene->getRegistry().remove<T>(m_EntityHandle);
+			m_Scene->GetRegistry().remove<T>(m_EntityHandle);
 		}
 
 		operator bool() const { return m_EntityHandle != entt::null; }

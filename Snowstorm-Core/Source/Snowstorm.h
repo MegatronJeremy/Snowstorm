@@ -25,7 +25,7 @@
 #include "Snowstorm/Renderer/RenderCommand.h"
 
 #include "Snowstorm/Renderer/Buffer.h"
-#include "Snowstorm/Renderer/Shader.h"
+#include "Snowstorm/Renderer/Shader.hpp"
 #include "Snowstorm/Renderer/Framebuffer.h"
 #include "Snowstorm/Renderer/Texture.h"
 #include "Snowstorm/Renderer/VertexArray.h"

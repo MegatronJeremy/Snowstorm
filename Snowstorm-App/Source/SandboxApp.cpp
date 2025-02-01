@@ -209,7 +209,7 @@ public:
 private:
 	Snowstorm::Ref<Snowstorm::Scene> m_scene;
 
-	Snowstorm::ShaderLibrary m_shaderLibrary;
+	Snowstorm::ShaderLibrarySingleton m_shaderLibrary;
 	Snowstorm::Ref<Snowstorm::Shader> m_shader;
 	Snowstorm::Ref<Snowstorm::VertexArray> m_vertexArray;
 

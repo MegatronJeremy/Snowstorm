@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include "Snowstorm/Renderer/Shader.h"
+#include "Snowstorm/Renderer/Shader.hpp"
 
 // TODO: REMOVE!
 using GLenum = unsigned int;

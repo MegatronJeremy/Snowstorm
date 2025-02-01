@@ -8,15 +8,15 @@
 
 namespace Snowstorm
 {
-	void CameraControllerSystem::execute(const Timestep ts)
+	void CameraControllerSystem::Execute(const Timestep ts)
 	{
 		// Retrieve the EventsHandler singleton
-		auto& eventsHandler = singletonView<EventsHandlerSingleton>();
+		auto& eventsHandler = SingletonView<EventsHandlerSingleton>();
 
 		// Process all MouseScrolledEvents before updating cameras
 		for (const auto& event : eventsHandler.process<MouseScrolledEvent>())
 		{
-			for (const auto cameraControllerView = view<CameraComponent, TransformComponent, CameraControllerComponent>(); const auto entity : cameraControllerView)
+			for (const auto cameraControllerView = View<CameraComponent, TransformComponent, CameraControllerComponent>(); const auto entity : cameraControllerView)
 			{
 				auto [camera, transform, controller] = cameraControllerView.get(entity);
 
@@ -37,7 +37,7 @@ namespace Snowstorm
 		}
 
 		// Process continuous movement (instead of only on KeyPressedEvent)
-		for (const auto cameraControllerView = view<CameraComponent, TransformComponent, CameraControllerComponent>(); const auto entity : cameraControllerView)
+		for (const auto cameraControllerView = View<CameraComponent, TransformComponent, CameraControllerComponent>(); const auto entity : cameraControllerView)
 		{
 			auto [camera, transform, controller] = cameraControllerView.get(entity);
 
