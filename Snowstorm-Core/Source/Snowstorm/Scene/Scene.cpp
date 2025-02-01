@@ -13,7 +13,6 @@
 #include "Snowstorm/Systems/RenderSystem.hpp"
 #include "Snowstorm/Systems/ScriptSystem.hpp"
 #include "Snowstorm/Systems/ViewportResizeSystem.hpp"
-#include "Snowstorm/Systems/WindowResizeEventSystem.hpp"
 
 namespace Snowstorm
 {
@@ -24,7 +23,6 @@ namespace Snowstorm
 		// TODO order of execution here is important
 		m_SystemManager->registerSystem<ScriptSystem>(this);
 		m_SystemManager->registerSystem<ViewportResizeSystem>(this);
-		m_SystemManager->registerSystem<WindowResizeEventSystem>(this);
 		m_SystemManager->registerSystem<CameraControllerSystem>(this);
 		m_SystemManager->registerSystem<RenderSystem>(this);
 

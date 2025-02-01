@@ -9,7 +9,7 @@ namespace Snowstorm
 	struct WindowResizeEvent final : Event
 	{
 		WindowResizeEvent(const uint32_t width, const uint32_t height)
-			: m_Width(width), m_Height(height)
+			: Width(width), Height(height)
 		{
 			SS_CORE_INFO("Window resize event");
 		}
@@ -17,14 +17,15 @@ namespace Snowstorm
 		[[nodiscard]] std::string toString() const override
 		{
 			std::stringstream ss;
-			ss << "WindowResizeEvent: " << m_Width << ", " << m_Height;
+			ss << "WindowResizeEvent: " << Width << ", " << Height;
 			return ss.str();
 		}
 
 		EVENT_CLASS_TYPE(WindowResize)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 
-		uint32_t m_Width, m_Height;
+		uint32_t Width;
+		uint32_t Height;
 	};
 
 	struct WindowCloseEvent final : Event

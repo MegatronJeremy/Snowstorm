@@ -47,7 +47,8 @@ namespace Snowstorm
 			const Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 
-			// TODO I should still update though?
+			// Pause when minimized
+			if (!m_Minimized)
 			{
 				SS_PROFILE_SCOPE("LayerStack OnUpdate");
 
@@ -80,12 +81,13 @@ namespace Snowstorm
 		dispatcher.dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 		dispatcher.dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));
 
+		if (e.Handled)
+		{
+			return;
+		}
+
 		for (const auto& it : std::ranges::reverse_view(m_LayerStack))
 		{
-			if (e.Handled)
-			{
-				break;
-			}
 			it->OnEvent(e);
 		}
 	}
@@ -117,18 +119,18 @@ namespace Snowstorm
 		return true;
 	}
 
-	bool Application::OnWindowResize(const WindowResizeEvent& e)
+	bool Application::OnWindowResize(WindowResizeEvent& e)
 	{
 		SS_PROFILE_FUNCTION();
 
-		if (e.m_Width == 0 || e.m_Height == 0)
+		e.Handled = true;
+		if (e.Width == 0 || e.Height == 0)
 		{
 			m_Minimized = true;
-			return false;
+			return true;
 		}
 
 		m_Minimized = false;
-
-		return false;
+		return true;
 	}
 }

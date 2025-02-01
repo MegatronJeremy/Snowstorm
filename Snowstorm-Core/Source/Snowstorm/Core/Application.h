@@ -32,7 +32,7 @@ namespace Snowstorm
 
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
-		bool OnWindowResize(const WindowResizeEvent& e);
+		bool OnWindowResize(WindowResizeEvent& e);
 
 		Scope<Window> m_Window;
 		ImGuiLayer* m_ImGuiLayer;

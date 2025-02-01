@@ -192,7 +192,7 @@ namespace Snowstorm
 
 		// TODO move this to some sort of event system?
 		auto& viewportComponent = m_FramebufferEntity.getComponent<ViewportComponent>();
-		auto& framebufferComponent = m_FramebufferEntity.getComponent<FramebufferComponent>();
+		const auto& framebufferComponent = m_FramebufferEntity.getComponent<FramebufferComponent>();
 
 		viewportComponent.Focused = ImGui::IsWindowFocused();
 		viewportComponent.Hovered = ImGui::IsWindowHovered();
@@ -218,12 +218,6 @@ namespace Snowstorm
 				EventType::MouseScrolled, [&eventsHandler](Event& e)
 				{
 					eventsHandler.pushEvent<MouseScrolledEvent>(dynamic_cast<MouseScrolledEvent&>(e));
-				}
-			},
-			{
-				EventType::WindowResize, [&eventsHandler](Event& e)
-				{
-					eventsHandler.pushEvent<WindowResizeEvent>(dynamic_cast<WindowResizeEvent&>(e));
 				}
 			}
 		};

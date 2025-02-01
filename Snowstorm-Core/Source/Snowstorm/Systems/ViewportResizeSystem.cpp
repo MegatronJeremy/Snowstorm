@@ -1,30 +1,41 @@
 #include "ViewportResizeSystem.hpp"
 
 #include "Snowstorm/Events/ApplicationEvent.h"
-#include "Snowstorm/Events/Event.h"
 #include "Snowstorm/Scene/Components.h"
 
 namespace Snowstorm
 {
 	void ViewportResizeSystem::execute(Timestep ts)
 	{
-		for (const auto viewportView = view<ViewportComponent, FramebufferComponent>(); const auto entity : viewportView)
-		{
-			const auto& [Size, Focused, Hovered] = viewportView.get<ViewportComponent>(entity);
-			const auto& framebuffer = viewportView.get<FramebufferComponent>(entity).Framebuffer;
+		const auto viewportView = view<ViewportComponent, FramebufferComponent>();
+		const auto cameraView = view<CameraComponent, RenderTargetComponent>();
 
-			if (Size.x <= 0.0f || Size.y <= 0.0f)
+		for (const auto entity : viewportView)
+		{
+			const auto [viewport, framebuffer] = viewportView.get<ViewportComponent, FramebufferComponent>(entity);
+
+			if (viewport.Size.x <= 0.0f || viewport.Size.y <= 0.0f)
 			{
 				continue;
 			}
 
-			if (const auto [Width, Height, Samples, SwapChainTarget] = framebuffer->GetSpecification();
-				Width != static_cast<uint32_t>(Size.x) || Height != static_cast<uint32_t>(Size.y))
-			{
-				framebuffer->Resize(static_cast<uint32_t>(Size.x), static_cast<uint32_t>(Size.y));
+			const uint32_t viewportWidth = static_cast<uint32_t>(viewport.Size.x);
+			const uint32_t viewportHeight = static_cast<uint32_t>(viewport.Size.y);
 
-				auto& eventsHandler = singletonView<EventsHandlerSingleton>();
-				eventsHandler.pushEvent<WindowResizeEvent>(Size.x, Size.y);
+			if (const auto fbSpec = framebuffer.Framebuffer->GetSpecification(); fbSpec.Width == viewportWidth && fbSpec.Width == viewportHeight)
+			{
+				continue;
+			}
+
+			framebuffer.Framebuffer->Resize(viewportWidth, viewportHeight);
+
+			// Resize all camera viewports within the framebuffer
+			for (const auto& cameraEntity : cameraView)
+			{
+				if (const auto [camera, renderTarget] = cameraView.get<CameraComponent, RenderTargetComponent>(cameraEntity); renderTarget.TargetFramebuffer == entity)
+				{
+					camera.Camera.setViewportSize(viewportWidth, viewportHeight);
+				}
 			}
 		}
 	}
