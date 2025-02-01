@@ -91,7 +91,9 @@ namespace Snowstorm
 
 		int32_t samplers[Renderer2DData::MaxTextureSlots];
 		for (uint32_t i = 0; i < Renderer2DData::MaxTextureSlots; i++)
-			samplers[i] = i;
+		{
+			samplers[i] = static_cast<int32_t>(i);
+		}
 
 		s_Data.TextureShader = Shader::Create("assets/shaders/Texture.glsl");
 		s_Data.TextureShader->Bind();

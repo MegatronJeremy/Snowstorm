@@ -12,9 +12,13 @@ namespace Snowstorm
 		GLenum ShaderTypeFromString(const std::string& type)
 		{
 			if (type == "vertex")
+			{
 				return GL_VERTEX_SHADER;
+			}
 			if (type == "fragment" || type == "pixel")
+			{
 				return GL_FRAGMENT_SHADER;
+			}
 
 			SS_CORE_ASSERT(false, "Unknown shader type!");
 			return 0;
@@ -99,8 +103,8 @@ namespace Snowstorm
 			pos = source.find(typeToken, nextLinePos);
 			shaderSources[ShaderTypeFromString(type)] = source.substr(nextLinePos,
 			                                                          pos - (nextLinePos == std::string::npos
-				                                                                 ? source.size() - 1
-				                                                                 : nextLinePos));
+				                                                          ? source.size() - 1
+				                                                          : nextLinePos));
 		}
 
 		return shaderSources;
