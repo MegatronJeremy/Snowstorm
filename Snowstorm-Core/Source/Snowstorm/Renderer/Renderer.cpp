@@ -97,7 +97,7 @@ namespace Snowstorm
 
 		s_Data.TextureShader = Shader::Create("assets/shaders/Texture.glsl");
 		s_Data.TextureShader->Bind();
-		s_Data.TextureShader->SetIntArray("u_Textures", samplers, Renderer2DData::MaxTextureSlots);
+		s_Data.TextureShader->SetUniform("u_Textures", samplers, Renderer2DData::MaxTextureSlots);
 
 		s_Data.TextureSlots[0] = s_Data.WhiteTexture;
 
@@ -119,7 +119,7 @@ namespace Snowstorm
 		const glm::mat4 viewProj = camera.GetProjection() * inverse(transform);
 
 		s_Data.TextureShader->Bind();
-		s_Data.TextureShader->SetMat4("u_ViewProjection", viewProj);
+		s_Data.TextureShader->SetUniform("u_ViewProjection", viewProj);
 
 		s_Data.QuadIndexCount = 0;
 		s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;

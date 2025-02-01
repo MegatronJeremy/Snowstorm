@@ -20,6 +20,11 @@ namespace Snowstorm
 			{
 				auto [camera, transform, controller] = cameraControllerView.get(entity);
 
+				if (!camera.Primary)
+				{
+					continue;
+				}
+
 				// Adjust zoom based on mouse scroll input
 				controller.ZoomLevel -= event->yOffset * 0.25f;
 				controller.ZoomLevel = std::max(controller.ZoomLevel, 0.25f);
@@ -35,6 +40,11 @@ namespace Snowstorm
 		for (const auto cameraControllerView = view<CameraComponent, TransformComponent, CameraControllerComponent>(); const auto entity : cameraControllerView)
 		{
 			auto [camera, transform, controller] = cameraControllerView.get(entity);
+
+			if (!camera.Primary)
+			{
+				continue;
+			}
 
 			auto moveDir = glm::vec3(0.0f);
 

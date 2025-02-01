@@ -24,14 +24,14 @@ namespace Snowstorm
 		void Bind() const override;
 		void Unbind() const override;
 
-		void SetInt(const std::string& name, int value) override;
-		void SetIntArray(const std::string& name, int* values, uint32_t count) override;
-		void SetFloat(const std::string& name, float value) override;
-		void SetFloat3(const std::string& name, const glm::vec3& value) override;
-		void SetFloat4(const std::string& name, const glm::vec4& value) override;
-		void SetMat4(const std::string& name, const glm::mat4& value) override;
+		void UploadUniform(const std::string& name, int value) override;
+		void UploadUniform(const std::string& name, const std::vector<int>& value) override;
+		void UploadUniform(const std::string& name, float value) override;
+		void UploadUniform(const std::string& name, const glm::vec3& value) override;
+		void UploadUniform(const std::string& name, const glm::vec4& value) override;
+		void UploadUniform(const std::string& name, const glm::mat4& value) override;
 
-		const std::string& GetName() const override { return m_Name; }
+		[[nodiscard]] const std::string& GetName() const override { return m_Name; }
 
 		void UploadUniformInt(const std::string& name, int value) const;
 		void UploadUniformIntArray(const std::string& name, const int* values, uint32_t count) const;
@@ -49,7 +49,6 @@ namespace Snowstorm
 		static std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
 		void Compile(std::unordered_map<GLenum, std::string>& shaderSources);
 
-	private:
 		uint32_t m_RendererID;
 		std::string m_Name;
 	};

@@ -196,42 +196,42 @@ namespace Snowstorm
 		glUseProgram(0);
 	}
 
-	void OpenGLShader::SetInt(const std::string& name, const int value)
+	void OpenGLShader::UploadUniform(const std::string& name, const int value)
 	{
 		SS_PROFILE_FUNCTION();
 
 		UploadUniformInt(name, value);
 	}
 
-	void OpenGLShader::SetIntArray(const std::string& name, int* values, const uint32_t count)
+	void OpenGLShader::UploadUniform(const std::string& name, const std::vector<int>& value)
 	{
 		SS_PROFILE_FUNCTION();
 
-		UploadUniformIntArray(name, values, count);
+		UploadUniformIntArray(name, value.data(), value.size());
 	}
 
-	void OpenGLShader::SetFloat(const std::string& name, const float value)
+	void OpenGLShader::UploadUniform(const std::string& name, const float value)
 	{
 		SS_PROFILE_FUNCTION();
 
 		UploadUniformFloat(name, value);
 	}
 
-	void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)
+	void OpenGLShader::UploadUniform(const std::string& name, const glm::vec3& value)
 	{
 		SS_PROFILE_FUNCTION();
 
 		UploadUniformFloat3(name, value);
 	}
 
-	void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)
+	void OpenGLShader::UploadUniform(const std::string& name, const glm::vec4& value)
 	{
 		SS_PROFILE_FUNCTION();
 
 		UploadUniformFloat4(name, value);
 	}
 
-	void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value)
+	void OpenGLShader::UploadUniform(const std::string& name, const glm::mat4& value)
 	{
 		SS_PROFILE_FUNCTION();
 
