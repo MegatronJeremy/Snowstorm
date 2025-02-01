@@ -1,7 +1,7 @@
 #include <Snowstorm.h>
 #include <Snowstorm/Core/EntryPoint.h>
 
-#include "EditorLayer.h"
+#include "EditorLayer.hpp"
 
 namespace Snowstorm
 {
@@ -13,14 +13,6 @@ namespace Snowstorm
 		{
 			PushLayer(new EditorLayer());
 		}
-
-		SnowstormEditor(const SnowstormEditor& other) = delete;
-		SnowstormEditor(SnowstormEditor&& other) = delete;
-		SnowstormEditor& operator=(const SnowstormEditor& other) = delete;
-		SnowstormEditor& operator=(SnowstormEditor&& other) = delete;
-
-		~SnowstormEditor() override
-		= default;
 	};
 
 	Application* CreateApplication()

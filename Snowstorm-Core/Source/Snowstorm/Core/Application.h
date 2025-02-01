@@ -9,17 +9,11 @@
 
 namespace Snowstorm
 {
-	class Application
+	class Application : public NonCopyable
 	{
 	public:
 		explicit Application(const std::string& name = "Snowstorm App");
-		virtual ~Application();
-
-		Application(const Application&) = delete;
-		Application(Application&&) = delete;
-
-		Application& operator=(const Application&) = delete;
-		Application& operator=(Application&&) = delete;
+		~Application() override;
 
 		void Run();
 
@@ -40,7 +34,6 @@ namespace Snowstorm
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(const WindowResizeEvent& e);
 
-	private:
 		Scope<Window> m_Window;
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
@@ -48,7 +41,6 @@ namespace Snowstorm
 		LayerStack m_LayerStack;
 		float m_LastFrameTime = 0.0f;
 
-	private:
 		static Application* s_Instance;
 	};
 

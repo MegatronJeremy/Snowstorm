@@ -5,7 +5,7 @@
 
 #include <ranges>
 
-#include "Snowstorm/Renderer/Renderer.h"
+#include "Snowstorm/Renderer/Renderer.hpp"
 
 namespace Snowstorm
 {
@@ -47,15 +47,13 @@ namespace Snowstorm
 			const Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 
-			if (!m_Minimized)
+			// TODO I should still update though?
 			{
-				{
-					SS_PROFILE_SCOPE("LayerStack OnUpdate");
+				SS_PROFILE_SCOPE("LayerStack OnUpdate");
 
-					for (Layer* layer : m_LayerStack)
-					{
-						layer->OnUpdate(timestep);
-					}
+				for (Layer* layer : m_LayerStack)
+				{
+					layer->OnUpdate(timestep);
 				}
 			}
 
@@ -130,7 +128,6 @@ namespace Snowstorm
 		}
 
 		m_Minimized = false;
-		Renderer::OnWindowResize(e.m_Height, e.m_Width);
 
 		return false;
 	}

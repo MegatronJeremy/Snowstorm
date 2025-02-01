@@ -54,7 +54,7 @@ namespace Snowstorm
 		Event() = default;
 		virtual ~Event() = default;
 
-		// TODO this has to be deleted... because of event handling
+		// TODO this has to be deleted... because of event handling?
 		Event(const Event& e) = default;
 		Event(Event&& e) = default;
 

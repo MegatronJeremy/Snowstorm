@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Framebuffer.h"
 
-#include "Snowstorm/Renderer/Renderer.h"
+#include "Snowstorm/Renderer/Renderer.hpp"
 
 #include "Platform/OpenGL/OpenGLFramebuffer.h"
 #include "Platform/Vulkan/VulkanFramebuffer.h"

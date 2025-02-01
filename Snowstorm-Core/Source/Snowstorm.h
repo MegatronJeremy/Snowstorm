@@ -12,7 +12,6 @@
 #include "Snowstorm/Core/Input.h"
 #include "Snowstorm/Core/KeyCodes.h"
 #include "Snowstorm/Core/MouseCodes.h"
-#include "Snowstorm/Renderer/OrthographicCameraController.h"
 
 #include "Snowstorm/ImGui/ImGuiLayer.h"
 
@@ -22,8 +21,7 @@
 #include "Snowstorm/Scene/Components.h"
 
 // ---Renderer------------------------
-#include "Snowstorm/Renderer/Renderer.h"
-#include "Snowstorm/Renderer/Renderer2D.h"
+#include "Snowstorm/Renderer/Renderer.hpp"
 #include "Snowstorm/Renderer/RenderCommand.h"
 
 #include "Snowstorm/Renderer/Buffer.h"
@@ -31,6 +29,4 @@
 #include "Snowstorm/Renderer/Framebuffer.h"
 #include "Snowstorm/Renderer/Texture.h"
 #include "Snowstorm/Renderer/VertexArray.h"
-
-#include "Snowstorm/Renderer/OrthographicCamera.h"
 // -----------------------------------

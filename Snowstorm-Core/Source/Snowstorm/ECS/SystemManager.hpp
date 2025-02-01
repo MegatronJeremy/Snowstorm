@@ -13,7 +13,7 @@ namespace Snowstorm
 		template <typename T, typename... Args>
 		void registerSystem(Args&&... args)
 		{
-			static_assert(std::is_base_of_v<System, T>, "T must inherit from BaseSystem");
+			static_assert(std::is_base_of_v<System, T>, "T must inherit from System");
 			m_Systems.emplace_back(CreateScope<T>(std::forward<Args>(args)...));
 		}
 

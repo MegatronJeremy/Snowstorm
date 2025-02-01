@@ -4,10 +4,11 @@
 
 namespace Snowstorm
 {
-	class RenderSystem final : public System
+	class WindowResizeEventSystem : public System
 	{
 	public:
-		explicit RenderSystem(const SceneRef scene) : System(scene)
+		explicit WindowResizeEventSystem(const SceneRef context)
+			: System(context)
 		{
 		}
 

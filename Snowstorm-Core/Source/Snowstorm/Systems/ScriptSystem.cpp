@@ -18,7 +18,7 @@ namespace Snowstorm
 			SS_CORE_ASSERT(scriptComponent.Instance == nullptr);
 
 			scriptComponent.InstantiateScript();
-			scriptComponent.Instance->m_Entity = Entity{entity, m_context};
+			scriptComponent.Instance->m_Entity = Entity{entity, m_scene};
 			scriptComponent.Instance->onCreate();
 		}
 

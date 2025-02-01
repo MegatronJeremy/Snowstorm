@@ -1,15 +1,15 @@
-#include "EditorLayer.h"
+#include "EditorLayer.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
 #include "Snowstorm/Events/KeyEvent.h"
+#include "Snowstorm/Events/MouseEvent.h"
 
 namespace Snowstorm
 {
 	EditorLayer::EditorLayer()
 		: Layer("EditorLayer")
-	// m_CameraController(1280.0f / 720.0f, true)
 	{
 	}
 
@@ -17,32 +17,41 @@ namespace Snowstorm
 	{
 		SS_PROFILE_FUNCTION();
 
-		m_CheckerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
+		m_ActiveScene = CreateRef<Scene>();
+
+		// Entities
+		m_FramebufferEntity = m_ActiveScene->createEntity("Framebuffer");
+		m_FramebufferEntity.addComponent<ViewportComponent>(glm::vec2{1280.0f, 720.0f});
 
 		FramebufferSpecification fbSpec;
 		fbSpec.Width = 1280;
 		fbSpec.Height = 720;
-		m_Framebuffer = Framebuffer::Create(fbSpec);
+		m_FramebufferEntity.addComponent<FramebufferComponent>(Framebuffer::Create(fbSpec));
 
-		m_ActiveScene = CreateRef<Scene>();
+		auto checkerboardSquare = m_ActiveScene->createEntity("Amazing Square");
 
-		// Entity
-		auto square = m_ActiveScene->createEntity("Amazing Square");
-		square.addComponent<SpriteRendererComponent>(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f});
-		square.getComponent<TransformComponent>().Position[0] += 2.0f;
+		auto checkerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
+		checkerboardSquare.addComponent<SpriteRendererComponent>(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, checkerboardTexture, 5.0f);
+		checkerboardSquare.addComponent<RenderTargetComponent>(m_FramebufferEntity);
+
+		checkerboardSquare.getComponent<TransformComponent>().Position[0] += 2.0f;
 
 		auto redSquare = m_ActiveScene->createEntity("Red Square");
-		redSquare.addComponent<SpriteRendererComponent>(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
 
-		m_SquareEntity = square;
+		redSquare.addComponent<SpriteRendererComponent>(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
+		redSquare.addComponent<RenderTargetComponent>(m_FramebufferEntity);
+
+		m_SquareEntity = checkerboardSquare;
 
 		m_CameraEntity = m_ActiveScene->createEntity("Camera Entity");
 		m_CameraEntity.addComponent<CameraComponent>();
 		m_CameraEntity.addComponent<CameraControllerComponent>();
+		m_CameraEntity.addComponent<RenderTargetComponent>(m_FramebufferEntity);
 
 		m_SecondCamera = m_ActiveScene->createEntity("Clip-Space Entity");
 		auto& cc = m_SecondCamera.addComponent<CameraComponent>();
 		m_SecondCamera.addComponent<CameraControllerComponent>();
+		m_SecondCamera.addComponent<RenderTargetComponent>(m_FramebufferEntity);
 		cc.Primary = false;
 
 		m_SceneHierarchyPanel.setContext(m_ActiveScene);
@@ -57,28 +66,8 @@ namespace Snowstorm
 	{
 		SS_PROFILE_FUNCTION();
 
-		// Resize
-		if (const FramebufferSpecification spec = m_Framebuffer->GetSpecification();
-			m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f &&
-			(spec.Width != static_cast<uint32_t>(m_ViewportSize.x)
-				|| spec.Height != static_cast<uint32_t>(m_ViewportSize.y)))
-		{
-			m_Framebuffer->Resize(static_cast<uint32_t>(m_ViewportSize.x), static_cast<uint32_t>(m_ViewportSize.y));
-
-			m_ActiveScene->onViewportResize(static_cast<uint32_t>(m_ViewportSize.x),
-			                                static_cast<uint32_t>(m_ViewportSize.y));
-		}
-
-		// Render
-		Renderer2D::ResetStats();
-		m_Framebuffer->Bind();
-		RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
-		RenderCommand::Clear();
-
 		// Update scene
 		m_ActiveScene->onUpdate(ts);
-
-		m_Framebuffer->Unbind();
 	}
 
 	void EditorLayer::OnImGuiRender()
@@ -121,13 +110,19 @@ namespace Snowstorm
 		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
 		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 		if (!optPadding)
+		{
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		}
 		ImGui::Begin("DockSpace Demo", &dockspaceOpen, windowFlags);
 		if (!optPadding)
+		{
 			ImGui::PopStyleVar();
+		}
 
 		if (optFullscreen)
+		{
 			ImGui::PopStyleVar(2);
+		}
 
 		// Submit the DockSpace
 		if (const ImGuiIO& io = ImGui::GetIO(); io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
@@ -141,7 +136,9 @@ namespace Snowstorm
 			if (ImGui::BeginMenu("File"))
 			{
 				if (ImGui::MenuItem("Exit"))
+				{
 					Application::Get().Close();
+				}
 
 				ImGui::EndMenu();
 			}
@@ -155,7 +152,7 @@ namespace Snowstorm
 
 		ImGui::Begin("Settings");
 
-		const auto stats = Renderer2D::GetStats();
+		const auto stats = Renderer::GetStats();
 		ImGui::Text("Renderer2D Stats:");
 		ImGui::Text("Draw Calls: %d", stats.DrawCalls);
 		ImGui::Text("Quads: %d", stats.QuadCount);
@@ -193,15 +190,19 @@ namespace Snowstorm
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
 		ImGui::Begin("Viewport");
 
-		m_ViewportFocused = ImGui::IsWindowFocused();
-		m_ViewportHovered = ImGui::IsWindowHovered();
-		Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused || !m_ViewportHovered);
+		// TODO move this to some sort of event system?
+		auto& viewportComponent = m_FramebufferEntity.getComponent<ViewportComponent>();
+		auto& framebufferComponent = m_FramebufferEntity.getComponent<FramebufferComponent>();
+
+		viewportComponent.Focused = ImGui::IsWindowFocused();
+		viewportComponent.Hovered = ImGui::IsWindowHovered();
+		Application::Get().GetImGuiLayer()->BlockEvents(!viewportComponent.Focused || !viewportComponent.Hovered);
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		m_ViewportSize = {viewportPanelSize.x, viewportPanelSize.y};
+		viewportComponent.Size = {viewportPanelSize.x, viewportPanelSize.y};
 
-		const uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
-		ImGui::Image(reinterpret_cast<ImTextureID>(textureID), ImVec2{m_ViewportSize.x, m_ViewportSize.y}, ImVec2{0, 1},
+		const uint32_t textureID = framebufferComponent.Framebuffer->GetColorAttachmentRendererID();
+		ImGui::Image(reinterpret_cast<ImTextureID>(textureID), ImVec2{viewportComponent.Size.x, viewportComponent.Size.y}, ImVec2{0, 1},
 		             ImVec2{1, 0});
 		ImGui::End();
 		ImGui::PopStyleVar();

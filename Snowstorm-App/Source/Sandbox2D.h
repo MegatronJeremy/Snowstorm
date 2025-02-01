@@ -18,7 +18,8 @@ public:
 	void OnEvent(Snowstorm::Event& event) override;
 
 private:
-	Snowstorm::OrthographicCameraController m_CameraController;
+	// Snowstorm::OrthographicCameraController m_CameraController;
+	Snowstorm::Ref<Snowstorm::Scene> m_scene;
 
 	// Temp
 	Snowstorm::Ref<Snowstorm::VertexArray> m_SquareVA;

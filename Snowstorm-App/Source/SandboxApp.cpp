@@ -10,14 +10,16 @@
 
 #include "Sandbox2D.h"
 
+#include "Snowstorm/Renderer/OrthographicCameraController.h"
+
 class ExampleLayer final : public Snowstorm::Layer
 {
 public:
 	ExampleLayer()
 		: Layer("Example"),
-		  m_CameraController(1280.0f / 720.0f, true)
+		  m_cameraController(1280.0f / 720.0f, true)
 	{
-		m_VertexArray = Snowstorm::VertexArray::Create();
+		m_vertexArray = Snowstorm::VertexArray::Create();
 
 		constexpr float vertices[3 * 7] = {
 			-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
@@ -32,15 +34,15 @@ public:
 			{Snowstorm::ShaderDataType::Float4, "a_Color"}
 		};
 		vertexBuffer->SetLayout(layout);
-		m_VertexArray->AddVertexBuffer(vertexBuffer);
+		m_vertexArray->AddVertexBuffer(vertexBuffer);
 
 		constexpr uint32_t indices[3] = {
 			0, 1, 2
 		};
 		const Snowstorm::Ref<Snowstorm::IndexBuffer> indexBuffer(Snowstorm::IndexBuffer::Create(indices, std::size(indices)));
-		m_VertexArray->SetIndexBuffer(indexBuffer);
+		m_vertexArray->SetIndexBuffer(indexBuffer);
 
-		m_SquareVA = Snowstorm::VertexArray::Create();
+		m_squareVa = Snowstorm::VertexArray::Create();
 
 		constexpr float squareVertices[5 * 4] = {
 			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -55,14 +57,14 @@ public:
 			{Snowstorm::ShaderDataType::Float3, "a_Position"},
 			{Snowstorm::ShaderDataType::Float2, "a_TexCoord"}
 		});
-		m_SquareVA->AddVertexBuffer(squareVB);
+		m_squareVa->AddVertexBuffer(squareVB);
 
 		constexpr uint32_t squareIndices[6] = {
 			0, 1, 2, 2, 3, 0
 		};
 		const Snowstorm::Ref<Snowstorm::IndexBuffer> squareIB(
 			Snowstorm::IndexBuffer::Create(squareIndices, std::size(squareIndices)));
-		m_SquareVA->SetIndexBuffer(squareIB);
+		m_squareVa->SetIndexBuffer(squareIB);
 
 		const std::string vertexSrc = R"(
 			#version 330 core
@@ -99,7 +101,7 @@ public:
 			}			
 		)";
 
-		m_Shader = Snowstorm::Shader::Create("VertexPosColor", vertexSrc, fragmentSrc);
+		m_shader = Snowstorm::Shader::Create("VertexPosColor", vertexSrc, fragmentSrc);
 
 		const std::string flatColorShaderVertexSrc = R"(
 			#version 330 core
@@ -133,12 +135,12 @@ public:
 			}			
 		)";
 
-		m_FlatColorShader = Snowstorm::Shader::Create("FlatColor", flatColorShaderVertexSrc, flatColorShaderFragmentSrc);
+		m_flatColorShader = Snowstorm::Shader::Create("FlatColor", flatColorShaderVertexSrc, flatColorShaderFragmentSrc);
 
-		const auto textureShader = m_ShaderLibrary.Load("Assets/Shaders/Texture.glsl");
+		const auto textureShader = m_shaderLibrary.Load("Assets/Shaders/Texture.glsl");
 
-		m_Texture = Snowstorm::Texture2D::Create("Assets/Textures/Checkerboard.png");
-		m_ChernoLogoTexture = Snowstorm::Texture2D::Create("Assets/Textures/ChernoLogo.png");
+		m_texture = Snowstorm::Texture2D::Create("Assets/Textures/Checkerboard.png");
+		m_chernoLogoTexture = Snowstorm::Texture2D::Create("Assets/Textures/ChernoLogo.png");
 
 		textureShader->Bind();
 		textureShader->SetInt("u_Texture", 0);
@@ -147,20 +149,20 @@ public:
 	void OnUpdate(const Snowstorm::Timestep ts) override
 	{
 		// Update
-		m_CameraController.OnUpdate(ts);
+		m_cameraController.OnUpdate(ts);
 
 		// Render
 		Snowstorm::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
 		Snowstorm::RenderCommand::Clear();
 
-		Snowstorm::Renderer::BeginScene(m_CameraController.GetCamera());
+		Snowstorm::Renderer::BeginScene(m_cameraController.GetCamera());
 
 		static float dynScale = 0.1f;
 		static bool goingUp = true;
 		const glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 
-		m_FlatColorShader->Bind();
-		m_FlatColorShader->SetFloat3("u_Color", m_SquareColor);
+		m_flatColorShader->Bind();
+		m_flatColorShader->SetFloat3("u_Color", m_squareColor);
 
 		for (int x = 0; x < 20; x++)
 		{
@@ -168,7 +170,7 @@ public:
 			{
 				glm::vec3 pos(x * (dynScale + 0.1f * dynScale), y * (dynScale + 0.1f * dynScale), 0.0f);
 				const glm::mat4 transform = translate(glm::mat4(1.0f), pos) * scale;
-				Snowstorm::Renderer::Submit(m_FlatColorShader, m_SquareVA, transform);
+				Snowstorm::Renderer::Submit(m_flatColorShader, m_squareVa, transform);
 
 				if (dynScale >= 0.12f) goingUp = false;
 				else if (dynScale <= 0.1f) goingUp = true;
@@ -178,13 +180,13 @@ public:
 			}
 		}
 
-		const auto textureShader = m_ShaderLibrary.Get("Texture");
+		const auto textureShader = m_shaderLibrary.Get("Texture");
 
-		m_Texture->Bind();
-		Snowstorm::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		m_texture->Bind();
+		Snowstorm::Renderer::Submit(textureShader, m_squareVa, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
-		m_ChernoLogoTexture->Bind();
-		Snowstorm::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		m_chernoLogoTexture->Bind();
+		Snowstorm::Renderer::Submit(textureShader, m_squareVa, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
 		// Triangle
 		// Snowstorm::Renderer::Submit(m_Shader, m_VertexArray);
@@ -195,28 +197,30 @@ public:
 	void OnImGuiRender() override
 	{
 		ImGui::Begin("Settings");
-		ImGui::ColorEdit3("Square Color", value_ptr(m_SquareColor));
+		ImGui::ColorEdit3("Square Color", value_ptr(m_squareColor));
 		ImGui::End();
 	}
 
 	void OnEvent(Snowstorm::Event& e) override
 	{
-		m_CameraController.OnEvent(e);
+		m_cameraController.OnEvent(e);
 	}
 
 private:
-	Snowstorm::ShaderLibrary m_ShaderLibrary;
-	Snowstorm::Ref<Snowstorm::Shader> m_Shader;
-	Snowstorm::Ref<Snowstorm::VertexArray> m_VertexArray;
+	Snowstorm::Ref<Snowstorm::Scene> m_scene;
 
-	Snowstorm::Ref<Snowstorm::Shader> m_FlatColorShader;
-	Snowstorm::Ref<Snowstorm::VertexArray> m_SquareVA;
+	Snowstorm::ShaderLibrary m_shaderLibrary;
+	Snowstorm::Ref<Snowstorm::Shader> m_shader;
+	Snowstorm::Ref<Snowstorm::VertexArray> m_vertexArray;
 
-	Snowstorm::Ref<Snowstorm::Texture2D> m_Texture, m_ChernoLogoTexture;
+	Snowstorm::Ref<Snowstorm::Shader> m_flatColorShader;
+	Snowstorm::Ref<Snowstorm::VertexArray> m_squareVa;
 
-	Snowstorm::OrthographicCameraController m_CameraController;
+	Snowstorm::Ref<Snowstorm::Texture2D> m_texture, m_chernoLogoTexture;
 
-	glm::vec3 m_SquareColor = {0.2f, 0.3f, 0.8f};
+	Snowstorm::OrthographicCameraController m_cameraController;
+
+	glm::vec3 m_squareColor = {0.2f, 0.3f, 0.8f};
 };
 
 class Sandbox final : public Snowstorm::Application
@@ -227,9 +231,6 @@ public:
 		// PushLayer(new ExampleLayer());
 		PushLayer(new Sandbox2D());
 	}
-
-	~Sandbox() override
-	= default;
 };
 
 Snowstorm::Application* Snowstorm::CreateApplication()

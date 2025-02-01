@@ -1,7 +1,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
-#include "SceneHieararchyPanel.h"
+#include "SceneHieararchyPanel.hpp"
 #include "Snowstorm/Core/Log.h"
 #include "Snowstorm/Scene/Components.h"
 

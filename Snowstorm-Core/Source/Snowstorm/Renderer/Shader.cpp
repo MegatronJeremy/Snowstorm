@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Shader.h"
 
-#include "Renderer.h"
+#include "Renderer.hpp"
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Platform/Vulkan/VulkanShader.h"
 

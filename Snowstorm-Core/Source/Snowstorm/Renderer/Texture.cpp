@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Texture.h"
 
-#include "Renderer.h"
+#include "Renderer.hpp"
 #include "Platform/OpenGL/OpenGLTexture.h"
 #include "Platform/Vulkan/VulkanTexture.h"
 

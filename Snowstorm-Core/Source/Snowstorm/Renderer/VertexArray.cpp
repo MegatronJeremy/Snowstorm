@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "VertexArray.h"
 
-#include "Renderer.h"
+#include "Renderer.hpp"
 #include "Platform/OpenGL/OpenGLVertexArray.h"
 #include "Platform/Vulkan/VulkanVertexArray.h"
 

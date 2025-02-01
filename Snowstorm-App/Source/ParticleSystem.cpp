@@ -58,7 +58,7 @@ void ParticleSystem::OnUpdate(const Snowstorm::Timestep ts)
 
 void ParticleSystem::OnRender(const Snowstorm::OrthographicCamera& camera) const
 {
-	Snowstorm::Renderer2D::BeginScene(camera);
+	Snowstorm::Renderer::BeginScene(camera);
 
 	for (auto& particle : m_ParticlePool)
 	{
@@ -73,7 +73,7 @@ void ParticleSystem::OnRender(const Snowstorm::OrthographicCamera& camera) const
 		float size = glm::lerp(particle.SizeEnd, particle.SizeBegin, life);
 		glm::vec3 position = {particle.Position.x, particle.Position.y, 0.2f};
 
-		Snowstorm::Renderer2D::DrawRotatedQuad(position, {size, size}, particle.Rotation, color);
+		Snowstorm::Renderer::DrawRotatedQuad(position, {size, size}, particle.Rotation, color);
 	}
 	Snowstorm::Renderer::EndScene();
 }

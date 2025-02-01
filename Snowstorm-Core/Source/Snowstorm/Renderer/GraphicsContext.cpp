@@ -2,7 +2,7 @@
 
 #include "GraphicsContext.h"
 
-#include "Renderer.h"
+#include "Renderer.hpp"
 #include "Platform/OpenGL/OpenGLContext.h"
 #include "Platform/Vulkan/VulkanContext.h"
 

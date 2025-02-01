@@ -22,13 +22,10 @@ namespace Snowstorm
 		[[nodiscard]] SingletonManager& getSingletonManager() const { return *m_SingletonManager; }
 
 		void onUpdate(Timestep ts) const;
-		void onViewportResize(uint32_t width, uint32_t height);
 
 	private:
 		SystemManager* m_SystemManager;
 		SingletonManager* m_SingletonManager;
-
-		uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 
 		friend class Entity;
 		friend class SceneHierarchyPanel;

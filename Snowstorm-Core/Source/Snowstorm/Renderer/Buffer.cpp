@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Buffer.h"
 
-#include "Renderer.h"
+#include "Renderer.hpp"
 
 #include "Platform/OpenGL/OpenGLBuffer.h"
 #include "Platform/Vulkan/VulkanBuffer.h"

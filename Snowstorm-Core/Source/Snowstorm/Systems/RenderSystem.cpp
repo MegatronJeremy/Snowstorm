@@ -1,56 +1,72 @@
 #include "RenderSystem.hpp"
 
-#include <Snowstorm/Renderer/Renderer2D.h>
+#include <Snowstorm/Renderer/Renderer.hpp>
 
 #include "Snowstorm/Events/ApplicationEvent.h"
-#include "Snowstorm/Events/Event.h"
+#include "Snowstorm/Renderer/RenderCommand.h"
 #include "Snowstorm/Scene/Components.h"
 
 namespace Snowstorm
 {
 	void RenderSystem::execute(const Timestep ts)
 	{
-		const auto cameraView = view<TransformComponent, CameraComponent>();
-		const auto spriteView = view<TransformComponent, SpriteRendererComponent>();
-		auto& eventsHandler = singletonView<EventsHandlerSingleton>();
+		const auto framebufferView = view<FramebufferComponent>();
+		const auto cameraView = view<TransformComponent, CameraComponent, RenderTargetComponent>();
+		const auto spriteView = view<TransformComponent, SpriteRendererComponent, RenderTargetComponent>();
 
-		const Camera* mainCamera = nullptr;
-		glm::mat4 cameraTransform{};
-
-		for (const auto entity : cameraView)
+		// Loop through each framebuffer
+		for (const auto fbEntity : framebufferView)
 		{
-			auto [transform, camera] = cameraView.get(entity);
-			if (camera.Primary)
+			const auto& framebufferComp = framebufferView.get<FramebufferComponent>(fbEntity);
+			if (!framebufferComp.Active)
 			{
-				mainCamera = &camera.Camera;
-				cameraTransform = transform;
-				break;
+				continue;
 			}
-		}
 
-		for (const auto& windowResizeEvent : eventsHandler.process<WindowResizeEvent>())
-		{
-			const uint32_t width = windowResizeEvent->m_Width;
-			const uint32_t height = windowResizeEvent->m_Height;
+			const Ref<Framebuffer> framebuffer = framebufferComp.Framebuffer;
+
+			Renderer::ResetStats();
+			framebuffer->Bind();
+			RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
+			RenderCommand::Clear();
+
+			// Find the main camera that is linked to this framebuffer
+			const Camera* mainCamera = nullptr;
+			glm::mat4 cameraTransform{};
 
 			for (const auto entity : cameraView)
 			{
-				auto [_, camera] = cameraView.get(entity);
-				camera.Camera.setViewportSize(width, height);
+				if (const auto& [TargetFramebuffer] = cameraView.get<RenderTargetComponent>(entity); TargetFramebuffer == fbEntity) // Match framebuffer
+				{
+					auto [transform, camera] = cameraView.get<TransformComponent, CameraComponent>(entity);
+					if (camera.Primary)
+					{
+						mainCamera = &camera.Camera;
+						cameraTransform = transform;
+						break;
+					}
+				}
 			}
-		}
 
-		if (mainCamera)
-		{
-			Renderer2D::BeginScene(*mainCamera, cameraTransform);
+			if (!mainCamera)
+			{
+				framebuffer->Unbind();
+				continue;
+			}
+
+			Renderer::BeginScene(*mainCamera, cameraTransform);
 
 			for (const auto entity : spriteView)
 			{
-				auto [transform, sprite] = spriteView.get<TransformComponent, SpriteRendererComponent>(entity);
-				Renderer2D::DrawQuad(transform, sprite.Color);
+				if (auto& [TargetFramebuffer] = spriteView.get<RenderTargetComponent>(entity); TargetFramebuffer == fbEntity) // Match framebuffer
+				{
+					auto [transform, sprite] = spriteView.get<TransformComponent, SpriteRendererComponent>(entity);
+					Renderer::DrawQuad(transform, sprite.Texture, sprite.TilingFactor, sprite.Color);
+				}
 			}
 
-			Renderer2D::EndScene();
+			Renderer::EndScene();
+			framebuffer->Unbind();
 		}
 	}
 }

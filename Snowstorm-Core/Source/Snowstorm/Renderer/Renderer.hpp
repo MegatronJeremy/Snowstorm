@@ -1,20 +1,19 @@
 #pragma once
 
 #include "Camera.h"
-#include "OrthographicCamera.h"
+#include "RendererAPI.h"
 #include "SubTexture2D.h"
 #include "Texture.h"
 
 namespace Snowstorm
 {
-	class Renderer2D
+	class Renderer
 	{
 	public:
 		static void Init();
 		static void Shutdown();
 
 		static void BeginScene(const Camera& camera, const glm::mat4& transform);
-		static void BeginScene(const OrthographicCamera& camera); // TODO: remove
 		static void EndScene();
 
 		static void Flush();
@@ -57,7 +56,6 @@ namespace Snowstorm
 		                            const Ref<SubTexture2D>& subTexture,
 		                            float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 
-
 		// Stats
 		struct Statistics
 		{
@@ -71,7 +69,10 @@ namespace Snowstorm
 		static void ResetStats();
 		static Statistics GetStats();
 
+		// API
+		static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
+
 	private:
 		static void FlushAndReset();
 	};
-} 
+}

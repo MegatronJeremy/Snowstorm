@@ -6,18 +6,14 @@
 #include "SceneCamera.h"
 #include "ScriptableEntity.h"
 
+#include "Snowstorm/Renderer/Framebuffer.h"
+#include "Snowstorm/Renderer/Texture.h"
+
 namespace Snowstorm
 {
 	struct TagComponent
 	{
 		std::string Tag;
-
-		TagComponent() = default;
-
-		explicit TagComponent(std::string name)
-			: Tag(std::move(name))
-		{
-		}
 	};
 
 	struct TransformComponent
@@ -25,22 +21,6 @@ namespace Snowstorm
 		glm::vec3 Position{0.0f, 0.0f, 0.0f};
 		glm::vec3 Rotation{0.0f, 0.0f, 0.0f}; // Euler angles in degrees
 		glm::vec3 Scale{1.0f, 1.0f, 1.0f};
-
-		TransformComponent() = default;
-		~TransformComponent() = default;
-
-		explicit TransformComponent(const glm::vec3& position,
-		                            const glm::vec3& rotation = glm::vec3(0.0f),
-		                            const glm::vec3& scale = glm::vec3(1.0f))
-			: Position(position), Rotation(rotation), Scale(scale)
-		{
-		}
-
-		TransformComponent(const TransformComponent&) = default;
-		TransformComponent(TransformComponent&&) = default;
-
-		TransformComponent& operator=(const TransformComponent&) = default;
-		TransformComponent& operator=(TransformComponent&&) = default;
 
 		[[nodiscard]] glm::mat4 getTransformMatrix() const
 		{
@@ -58,15 +38,29 @@ namespace Snowstorm
 		operator glm::mat4() const { return getTransformMatrix(); }
 	};
 
+	struct ViewportComponent
+	{
+		glm::vec2 Size = {1280, 720};
+		bool Focused = false;
+		bool Hovered = false;
+	};
+
+	struct FramebufferComponent
+	{
+		Ref<Framebuffer> Framebuffer;
+		bool Active = true; // Enable or disable rendering for this framebuffer
+	};
+
+	struct RenderTargetComponent
+	{
+		entt::entity TargetFramebuffer;
+	};
+
 	struct SpriteRendererComponent
 	{
 		glm::vec4 Color{1.0f, 1.0f, 1.0f, 1.0f};
-
-		SpriteRendererComponent() = default;
-
-		explicit SpriteRendererComponent(const glm::vec4& color) : Color(color)
-		{
-		}
+		Ref<Texture2D> Texture;
+		float TilingFactor = 1.0f;
 	};
 
 	struct CameraComponent
@@ -74,8 +68,6 @@ namespace Snowstorm
 		SceneCamera Camera;
 		bool Primary = true; // TODO: think about moving to scene
 		bool FixedAspectRatio = false;
-
-		CameraComponent() = default;
 	};
 
 	struct CameraControllerComponent

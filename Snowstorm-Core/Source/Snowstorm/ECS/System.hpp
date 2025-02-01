@@ -14,7 +14,7 @@ namespace Snowstorm
 		using SceneRef = Scene*;
 
 		explicit System(const SceneRef context)
-			: m_context(context)
+			: m_scene(context)
 		{
 		}
 
@@ -29,7 +29,7 @@ namespace Snowstorm
 			static_assert(sizeof...(Components) > 0, "view requires at least one component type.");
 
 			// TODO make this look better
-			return m_context->getRegistry().m_Registry.view<Components...>();
+			return m_scene->getRegistry().m_Registry.view<Components...>();
 		}
 
 		/// Returns a view of entities that had all the specified components added
@@ -40,7 +40,7 @@ namespace Snowstorm
 
 			std::unordered_set<entt::entity> entitiesWithAddedComponents;
 
-			for (const auto& [entity, componentTypes] : m_context->getRegistry().m_AddedComponents)
+			for (const auto& [entity, componentTypes] : m_scene->getRegistry().m_AddedComponents)
 			{
 				if ((componentTypes.count(std::type_index(typeid(Components))) && ...))
 				{
@@ -59,7 +59,7 @@ namespace Snowstorm
 
 			std::unordered_set<entt::entity> entitiesWithRemovedComponents;
 
-			for (const auto& [entity, componentTypes] : m_context->getRegistry().m_RemovedComponents)
+			for (const auto& [entity, componentTypes] : m_scene->getRegistry().m_RemovedComponents)
 			{
 				if ((componentTypes.count(std::type_index(typeid(Components))) && ...))
 				{
@@ -74,9 +74,9 @@ namespace Snowstorm
 		template <typename T>
 		[[nodiscard]] T& singletonView()
 		{
-			return m_context->getSingletonManager().getSingleton<T>();
+			return m_scene->getSingletonManager().getSingleton<T>();
 		}
 
-		SceneRef m_context;
+		SceneRef m_scene;
 	};
 }

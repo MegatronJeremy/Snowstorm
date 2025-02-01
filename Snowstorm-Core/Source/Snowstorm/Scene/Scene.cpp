@@ -12,6 +12,8 @@
 #include "Snowstorm/Systems/CameraControllerSystem.hpp"
 #include "Snowstorm/Systems/RenderSystem.hpp"
 #include "Snowstorm/Systems/ScriptSystem.hpp"
+#include "Snowstorm/Systems/ViewportResizeSystem.hpp"
+#include "Snowstorm/Systems/WindowResizeEventSystem.hpp"
 
 namespace Snowstorm
 {
@@ -19,9 +21,12 @@ namespace Snowstorm
 		: m_SystemManager(new SystemManager),
 		  m_SingletonManager(new SingletonManager)
 	{
-		m_SystemManager->registerSystem<RenderSystem>(this);
+		// TODO order of execution here is important
 		m_SystemManager->registerSystem<ScriptSystem>(this);
+		m_SystemManager->registerSystem<ViewportResizeSystem>(this);
+		m_SystemManager->registerSystem<WindowResizeEventSystem>(this);
 		m_SystemManager->registerSystem<CameraControllerSystem>(this);
+		m_SystemManager->registerSystem<RenderSystem>(this);
 
 		m_SingletonManager->registerSingleton<EventsHandlerSingleton>();
 	}
@@ -49,15 +54,5 @@ namespace Snowstorm
 	void Scene::onUpdate(const Timestep ts) const
 	{
 		m_SystemManager->executeSystems(ts);
-	}
-
-	void Scene::onViewportResize(const uint32_t width, const uint32_t height)
-	{
-		m_ViewportWidth = width;
-		m_ViewportHeight = height;
-
-		// Resize all non-fixed aspect ratio cameras
-		auto& eventsHandler = m_SingletonManager->getSingleton<EventsHandlerSingleton>();
-		eventsHandler.pushEvent<WindowResizeEvent>(width, height);
 	}
 }
