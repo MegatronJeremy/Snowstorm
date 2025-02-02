@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include "Texture.h"
+#include "Texture.hpp"
 
 namespace Snowstorm
 {

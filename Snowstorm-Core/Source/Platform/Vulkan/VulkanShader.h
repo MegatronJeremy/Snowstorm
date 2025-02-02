@@ -25,11 +25,13 @@ namespace Snowstorm
 		void UploadUniform(const std::string& name, const glm::vec4& value) override;
 		void UploadUniform(const std::string& name, const glm::mat4& value) override;
 
-		const std::string& GetName() const override { return m_Name; }
+		const std::string& GetPath() const override { return m_Filepath; }
+
+		void Recompile() override;
 
 	private:
 		VkDevice m_Device;
 
-		std::string m_Name;
+		std::string m_Filepath;
 	};
 }

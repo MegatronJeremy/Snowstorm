@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "Framebuffer.h"
+#include "Framebuffer.hpp"
 
-#include "Snowstorm/Renderer/Renderer.hpp"
+#include "Snowstorm/Renderer/Renderer2D.hpp"
 
 #include "Platform/OpenGL/OpenGLFramebuffer.h"
 #include "Platform/Vulkan/VulkanFramebuffer.h"
@@ -10,7 +10,7 @@ namespace Snowstorm
 {
 	Ref<Framebuffer> Framebuffer::Create(const FramebufferSpecification& spec)
 	{
-		switch (Renderer::GetAPI())
+		switch (Renderer2D::GetAPI())
 		{
 		case RendererAPI::API::None:
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");

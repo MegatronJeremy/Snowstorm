@@ -3,7 +3,7 @@
 
 #include "SceneHieararchyPanel.hpp"
 #include "Snowstorm/Core/Log.h"
-#include "Snowstorm/Scene/Components.h"
+#include "Snowstorm/Scene/Components.hpp"
 
 namespace Snowstorm
 {
@@ -47,7 +47,7 @@ namespace Snowstorm
 
 	void SceneHierarchyPanel::drawEntityNode(Entity entity)
 	{
-		const auto& tag = entity.getComponent<TagComponent>().Tag;
+		const auto& tag = entity.GetComponent<TagComponent>().Tag;
 
 		const ImGuiTreeNodeFlags flags =
 		((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0)
@@ -71,7 +71,7 @@ namespace Snowstorm
 	{
 		if (entity.hasComponent<TagComponent>())
 		{
-			auto& tag = entity.getComponent<TagComponent>().Tag;
+			auto& tag = entity.GetComponent<TagComponent>().Tag;
 
 			char buffer[256] = {0};
 			strcpy_s(buffer, sizeof(buffer), tag.c_str());
@@ -87,7 +87,7 @@ namespace Snowstorm
 			                      ImGuiTreeNodeFlags_DefaultOpen,
 			                      "Transform"))
 			{
-				auto& position = entity.getComponent<TransformComponent>().Position;
+				auto& position = entity.GetComponent<TransformComponent>().Position;
 				ImGui::DragFloat3("Position", value_ptr(position), 0.5f);
 
 				ImGui::TreePop();
@@ -100,7 +100,7 @@ namespace Snowstorm
 			                      ImGuiTreeNodeFlags_DefaultOpen,
 			                      "Camera"))
 			{
-				auto& cameraComponent = entity.getComponent<CameraComponent>();
+				auto& cameraComponent = entity.GetComponent<CameraComponent>();
 				auto& camera = cameraComponent.Camera;
 
 				ImGui::Checkbox("Primary", &cameraComponent.Primary);

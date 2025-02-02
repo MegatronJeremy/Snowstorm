@@ -28,7 +28,6 @@ namespace Snowstorm
 		{
 			static_assert(sizeof...(Components) > 0, "view requires at least one component type.");
 
-			// TODO make this look better
 			return m_Scene->GetRegistry().m_Registry.view<Components...>();
 		}
 

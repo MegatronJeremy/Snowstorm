@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Snowstorm/Core/Window.h"
-#include "Snowstorm/Renderer/GraphicsContext.h"
+#include "Snowstorm/Renderer/GraphicsContext.hpp"
 
 #include <GLFW/glfw3.h>
 

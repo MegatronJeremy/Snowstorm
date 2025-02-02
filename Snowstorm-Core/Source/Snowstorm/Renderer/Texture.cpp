@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "Texture.h"
+#include "Texture.hpp"
 
-#include "Renderer.hpp"
+#include "Renderer2D.hpp"
 #include "Platform/OpenGL/OpenGLTexture.h"
 #include "Platform/Vulkan/VulkanTexture.h"
 
@@ -9,7 +9,7 @@ namespace Snowstorm
 {
 	Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height)
 	{
-		switch (Renderer::GetAPI())
+		switch (Renderer2D::GetAPI())
 		{
 		case RendererAPI::API::None:
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
@@ -26,7 +26,7 @@ namespace Snowstorm
 
 	Ref<Texture2D> Texture2D::Create(const std::string& path)
 	{
-		switch (Renderer::GetAPI())
+		switch (Renderer2D::GetAPI())
 		{
 		case RendererAPI::API::None:
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");

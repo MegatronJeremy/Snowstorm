@@ -6,11 +6,14 @@
 #include "SceneCamera.h"
 #include "ScriptableEntity.h"
 
-#include "Snowstorm/Renderer/Framebuffer.h"
-#include "Snowstorm/Renderer/Texture.h"
+#include "Snowstorm/Renderer/Framebuffer.hpp"
+#include "Snowstorm/Renderer/Material.hpp"
+#include "Snowstorm/Renderer/Mesh.hpp"
 
 namespace Snowstorm
 {
+	// TODO move this to another directory called Components, and separate out everything here
+
 	struct TagComponent
 	{
 		std::string Tag;
@@ -56,11 +59,31 @@ namespace Snowstorm
 		entt::entity TargetFramebuffer;
 	};
 
-	struct SpriteRendererComponent
+	struct MaterialComponent
 	{
-		glm::vec4 Color{1.0f, 1.0f, 1.0f, 1.0f};
-		Ref<Texture2D> Texture;
+		Ref<Material> MaterialInstance;
+	};
+
+	struct MeshComponent
+	{
+		Ref<Mesh> MeshInstance;
+	};
+
+	struct SpriteComponent
+	{
+		Ref<Texture2D> TextureInstance;
 		float TilingFactor = 1.0f;
+		glm::vec4 TintColor = glm::vec4{1.0f};
+
+		SpriteComponent(Ref<Texture2D> textureInstance, const float tilingFactor = 1.0f, const glm::vec4& color = glm::vec4{1.0f})
+			: TextureInstance(std::move(textureInstance)), TilingFactor(tilingFactor), TintColor(color)
+		{
+		}
+
+		SpriteComponent(const glm::vec4& color)
+			: TintColor(color)
+		{
+		}
 	};
 
 	struct CameraComponent
@@ -76,6 +99,7 @@ namespace Snowstorm
 		float ZoomLevel = 10.0f;
 		float MoveSpeed = 5.0f;
 		float RotationSpeed = 180.0f; // Degrees per second
+		float LookSensitivity = 0.1f; // Degrees per pixel moved
 	};
 
 	struct NativeScriptComponent

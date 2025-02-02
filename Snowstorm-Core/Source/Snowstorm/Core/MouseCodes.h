@@ -6,7 +6,7 @@ namespace Snowstorm
 
 	namespace Mouse
 	{
-		enum : MouseCode
+		enum MouseCode : uint8_t
 		{
 			// From glfw3.h
 			Button0 = 0,

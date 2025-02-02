@@ -8,21 +8,21 @@ namespace Snowstorm
 	{
 	public:
 		template <typename T>
-		T& getComponent()
+		T& GetComponent()
 		{
-			return m_Entity.getComponent<T>();
+			return m_Entity.GetComponent<T>();
 		}
 
 	protected:
-		virtual void onCreate()
+		virtual void OnCreate()
 		{
 		}
 
-		virtual void onDestroy()
+		virtual void OnDestroy()
 		{
 		}
 
-		virtual void onUpdate(Timestep ts)
+		virtual void OnUpdate(Timestep ts)
 		{
 		}
 

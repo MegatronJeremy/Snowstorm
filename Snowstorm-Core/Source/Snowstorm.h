@@ -18,15 +18,15 @@
 #include "Snowstorm/Scene/Scene.hpp"
 #include "Snowstorm/Scene/Entity.h"
 #include "Snowstorm/Scene/ScriptableEntity.h"
-#include "Snowstorm/Scene/Components.h"
+#include "Snowstorm/Scene/Components.hpp"
 
 // ---Renderer------------------------
-#include "Snowstorm/Renderer/Renderer.hpp"
-#include "Snowstorm/Renderer/RenderCommand.h"
+#include "Snowstorm/Renderer/Renderer2D.hpp"
+#include "Snowstorm/Renderer/RenderCommand.hpp"
 
-#include "Snowstorm/Renderer/Buffer.h"
+#include "Snowstorm/Renderer/Buffer.hpp"
 #include "Snowstorm/Renderer/Shader.hpp"
-#include "Snowstorm/Renderer/Framebuffer.h"
-#include "Snowstorm/Renderer/Texture.h"
-#include "Snowstorm/Renderer/VertexArray.h"
+#include "Snowstorm/Renderer/Framebuffer.hpp"
+#include "Snowstorm/Renderer/Texture.hpp"
+#include "Snowstorm/Renderer/VertexArray.hpp"
 // -----------------------------------

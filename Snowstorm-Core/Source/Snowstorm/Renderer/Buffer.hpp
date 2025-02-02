@@ -1,8 +1,10 @@
 #pragma once
 
+#include "Snowstorm/Core/Log.h"
+
 namespace Snowstorm
 {
-	enum class ShaderDataType
+	enum class ShaderDataType : uint8_t
 	{
 		None = 0,
 		Float,
@@ -46,16 +48,17 @@ namespace Snowstorm
 		ShaderDataType Type;
 		uint32_t Size;
 		uint32_t Offset;
+		bool Instanced;
 		bool Normalized;
 
 		BufferElement() = default;
 
-		BufferElement(const ShaderDataType type, std::string name, const bool normalized = false)
-			: Name(std::move(name)), Type(type), Size(ShaderDataTypeSize(type)), Offset(0), Normalized(normalized)
+		BufferElement(const ShaderDataType type, std::string name, const bool instanced = false, const bool normalized = false)
+			: Name(std::move(name)), Type(type), Size(ShaderDataTypeSize(type)), Offset(0), Instanced(instanced), Normalized(normalized)
 		{
 		}
 
-		uint32_t GetComponentCount() const
+		[[nodiscard]] uint32_t GetComponentCount() const
 		{
 			switch (Type)
 			{
@@ -89,7 +92,7 @@ namespace Snowstorm
 			CalculateOffsetsAndStride();
 		}
 
-		uint32_t GetStride() const { return m_Stride; }
+		[[nodiscard]] uint32_t GetStride() const { return m_Stride; }
 		const std::vector<BufferElement>& GetElements() const { return m_Elements; }
 
 		std::vector<BufferElement>::iterator begin() { return m_Elements.begin(); }
@@ -110,7 +113,6 @@ namespace Snowstorm
 			}
 		}
 
-	private:
 		std::vector<BufferElement> m_Elements;
 		uint32_t m_Stride = 0;
 	};
@@ -130,6 +132,7 @@ namespace Snowstorm
 		virtual void Unbind() const = 0;
 
 		virtual void SetData(const void* data, uint32_t size) = 0;
+		virtual void SetSubData(const void* data, uint32_t size, uint32_t offset) = 0;
 
 		virtual const BufferLayout& GetLayout() const = 0;
 		virtual void SetLayout(const BufferLayout& layout) = 0;
@@ -154,6 +157,9 @@ namespace Snowstorm
 
 		virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
+
+		virtual void SetData(const void* data, uint32_t size) = 0;
+		virtual void SetSubData(const void* data, uint32_t size, uint32_t offset) = 0;
 
 		virtual uint32_t GetCount() const = 0;
 

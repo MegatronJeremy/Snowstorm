@@ -1,5 +1,5 @@
 #pragma once
-#include "Snowstorm/Renderer/Framebuffer.h"
+#include "Snowstorm/Renderer/Framebuffer.hpp"
 
 
 namespace Snowstorm

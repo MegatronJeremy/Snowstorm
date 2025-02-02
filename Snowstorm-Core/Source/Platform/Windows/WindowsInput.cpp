@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Snowstorm/Core/Input.h"
-
 #include "Snowstorm/Core/Application.h"
 
 #include <GLFW/glfw3.h>
@@ -44,5 +43,28 @@ namespace Snowstorm
 	{
 		auto [x, y] = GetMousePosition();
 		return y;
+	}
+
+	std::pair<float, float> Input::GetMouseDelta()
+	{
+		return s_MouseDelta;
+	}
+
+	void Input::UpdateMousePosition()
+	{
+		const std::pair currentMousePos{GetMouseX(), GetMouseY()};
+		s_MouseDelta.first -= currentMousePos.first;
+		s_MouseDelta.second -= currentMousePos.second;
+
+		s_LastMousePosition = currentMousePos;
+	}
+
+	void Input::SetCursorMode(const CursorMode mode)
+	{
+		const auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
+		if (mode == CursorMode::Locked)
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		else
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 }

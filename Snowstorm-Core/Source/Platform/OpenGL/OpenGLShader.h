@@ -13,7 +13,7 @@ namespace Snowstorm
 	{
 	public:
 		explicit OpenGLShader(const std::string& filepath);
-		OpenGLShader(std::string name, const std::string& vertexSrc, const std::string& fragmentSrc);
+		OpenGLShader(std::string filepath, const std::string& vertexSrc, const std::string& fragmentSrc);
 		~OpenGLShader() override;
 
 		OpenGLShader(const OpenGLShader& other) = delete;
@@ -31,7 +31,9 @@ namespace Snowstorm
 		void UploadUniform(const std::string& name, const glm::vec4& value) override;
 		void UploadUniform(const std::string& name, const glm::mat4& value) override;
 
-		[[nodiscard]] const std::string& GetName() const override { return m_Name; }
+		[[nodiscard]] const std::string& GetPath() const override { return m_Filepath; }
+
+		void Recompile() override;
 
 		void UploadUniformInt(const std::string& name, int value) const;
 		void UploadUniformIntArray(const std::string& name, const int* values, uint32_t count) const;
@@ -50,6 +52,6 @@ namespace Snowstorm
 		void Compile(std::unordered_map<GLenum, std::string>& shaderSources);
 
 		uint32_t m_RendererID;
-		std::string m_Name;
+		std::string m_Filepath;
 	};
 }

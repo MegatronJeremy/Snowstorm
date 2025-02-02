@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "SubTexture2D.h"
+#include "SubTexture2D.hpp"
 
 namespace Snowstorm
 {

@@ -26,24 +26,18 @@ namespace Snowstorm
 	}
 
 	OpenGLShader::OpenGLShader(const std::string& filepath)
+		: m_Filepath(filepath)
 	{
 		SS_PROFILE_FUNCTION();
 
 		const std::string source = ReadFile(filepath);
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);
-
-		// Extract name from filepath
-		auto lastSlash = filepath.find_last_of("/\\");
-		lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
-		const auto lastDot = filepath.rfind('.');
-		const auto count = lastDot == std::string::npos ? filepath.size() - lastSlash : lastDot - lastSlash;
-		m_Name = filepath.substr(lastSlash, count);
 	}
 
-	OpenGLShader::OpenGLShader(std::string name,
+	OpenGLShader::OpenGLShader(std::string filepath,
 	                           const std::string& vertexSrc, const std::string& fragmentSrc)
-		: m_Name(std::move(name))
+		: m_Filepath(std::move(filepath))
 	{
 		SS_PROFILE_FUNCTION();
 
@@ -235,6 +229,13 @@ namespace Snowstorm
 		SS_PROFILE_FUNCTION();
 
 		UploadUniformMat4(name, value);
+	}
+
+	void OpenGLShader::Recompile()
+	{
+		const std::string source = ReadFile(m_Filepath);
+		auto shaderSources = PreProcess(source);
+		Compile(shaderSources);
 	}
 
 	void OpenGLShader::UploadUniformInt(const std::string& name, const int value) const

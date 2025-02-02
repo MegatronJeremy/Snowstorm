@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Snowstorm/Renderer/Camera.h"
+#include "Snowstorm/Renderer/Camera.hpp"
 
 namespace Snowstorm
 {
@@ -17,7 +17,6 @@ namespace Snowstorm
 
 		void setViewportSize(uint32_t width, uint32_t height);
 
-#pragma region Perspective
 		float GetPerspectiveVerticalFOV() const { return m_PerspectiveFOV; }
 
 		void SetPerspectiveVerticalFOV(const float verticalFOV)
@@ -41,10 +40,7 @@ namespace Snowstorm
 			m_PerspectiveFar = farClip;
 			recalculateProjection();
 		}
-#pragma endregion
 
-
-#pragma region Orthographic
 		[[nodiscard]] float getOrthographicSize() const { return m_OrthographicSize; }
 
 		void setOrthographicSize(const float size)
@@ -68,7 +64,6 @@ namespace Snowstorm
 			m_OrthographicFar = farClip;
 			recalculateProjection();
 		}
-#pragma endregion
 
 		[[nodiscard]] ProjectionType getProjectionType() const { return m_ProjectionType; }
 

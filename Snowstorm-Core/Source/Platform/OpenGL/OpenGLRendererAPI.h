@@ -16,5 +16,6 @@ namespace Snowstorm
 		void Clear() override;
 
 		void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
+		void DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, uint32_t indexCount, uint32_t instanceCount) override;
 	};
 }

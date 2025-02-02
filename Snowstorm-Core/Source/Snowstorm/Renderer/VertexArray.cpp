@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "VertexArray.h"
+#include "VertexArray.hpp"
 
-#include "Renderer.hpp"
+#include "Renderer2D.hpp"
 #include "Platform/OpenGL/OpenGLVertexArray.h"
 #include "Platform/Vulkan/VulkanVertexArray.h"
 
@@ -9,7 +9,7 @@ namespace Snowstorm
 {
 	Ref<VertexArray> VertexArray::Create()
 	{
-		switch (Renderer::GetAPI())
+		switch (Renderer2D::GetAPI())
 		{
 		case RendererAPI::API::None:
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");

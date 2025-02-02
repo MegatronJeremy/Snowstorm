@@ -73,7 +73,7 @@ void Sandbox2D::OnUpdate(const Snowstorm::Timestep ts)
 	m_CameraController.OnUpdate(ts);
 
 	// Render
-	Snowstorm::Renderer::ResetStats();
+	Snowstorm::Renderer2D::ResetStats();
 	{
 		SS_PROFILE_SCOPE("Renderer Prep");
 		Snowstorm::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
@@ -86,25 +86,25 @@ void Sandbox2D::OnUpdate(const Snowstorm::Timestep ts)
 		rotation += ts * 50.0f;
 
 		SS_PROFILE_SCOPE("Renderer Draw");
-		Snowstorm::Renderer::BeginScene(m_CameraController.GetCamera());
-		Snowstorm::Renderer::DrawRotatedQuad({1.0f, 0.0f}, {0.8f, 0.8f}, glm::radians(-45.0f),
-		                                     {0.8f, 0.2f, 0.3f, 1.0f});
-		Snowstorm::Renderer::DrawQuad({-1.0f, 0.0f}, {0.8f, 0.8f}, {0.8f, 0.2f, 0.3f, 1.0f});
-		Snowstorm::Renderer::DrawQuad({0.5f, -0.5f}, {0.5f, 0.75f}, {0.2f, 0.3f, 0.8f, 1.0f});
-		Snowstorm::Renderer::DrawQuad({0.0f, 0.0f, -0.1f}, {20.0f, 20.0f}, m_CheckerboardTexture, 10.0f);
-		Snowstorm::Renderer::DrawRotatedQuad({-2.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, glm::radians(rotation),
-		                                     m_CheckerboardTexture, 20.0f,
-		                                     glm::vec4(1.0f, 0.9f, 0.9f, 1.0f));
+		Snowstorm::Renderer2D::BeginScene(m_CameraController.GetCamera());
+		Snowstorm::Renderer2D::DrawRotatedQuad({1.0f, 0.0f}, {0.8f, 0.8f}, glm::radians(-45.0f),
+		                                       {0.8f, 0.2f, 0.3f, 1.0f});
+		Snowstorm::Renderer2D::DrawQuad({-1.0f, 0.0f}, {0.8f, 0.8f}, {0.8f, 0.2f, 0.3f, 1.0f});
+		Snowstorm::Renderer2D::DrawQuad({0.5f, -0.5f}, {0.5f, 0.75f}, {0.2f, 0.3f, 0.8f, 1.0f});
+		Snowstorm::Renderer2D::DrawQuad({0.0f, 0.0f, -0.1f}, {20.0f, 20.0f}, m_CheckerboardTexture, 10.0f);
+		Snowstorm::Renderer2D::DrawRotatedQuad({-2.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, glm::radians(rotation),
+		                                       m_CheckerboardTexture, 20.0f,
+		                                       glm::vec4(1.0f, 0.9f, 0.9f, 1.0f));
 
 		for (float y = -5.0f; y < 5.0f; y += 0.5f)
 		{
 			for (float x = -5.0f; x < 5.0f; x += 0.5f)
 			{
 				glm::vec4 color = {(x + 5.0f) / 10.0f, 0.4f, (y + 5.0f) / 10.0f, 0.7f};
-				Snowstorm::Renderer::DrawQuad({x, y}, {0.45f, 0.45f}, color);
+				Snowstorm::Renderer2D::DrawQuad({x, y}, {0.45f, 0.45f}, color);
 			}
 		}
-		Snowstorm::Renderer::EndScene();
+		Snowstorm::Renderer2D::EndScene();
 	}
 
 
@@ -128,7 +128,7 @@ void Sandbox2D::OnUpdate(const Snowstorm::Timestep ts)
 	m_ParticleSystem.OnUpdate(ts);
 	m_ParticleSystem.OnRender(m_CameraController.GetCamera());
 
-	Snowstorm::Renderer::BeginScene(m_CameraController.GetCamera());
+	Snowstorm::Renderer2D::BeginScene(m_CameraController.GetCamera());
 
 	for (uint32_t y = 0; y < m_MapHeight; y++)
 	{
@@ -142,10 +142,10 @@ void Sandbox2D::OnUpdate(const Snowstorm::Timestep ts)
 			else
 				texture = m_TextureStairs;
 
-			Snowstorm::Renderer::DrawQuad({x - m_MapWidth / 2.0f, m_MapHeight / 2.0f - y, 0.5f}, {1.0f, 1.0f}, texture);
+			Snowstorm::Renderer2D::DrawQuad({x - m_MapWidth / 2.0f, m_MapHeight / 2.0f - y, 0.5f}, {1.0f, 1.0f}, texture);
 		}
 	}
-	Snowstorm::Renderer::EndScene();
+	Snowstorm::Renderer2D::EndScene();
 #endif
 }
 
@@ -155,7 +155,7 @@ void Sandbox2D::OnImGuiRender()
 
 	ImGui::Begin("Settings");
 
-	const auto stats = Snowstorm::Renderer::GetStats();
+	const auto stats = Snowstorm::Renderer2D::GetStats();
 	ImGui::Text("Renderer2D Stats:");
 	ImGui::Text("Draw Calls: %d", stats.DrawCalls);
 	ImGui::Text("Quads: %d", stats.QuadCount);

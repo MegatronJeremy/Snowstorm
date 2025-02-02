@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Shader.hpp"
 
-#include "Renderer.hpp"
+#include "Renderer2D.hpp"
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Platform/Vulkan/VulkanShader.h"
 
@@ -11,7 +11,7 @@ namespace Snowstorm
 {
 	Ref<Shader> Shader::Create(const std::string& filepath)
 	{
-		switch (Renderer::GetAPI())
+		switch (Renderer2D::GetAPI())
 		{
 		case RendererAPI::API::None:
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
@@ -26,32 +26,36 @@ namespace Snowstorm
 		return nullptr;
 	}
 
-	void ShaderLibrarySingleton::Add(const Ref<Shader>& shader)
+	void ShaderLibrarySingleton::Add(const Ref<Shader>& shader, const std::string& filepath)
 	{
-		auto& name = shader->GetName();
-		SS_CORE_ASSERT(!Exists(name), "Shader already exists!");
-		m_Shaders[name] = shader;
+		SS_CORE_ASSERT(!Exists(filepath), "Shader already exists!");
+		m_Shaders[filepath] = shader;
 	}
 
 	Ref<Shader> ShaderLibrarySingleton::Load(const std::string& filepath)
 	{
+		if (Exists(filepath))
+		{
+			return Get(filepath);
+		}
+
 		auto shader = Shader::Create(filepath);
-		Add(shader);
+		Add(shader, filepath);
 
 		m_LastModifications[filepath] = std::filesystem::last_write_time(filepath);
 
 		return shader;
 	}
 
-	Ref<Shader> ShaderLibrarySingleton::Get(const std::string& name)
+	Ref<Shader> ShaderLibrarySingleton::Get(const std::string& filepath)
 	{
-		SS_CORE_ASSERT(Exists(name), "Shader not found!");
-		return m_Shaders[name];
+		SS_CORE_ASSERT(Exists(filepath), "Shader not found!");
+		return m_Shaders[filepath];
 	}
 
-	bool ShaderLibrarySingleton::Exists(const std::string& name) const
+	bool ShaderLibrarySingleton::Exists(const std::string& filepath) const
 	{
-		return m_Shaders.contains(name);
+		return m_Shaders.contains(filepath);
 	}
 
 	void ShaderLibrarySingleton::ReloadAll()
@@ -60,7 +64,7 @@ namespace Snowstorm
 		{
 			if (std::filesystem::last_write_time(filepath) > lastModified)
 			{
-				Load(filepath);
+				Get(filepath)->Recompile();
 			}
 		}
 	}

@@ -67,18 +67,33 @@ namespace Snowstorm
 		glBindVertexArray(m_RendererID);
 		vertexBuffer->Bind();
 
-		uint32_t index = 0;
 		const auto& layout = vertexBuffer->GetLayout();
+
 		for (const auto& element : layout)
 		{
-			glEnableVertexAttribArray(index);
-			glVertexAttribPointer(index,
-			                      element.GetComponentCount(),
-			                      ShaderDataTypeToOpenGLBaseType(element.Type),
-			                      element.Normalized ? GL_TRUE : GL_FALSE,
-			                      layout.GetStride(),
-			                      reinterpret_cast<const void*>(element.Offset));
-			index++;
+			const GLenum type = ShaderDataTypeToOpenGLBaseType(element.Type);
+			const uint32_t componentCount = element.GetComponentCount();
+			const bool isMatrix = (element.Type == ShaderDataType::Mat3 || element.Type == ShaderDataType::Mat4);
+			const uint32_t rowCount = isMatrix ? componentCount : 1; // Matrices have multiple rows
+
+			for (uint32_t i = 0; i < rowCount; i++)
+			{
+				glEnableVertexAttribArray(m_AttributeIndex);
+				glVertexAttribPointer(
+					m_AttributeIndex,
+					componentCount,
+					type,
+					element.Normalized ? GL_TRUE : GL_FALSE,
+					layout.GetStride(),
+					reinterpret_cast<const void*>(element.Offset + i * sizeof(float) * rowCount));
+
+				if (element.Instanced)
+				{
+					glVertexAttribDivisor(m_AttributeIndex, 1);
+				}
+
+				m_AttributeIndex++; // Increase attribute index for each row
+			}
 		}
 
 		m_VertexBuffers.push_back(vertexBuffer);
@@ -92,5 +107,13 @@ namespace Snowstorm
 		indexBuffer->Bind();
 
 		m_IndexBuffer = indexBuffer;
+	}
+
+	void OpenGLVertexArray::SetInstanceDivisor(const uint32_t index, const uint32_t divisor) const
+	{
+		SS_PROFILE_FUNCTION();
+
+		glBindVertexArray(m_RendererID);
+		glVertexAttribDivisor(index, divisor);
 	}
 }

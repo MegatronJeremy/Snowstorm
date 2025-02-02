@@ -3,139 +3,143 @@
 #include <queue>
 
 #include "VulkanDevice.h"
-#include "Snowstorm/Renderer/Buffer.h"
+#include "Snowstorm/Renderer/Buffer.hpp"
 
 namespace Snowstorm
 {
-    /////////////////////////////////////////////////////////////////////////////
-    // Buffer Utils /////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	// Buffer Utils /////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 
-    class VulkanBufferUtils
-    {
-    public:
-        static uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+	class VulkanBufferUtils
+	{
+	public:
+		static uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-        static void CreateBuffer(VkDevice device, VkDeviceSize size, VkBufferUsageFlags usage,
-                                 VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+		static void CreateBuffer(VkDevice device, VkDeviceSize size, VkBufferUsageFlags usage,
+		                         VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 
-        static void CopyBuffer(VkDevice device, VkBuffer srcBuffer, VkBuffer dstBuffer,
-                               VkDeviceSize size);
-    };
+		static void CopyBuffer(VkDevice device, VkBuffer srcBuffer, VkBuffer dstBuffer,
+		                       VkDeviceSize size);
+	};
 
-    /////////////////////////////////////////////////////////////////////////////
-    // VertexBuffer /////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	// VertexBuffer /////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 
-    class VulkanVertexBuffer final : public VertexBuffer
-    {
-    public:
-        explicit VulkanVertexBuffer(uint32_t size);
-        VulkanVertexBuffer(const float* vertices, uint32_t size);
-        ~VulkanVertexBuffer() override;
+	class VulkanVertexBuffer final : public VertexBuffer
+	{
+	public:
+		explicit VulkanVertexBuffer(uint32_t size);
+		VulkanVertexBuffer(const float* vertices, uint32_t size);
+		~VulkanVertexBuffer() override;
 
-        VulkanVertexBuffer(const VulkanVertexBuffer& other) = delete;
-        VulkanVertexBuffer(VulkanVertexBuffer&& other) = delete;
-        VulkanVertexBuffer& operator=(const VulkanVertexBuffer& other) = delete;
-        VulkanVertexBuffer& operator=(VulkanVertexBuffer&& other) = delete;
+		VulkanVertexBuffer(const VulkanVertexBuffer& other) = delete;
+		VulkanVertexBuffer(VulkanVertexBuffer&& other) = delete;
+		VulkanVertexBuffer& operator=(const VulkanVertexBuffer& other) = delete;
+		VulkanVertexBuffer& operator=(VulkanVertexBuffer&& other) = delete;
 
-        operator VkBuffer() const
-        {
-            return m_VertexBuffer;
-        }
+		operator VkBuffer() const
+		{
+			return m_VertexBuffer;
+		}
 
-        void Bind() const override;
-        void Unbind() const override;
+		void Bind() const override;
+		void Unbind() const override;
 
-        void SetData(const void* vertices, uint32_t size) override;
+		void SetData(const void* vertices, uint32_t size) override;
+		void SetSubData(const void* vertices, uint32_t size, uint32_t offset) override;
 
-        const BufferLayout& GetLayout() const override { return m_Layout; }
-        void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
+		const BufferLayout& GetLayout() const override { return m_Layout; }
+		void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
 
-        uint64_t GetHandle() const override
-        {
-            return reinterpret_cast<uint64_t>(m_VertexBuffer);
-        }
+		uint64_t GetHandle() const override
+		{
+			return reinterpret_cast<uint64_t>(m_VertexBuffer);
+		}
 
-    private:
-        VkDevice m_Device = VK_NULL_HANDLE;
+	private:
+		VkDevice m_Device = VK_NULL_HANDLE;
 
-        VkBuffer m_VertexBuffer = VK_NULL_HANDLE;
-        VkDeviceMemory m_VertexBufferMemory = VK_NULL_HANDLE;
+		VkBuffer m_VertexBuffer = VK_NULL_HANDLE;
+		VkDeviceMemory m_VertexBufferMemory = VK_NULL_HANDLE;
 
-        BufferLayout m_Layout;
-    };
+		BufferLayout m_Layout;
+	};
 
-    /////////////////////////////////////////////////////////////////////////////
-    // IndexBuffer //////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	// IndexBuffer //////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 
-    class VulkanIndexBuffer final : public IndexBuffer
-    {
-    public:
-        VulkanIndexBuffer(const uint32_t* indices, uint32_t count);
-        ~VulkanIndexBuffer() override;
+	class VulkanIndexBuffer final : public IndexBuffer
+	{
+	public:
+		VulkanIndexBuffer(const uint32_t* indices, uint32_t count);
+		~VulkanIndexBuffer() override;
 
-        VulkanIndexBuffer(const VulkanIndexBuffer& other) = delete;
-        VulkanIndexBuffer(VulkanIndexBuffer&& other) = delete;
-        VulkanIndexBuffer& operator=(const VulkanIndexBuffer& other) = delete;
-        VulkanIndexBuffer& operator=(VulkanIndexBuffer&& other) = delete;
+		VulkanIndexBuffer(const VulkanIndexBuffer& other) = delete;
+		VulkanIndexBuffer(VulkanIndexBuffer&& other) = delete;
+		VulkanIndexBuffer& operator=(const VulkanIndexBuffer& other) = delete;
+		VulkanIndexBuffer& operator=(VulkanIndexBuffer&& other) = delete;
 
-        operator VkBuffer() const
-        {
-            return m_IndexBuffer;
-        }
+		operator VkBuffer() const
+		{
+			return m_IndexBuffer;
+		}
 
-        void Bind() const override;
-        void Unbind() const override;
+		void Bind() const override;
+		void Unbind() const override;
 
-        uint32_t GetCount() const override { return m_Count; }
+		void SetData(const void* data, uint32_t size) override;
+		void SetSubData(const void* data, uint32_t size, uint32_t offset) override;
 
-        uint64_t GetHandle() const override
-        {
-            return reinterpret_cast<uint64_t>(m_IndexBuffer);
-        }
+		uint32_t GetCount() const override { return m_Count; }
 
-    private:
-        VkDevice m_Device = VK_NULL_HANDLE;
+		uint64_t GetHandle() const override
+		{
+			return reinterpret_cast<uint64_t>(m_IndexBuffer);
+		}
 
-        VkBuffer m_IndexBuffer = VK_NULL_HANDLE;
-        VkDeviceMemory m_IndexBufferMemory = VK_NULL_HANDLE;
+	private:
+		VkDevice m_Device = VK_NULL_HANDLE;
 
-        uint32_t m_Count;
-    };
+		VkBuffer m_IndexBuffer = VK_NULL_HANDLE;
+		VkDeviceMemory m_IndexBufferMemory = VK_NULL_HANDLE;
 
-    /////////////////////////////////////////////////////////////////////////////
-    // UniformBuffer ////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////
+		uint32_t m_Count;
+	};
 
-    class VulkanUniformBuffer
-    {
-    public:
-        explicit VulkanUniformBuffer(VkDeviceSize bufferSize);
-        ~VulkanUniformBuffer();
+	/////////////////////////////////////////////////////////////////////////////
+	// UniformBuffer ////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
 
-        VulkanUniformBuffer(const VulkanUniformBuffer& other) = delete;
-        VulkanUniformBuffer(VulkanUniformBuffer&& other) = delete;
-        VulkanUniformBuffer& operator=(const VulkanUniformBuffer& other) = delete;
-        VulkanUniformBuffer& operator=(VulkanUniformBuffer&& other) = delete;
+	class VulkanUniformBuffer
+	{
+	public:
+		explicit VulkanUniformBuffer(VkDeviceSize bufferSize);
+		~VulkanUniformBuffer();
 
-        void SetData(const void* data, uint32_t dataSize) const;
-        void EnqueueData(const void* data, uint32_t dataSize);
-        void SetDataFromQueue();
+		VulkanUniformBuffer(const VulkanUniformBuffer& other) = delete;
+		VulkanUniformBuffer(VulkanUniformBuffer&& other) = delete;
+		VulkanUniformBuffer& operator=(const VulkanUniformBuffer& other) = delete;
+		VulkanUniformBuffer& operator=(VulkanUniformBuffer&& other) = delete;
 
-        VkDeviceSize GetBufferSize() const { return m_BufferSize; }
+		void SetData(const void* data, uint32_t dataSize) const;
+		void EnqueueData(const void* data, uint32_t dataSize);
+		void SetDataFromQueue();
 
-        operator VkBuffer() const { return m_UniformBuffer; }
+		VkDeviceSize GetBufferSize() const { return m_BufferSize; }
 
-    private:
-        VkDevice m_Device;
+		operator VkBuffer() const { return m_UniformBuffer; }
 
-        VkBuffer m_UniformBuffer;
-        VkDeviceSize m_BufferSize;
-        VkDeviceMemory m_UniformBufferMemory;
-        void* m_MappedMemory;
+	private:
+		VkDevice m_Device;
 
-        std::deque<std::pair<char*, uint32_t>> m_DataQueue;
-    };
+		VkBuffer m_UniformBuffer;
+		VkDeviceSize m_BufferSize;
+		VkDeviceMemory m_UniformBufferMemory;
+		void* m_MappedMemory;
+
+		std::deque<std::pair<char*, uint32_t>> m_DataQueue;
+	};
 }

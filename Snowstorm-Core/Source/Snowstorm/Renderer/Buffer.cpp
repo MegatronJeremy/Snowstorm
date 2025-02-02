@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "Buffer.h"
+#include "Buffer.hpp"
 
-#include "Renderer.hpp"
+#include "Renderer2D.hpp"
 
 #include "Platform/OpenGL/OpenGLBuffer.h"
 #include "Platform/Vulkan/VulkanBuffer.h"
@@ -15,7 +15,7 @@ namespace Snowstorm
 
 	Ref<VertexBuffer> VertexBuffer::Create(uint32_t size)
 	{
-		switch (Renderer::GetAPI())
+		switch (Renderer2D::GetAPI())
 		{
 		case RendererAPI::API::None:
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
@@ -32,7 +32,7 @@ namespace Snowstorm
 
 	Ref<VertexBuffer> VertexBuffer::Create(const float* vertices, const uint32_t size)
 	{
-		switch (Renderer::GetAPI())
+		switch (Renderer2D::GetAPI())
 		{
 		case RendererAPI::API::None:
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
@@ -54,7 +54,7 @@ namespace Snowstorm
 
 	Ref<IndexBuffer> IndexBuffer::Create(const uint32_t* indices, const uint32_t count)
 	{
-		switch (Renderer::GetAPI())
+		switch (Renderer2D::GetAPI())
 		{
 		case RendererAPI::API::None:
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");

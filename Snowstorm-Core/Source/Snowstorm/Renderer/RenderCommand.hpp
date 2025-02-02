@@ -32,6 +32,11 @@ namespace Snowstorm
 			s_RendererAPI->DrawIndexed(vertexArray, count);
 		}
 
+		static void DrawIndexedInstanced(const Ref<VertexArray>& vertexArray, const uint32_t count, const uint32_t instanceCount)
+		{
+			s_RendererAPI->DrawIndexedInstanced(vertexArray, count, instanceCount);
+		}
+
 	private:
 		static RendererAPI* s_RendererAPI;
 	};

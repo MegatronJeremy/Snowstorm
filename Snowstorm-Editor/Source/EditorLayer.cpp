@@ -18,49 +18,85 @@ namespace Snowstorm
 		SS_PROFILE_FUNCTION();
 
 		m_ActiveScene = CreateRef<Scene>();
-
-		// Entities
-		m_FramebufferEntity = m_ActiveScene->CreateEntity("Framebuffer");
-		m_FramebufferEntity.addComponent<ViewportComponent>(glm::vec2{1280.0f, 720.0f});
-
-		FramebufferSpecification fbSpec;
-		fbSpec.Width = 1280;
-		fbSpec.Height = 720;
-		m_FramebufferEntity.addComponent<FramebufferComponent>(Framebuffer::Create(fbSpec));
-
-		auto checkerboardSquare = m_ActiveScene->CreateEntity("Amazing Square");
-
-		checkerboardSquare.addComponent<TransformComponent>();
-
-		auto checkerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
-		checkerboardSquare.addComponent<SpriteRendererComponent>(glm::vec4{0.0f, 1.0f, 0.0f, 1.0f}, checkerboardTexture, 5.0f);
-		checkerboardSquare.addComponent<RenderTargetComponent>(m_FramebufferEntity);
-
-		checkerboardSquare.getComponent<TransformComponent>().Position[0] += 2.0f;
-
-		auto redSquare = m_ActiveScene->CreateEntity("Red Square");
-
-		redSquare.addComponent<TransformComponent>();
-
-		redSquare.addComponent<SpriteRendererComponent>(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
-		redSquare.addComponent<RenderTargetComponent>(m_FramebufferEntity);
-
-		m_SquareEntity = checkerboardSquare;
-
-		m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
-		m_CameraEntity.addComponent<TransformComponent>();
-		m_CameraEntity.addComponent<CameraComponent>();
-		m_CameraEntity.addComponent<CameraControllerComponent>();
-		m_CameraEntity.addComponent<RenderTargetComponent>(m_FramebufferEntity);
-
-		m_SecondCamera = m_ActiveScene->CreateEntity("Clip-Space Entity");
-		m_SecondCamera.addComponent<TransformComponent>();
-		auto& cc = m_SecondCamera.addComponent<CameraComponent>();
-		m_SecondCamera.addComponent<CameraControllerComponent>();
-		m_SecondCamera.addComponent<RenderTargetComponent>(m_FramebufferEntity);
-		cc.Primary = false;
-
 		m_SceneHierarchyPanel.setContext(m_ActiveScene);
+
+		// Framebuffer setup
+		{
+			m_FramebufferEntity = m_ActiveScene->CreateEntity("Framebuffer");
+			m_FramebufferEntity.AddComponent<ViewportComponent>(glm::vec2{1280.0f, 720.0f});
+
+			FramebufferSpecification fbSpec;
+			fbSpec.Width = 1280;
+			fbSpec.Height = 720;
+			m_FramebufferEntity.AddComponent<FramebufferComponent>(Framebuffer::Create(fbSpec));
+		}
+
+		Ref<Texture2D> checkerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
+
+		// 3D Entities
+		{
+			auto& shaderLibrary = m_ActiveScene->getSingletonManager().GetSingleton<ShaderLibrarySingleton>();
+
+			Ref<Shader> basicShader = shaderLibrary.Load("assets/shaders/BasicLit.glsl");
+
+			const Ref<Material> redMaterial = CreateRef<Material>(basicShader);
+			redMaterial->SetUniform("u_Color", glm::vec3(1.0f, 0.0f, 0.0f)); // Red color
+			redMaterial->SetTexture("u_AlbedoTexture", checkerboardTexture);
+
+			const Ref<Material> blueMaterial = CreateRef<Material>(basicShader);
+			blueMaterial->SetUniform("u_Color", glm::vec3(0.0f, 0.0f, 1.0f)); // Blue color
+			blueMaterial->SetTexture("u_AlbedoTexture", checkerboardTexture);
+
+			auto blueCube = m_ActiveScene->CreateEntity("Blue Cube");
+
+			blueCube.AddComponent<TransformComponent>();
+			blueCube.AddComponent<MaterialComponent>(blueMaterial);
+			blueCube.AddComponent<MeshComponent>(Mesh::CreateCube());
+			blueCube.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
+
+			blueCube.GetComponent<TransformComponent>().Position -= 3.0f;
+
+			auto redCube = m_ActiveScene->CreateEntity("Red Cube");
+
+			redCube.AddComponent<TransformComponent>();
+			redCube.AddComponent<MaterialComponent>(redMaterial);
+			redCube.AddComponent<MeshComponent>(Mesh::CreateCube());
+			redCube.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
+
+			redCube.GetComponent<TransformComponent>().Position += 3.0f;
+		}
+
+		// 2D Entities
+		{
+			auto checkerboardSquare = m_ActiveScene->CreateEntity("Amazing Square");
+
+			checkerboardSquare.AddComponent<TransformComponent>();
+			checkerboardSquare.AddComponent<SpriteComponent>(checkerboardTexture, 1.0f, glm::vec4{0.0f, 0.0f, 1.0f, 1.0f});
+			checkerboardSquare.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
+
+			checkerboardSquare.GetComponent<TransformComponent>().Position[0] += 2.0f;
+
+			auto redSquare = m_ActiveScene->CreateEntity("Red Square");
+
+			redSquare.AddComponent<TransformComponent>();
+			redSquare.AddComponent<SpriteComponent>(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
+			redSquare.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
+
+			m_SquareEntity = checkerboardSquare;
+
+			m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
+			m_CameraEntity.AddComponent<TransformComponent>();
+			m_CameraEntity.AddComponent<CameraComponent>();
+			m_CameraEntity.AddComponent<CameraControllerComponent>();
+			m_CameraEntity.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
+
+			m_SecondCamera = m_ActiveScene->CreateEntity("Clip-Space Entity");
+			m_SecondCamera.AddComponent<TransformComponent>();
+			auto& cc = m_SecondCamera.AddComponent<CameraComponent>();
+			m_SecondCamera.AddComponent<CameraControllerComponent>();
+			m_SecondCamera.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
+			cc.Primary = false;
+		}
 	}
 
 	void EditorLayer::OnDetach()
@@ -158,7 +194,7 @@ namespace Snowstorm
 
 		ImGui::Begin("Settings");
 
-		const auto stats = Renderer::GetStats();
+		const auto stats = Renderer2D::GetStats();
 		ImGui::Text("Renderer2D Stats:");
 		ImGui::Text("Draw Calls: %d", stats.DrawCalls);
 		ImGui::Text("Quads: %d", stats.QuadCount);
@@ -168,24 +204,24 @@ namespace Snowstorm
 		if (m_SquareEntity)
 		{
 			ImGui::Separator();
-			ImGui::Text("%s", m_SquareEntity.getComponent<TagComponent>().Tag.c_str());
+			ImGui::Text("%s", m_SquareEntity.GetComponent<TagComponent>().Tag.c_str());
 
-			auto& squareColor = m_SquareEntity.getComponent<SpriteRendererComponent>().Color;
+			auto& squareColor = m_SquareEntity.GetComponent<SpriteComponent>().TintColor;
 			ImGui::ColorEdit4("Square Color", value_ptr(squareColor));
 			ImGui::Separator();
 		}
 
 		ImGui::DragFloat3("Camera Position", value_ptr(
-			                  m_CameraEntity.getComponent<TransformComponent>().Position));
+			                  m_CameraEntity.GetComponent<TransformComponent>().Position));
 
 		if (ImGui::Checkbox("Camera A", &m_PrimaryCamera))
 		{
-			m_CameraEntity.getComponent<CameraComponent>().Primary = m_PrimaryCamera;
-			m_SecondCamera.getComponent<CameraComponent>().Primary = !m_PrimaryCamera;
+			m_CameraEntity.GetComponent<CameraComponent>().Primary = m_PrimaryCamera;
+			m_SecondCamera.GetComponent<CameraComponent>().Primary = !m_PrimaryCamera;
 		}
 
 		{
-			auto& camera = m_SecondCamera.getComponent<CameraComponent>().Camera;
+			auto& camera = m_SecondCamera.GetComponent<CameraComponent>().Camera;
 			float orthoSize = camera.getOrthographicSize();
 			if (ImGui::DragFloat("Second Camera Ortho Size", &orthoSize))
 				camera.setOrthographicSize(orthoSize);
@@ -197,8 +233,8 @@ namespace Snowstorm
 		ImGui::Begin("Viewport");
 
 		// TODO move this to some sort of event system?
-		auto& viewportComponent = m_FramebufferEntity.getComponent<ViewportComponent>();
-		const auto& framebufferComponent = m_FramebufferEntity.getComponent<FramebufferComponent>();
+		auto& viewportComponent = m_FramebufferEntity.GetComponent<ViewportComponent>();
+		const auto& framebufferComponent = m_FramebufferEntity.GetComponent<FramebufferComponent>();
 
 		viewportComponent.Focused = ImGui::IsWindowFocused();
 		viewportComponent.Hovered = ImGui::IsWindowHovered();

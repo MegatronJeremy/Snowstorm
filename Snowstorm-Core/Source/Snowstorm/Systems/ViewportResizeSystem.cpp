@@ -1,7 +1,7 @@
 #include "ViewportResizeSystem.hpp"
 
 #include "Snowstorm/Events/ApplicationEvent.h"
-#include "Snowstorm/Scene/Components.h"
+#include "Snowstorm/Scene/Components.hpp"
 
 namespace Snowstorm
 {

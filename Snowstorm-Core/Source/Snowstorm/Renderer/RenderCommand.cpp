@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "RenderCommand.h"
+#include "RenderCommand.hpp"
 
 #include "Platform/OpenGL/OpenGLRendererAPI.h"
 #include "Platform/Vulkan/VulkanRendererAPI.h"

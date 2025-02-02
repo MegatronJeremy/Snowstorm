@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Snowstorm/Renderer/GraphicsContext.h"
+#include "Snowstorm/Renderer/GraphicsContext.hpp"
 
 struct GLFWwindow;
 

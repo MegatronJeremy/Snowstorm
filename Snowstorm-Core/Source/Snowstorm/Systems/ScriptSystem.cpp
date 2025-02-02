@@ -1,6 +1,6 @@
 #include "ScriptSystem.hpp"
 
-#include "Snowstorm/Scene/Components.h"
+#include "Snowstorm/Scene/Components.hpp"
 #include "Snowstorm/Scene/ScriptableEntity.h"
 
 namespace Snowstorm
@@ -19,7 +19,7 @@ namespace Snowstorm
 
 			scriptComponent.InstantiateScript();
 			scriptComponent.Instance->m_Entity = Entity{entity, m_Scene};
-			scriptComponent.Instance->onCreate();
+			scriptComponent.Instance->OnCreate();
 		}
 
 		// Update all scripts
@@ -28,7 +28,7 @@ namespace Snowstorm
 			auto [scriptComponent] = nativeScriptView.get(entity);
 			SS_CORE_ASSERT(scriptComponent.Instance);
 
-			scriptComponent.Instance->onUpdate(ts);
+			scriptComponent.Instance->OnUpdate(ts);
 		}
 
 		// Destroy scripts that are removed
@@ -37,7 +37,7 @@ namespace Snowstorm
 			auto [scriptComponent] = nativeScriptView.get(entity);
 			SS_CORE_ASSERT(scriptComponent.Instance);
 
-			scriptComponent.Instance->onDestroy();
+			scriptComponent.Instance->OnDestroy();
 			scriptComponent.DestroyScript();
 		}
 	}

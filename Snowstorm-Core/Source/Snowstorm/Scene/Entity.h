@@ -22,14 +22,14 @@ namespace Snowstorm
 		Entity& operator=(Entity&&) = default;
 
 		template <typename T, typename... Args>
-		T& addComponent(Args&&... args)
+		T& AddComponent(Args&&... args)
 		{
 			SS_CORE_ASSERT(!hasComponent<T>(), "Entity already has component!");
 			return m_Scene->GetRegistry().emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
 		}
 
 		template <typename T>
-		T& getComponent()
+		T& GetComponent()
 		{
 			SS_CORE_ASSERT(hasComponent<T>(), "Entity does not have component!");
 			return m_Scene->GetRegistry().get<T>(m_EntityHandle);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Snowstorm/Renderer/VertexArray.h"
+#include "Snowstorm/Renderer/VertexArray.hpp"
 
 namespace Snowstorm
 {
@@ -16,11 +16,14 @@ namespace Snowstorm
 		void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) override;
 		void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) override;
 
-		const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const override { return m_VertexBuffers; }
-		const Ref<IndexBuffer>& GetIndexBuffer() const override { return m_IndexBuffer; }
+		void SetInstanceDivisor(uint32_t index, uint32_t divisor) const override;
+
+		[[nodiscard]] const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const override { return m_VertexBuffers; }
+		[[nodiscard]] const Ref<IndexBuffer>& GetIndexBuffer() const override { return m_IndexBuffer; }
 
 	private:
 		uint32_t m_RendererID;
+		uint32_t m_AttributeIndex{0};
 		std::vector<Ref<VertexBuffer>> m_VertexBuffers;
 		Ref<IndexBuffer> m_IndexBuffer;
 	};

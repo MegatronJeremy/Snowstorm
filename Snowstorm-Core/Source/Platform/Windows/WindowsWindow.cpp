@@ -7,8 +7,8 @@
 
 #include "Platform/OpenGL/OpenGLContext.h"
 
-#include "Snowstorm/Renderer/RenderCommand.h"
-#include "Snowstorm/Renderer/Renderer.hpp"
+#include "Snowstorm/Renderer/RenderCommand.hpp"
+#include "Snowstorm/Renderer/Renderer2D.hpp"
 
 namespace Snowstorm
 {
@@ -77,7 +77,7 @@ namespace Snowstorm
 			const int success = glfwInit();
 			SS_CORE_ASSERT(success, "Could not initialize GLFW!");
 
-			if (Renderer::GetAPI() != RendererAPI::API::OpenGL)
+			if (Renderer2D::GetAPI() != RendererAPI::API::OpenGL)
 			{
 				// force it to not use OpenGL (default uses it)
 				glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);

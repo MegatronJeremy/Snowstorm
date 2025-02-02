@@ -1,14 +1,12 @@
-#include "pch.h"
-
-#include "GraphicsContext.hpp"
+#include "UniformBuffer.hpp"
 
 #include "Renderer2D.hpp"
-#include "Platform/OpenGL/OpenGLContext.h"
-#include "Platform/Vulkan/VulkanContext.h"
+
+#include "Platform/OpenGL/OpenGLUniformBuffer.hpp"
 
 namespace Snowstorm
 {
-	Scope<GraphicsContext> GraphicsContext::Create(void* window)
+	std::shared_ptr<UniformBuffer> UniformBuffer::Create(uint32_t size, uint32_t binding)
 	{
 		switch (Renderer2D::GetAPI())
 		{
@@ -16,9 +14,10 @@ namespace Snowstorm
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;
 		case RendererAPI::API::OpenGL:
-			return CreateScope<OpenGLContext>(static_cast<GLFWwindow*>(window));
+			return CreateRef<OpenGLUniformBuffer>(size, binding);
 		case RendererAPI::API::Vulkan:
-			return CreateScope<VulkanContext>(static_cast<GLFWwindow*>(window));
+			SS_CORE_ASSERT(false, "VulkanUniformBuffer is not yet supported!");
+			return nullptr;
 		}
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");

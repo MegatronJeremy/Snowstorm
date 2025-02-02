@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Snowstorm/Renderer/Buffer.h"
+#include "Snowstorm/Renderer/Buffer.hpp"
 
 namespace Snowstorm
 {
@@ -17,6 +17,7 @@ namespace Snowstorm
 		OpenGLVertexBuffer& operator=(OpenGLVertexBuffer&& other) = delete;
 
 		void SetData(const void* data, uint32_t size) override;
+		void SetSubData(const void* data, uint32_t size, uint32_t offset) override;
 
 		void Bind() const override;
 		void Unbind() const override;
@@ -39,6 +40,9 @@ namespace Snowstorm
 		OpenGLIndexBuffer(OpenGLIndexBuffer&& other) = delete;
 		OpenGLIndexBuffer& operator=(const OpenGLIndexBuffer& other) = delete;
 		OpenGLIndexBuffer& operator=(OpenGLIndexBuffer&& other) = delete;
+
+		void SetData(const void* data, uint32_t size) override;
+		void SetSubData(const void* data, uint32_t size, uint32_t offset) override;
 
 		void Bind() const override;
 		void Unbind() const override;

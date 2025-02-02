@@ -7,12 +7,15 @@
 #include <glm/glm.hpp>
 
 #include "Snowstorm/ECS/Singleton.hpp"
+#include <Snowstorm/Core/Base.h>
 
 namespace Snowstorm
 {
 	class Shader
 	{
 	public:
+		using UniformValue = std::variant<int, float, glm::vec3, glm::vec4, glm::mat4, std::vector<int>>;
+
 		Shader() = default;
 		virtual ~Shader() = default;
 
@@ -26,38 +29,8 @@ namespace Snowstorm
 		virtual void Unbind() const = 0;
 
 		// Public API with unified caching
-		void SetUniform(const std::string& name, const int value) { SetUniformInternal(name, value); }
-		void SetUniform(const std::string& name, const float value) { SetUniformInternal(name, value); }
-		void SetUniform(const std::string& name, const glm::vec3& value) { SetUniformInternal(name, value); }
-		void SetUniform(const std::string& name, const glm::vec4& value) { SetUniformInternal(name, value); }
-		void SetUniform(const std::string& name, const glm::mat4& value) { SetUniformInternal(name, value); }
-		void SetUniform(const std::string& name, int* values, const uint32_t count)
-		{
-			SetUniformInternal(name, std::vector(values, values + count));
-		}
-
-		[[nodiscard]] virtual const std::string& GetName() const = 0;
-
-		static Ref<Shader> Create(const std::string& filepath);
-
-	protected:
-		// Virtual methods for GPU upload
-		virtual void UploadUniform(const std::string& name, int value) = 0;
-		virtual void UploadUniform(const std::string& name, float value) = 0;
-		virtual void UploadUniform(const std::string& name, const glm::vec3& value) = 0;
-		virtual void UploadUniform(const std::string& name, const glm::vec4& value) = 0;
-		virtual void UploadUniform(const std::string& name, const glm::mat4& value) = 0;
-		virtual void UploadUniform(const std::string& name, const std::vector<int>& values) = 0;
-
-	private:
-		using UniformValue = std::variant<int, float, glm::vec3, glm::vec4, glm::mat4, std::vector<int>>;
-
-		// Single cache for all uniform types
-		std::unordered_map<std::string, UniformValue> m_UniformCache;
-
-		// Internal helper to set uniform and manage the cache
 		template <typename T>
-		void SetUniformInternal(const std::string& name, const T& value)
+		void SetUniform(const std::string& name, const T& value)
 		{
 			const auto it = m_UniformCache.find(name);
 
@@ -72,20 +45,39 @@ namespace Snowstorm
 			m_UniformCache[name] = value;
 			UploadUniform(name, value);
 		}
+
+		[[nodiscard]] virtual const std::string& GetPath() const = 0;
+
+		virtual void Recompile() = 0;
+
+		static Ref<Shader> Create(const std::string& filepath);
+
+	protected:
+		// Virtual methods for GPU upload
+		virtual void UploadUniform(const std::string& name, int value) = 0;
+		virtual void UploadUniform(const std::string& name, float value) = 0;
+		virtual void UploadUniform(const std::string& name, const glm::vec3& value) = 0;
+		virtual void UploadUniform(const std::string& name, const glm::vec4& value) = 0;
+		virtual void UploadUniform(const std::string& name, const glm::mat4& value) = 0;
+		virtual void UploadUniform(const std::string& name, const std::vector<int>& values) = 0;
+
+	private:
+		// Single cache for all uniform types
+		std::unordered_map<std::string, UniformValue> m_UniformCache;
 	};
 
 	class ShaderLibrarySingleton final : public Singleton
 	{
 	public:
 		Ref<Shader> Load(const std::string& filepath);
-		Ref<Shader> Get(const std::string& name);
+		Ref<Shader> Get(const std::string& filepath);
 
-		[[nodiscard]] bool Exists(const std::string& name) const;
+		[[nodiscard]] bool Exists(const std::string& filepath) const;
 
 		void ReloadAll();
 
 	private:
-		void Add(const Ref<Shader>& shader);
+		void Add(const Ref<Shader>& shader, const std::string& filepath);
 
 		std::unordered_map<std::string, Ref<Shader>> m_Shaders;
 		std::unordered_map<std::string, std::filesystem::file_time_type> m_LastModifications;

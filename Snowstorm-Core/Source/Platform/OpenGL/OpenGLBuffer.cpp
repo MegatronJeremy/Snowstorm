@@ -5,7 +5,6 @@
 
 namespace Snowstorm
 {
-#pragma region OpenGLVertexBufferImpl
 	//////////////////////////////////////////////////////////////////////////////
 	// VertexBuffer //////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -43,6 +42,14 @@ namespace Snowstorm
 		glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 	}
 
+	void OpenGLVertexBuffer::SetSubData(const void* data, const uint32_t size, const uint32_t offset)
+	{
+		SS_PROFILE_FUNCTION();
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+	}
+
 	void OpenGLVertexBuffer::Bind() const
 	{
 		SS_PROFILE_FUNCTION();
@@ -56,9 +63,7 @@ namespace Snowstorm
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
-#pragma endregion OpenGLVertexBufferImpl
 
-#pragma region OpenGLIndexBufferImpl
 	//////////////////////////////////////////////////////////////////////////////
 	// IndexBuffer ///////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -80,6 +85,22 @@ namespace Snowstorm
 		glDeleteBuffers(1, &m_RendererID);
 	}
 
+	void OpenGLIndexBuffer::SetData(const void* data, const uint32_t size)
+	{
+		SS_PROFILE_FUNCTION();
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, size, data);
+	}
+
+	void OpenGLIndexBuffer::SetSubData(const void* data, const uint32_t size, const uint32_t offset)
+	{
+		SS_PROFILE_FUNCTION();
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, data);
+	}
+
 	void OpenGLIndexBuffer::Bind() const
 	{
 		SS_PROFILE_FUNCTION();
@@ -93,5 +114,4 @@ namespace Snowstorm
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
-#pragma endregion OpenGLIndexBufferImpl
 }

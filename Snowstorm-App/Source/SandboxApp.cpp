@@ -155,7 +155,7 @@ public:
 		Snowstorm::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
 		Snowstorm::RenderCommand::Clear();
 
-		Snowstorm::Renderer::BeginScene(m_cameraController.GetCamera());
+		Snowstorm::Renderer2D::BeginScene(m_cameraController.GetCamera());
 
 		static float dynScale = 0.1f;
 		static bool goingUp = true;
@@ -170,7 +170,7 @@ public:
 			{
 				glm::vec3 pos(x * (dynScale + 0.1f * dynScale), y * (dynScale + 0.1f * dynScale), 0.0f);
 				const glm::mat4 transform = translate(glm::mat4(1.0f), pos) * scale;
-				Snowstorm::Renderer::Submit(m_flatColorShader, m_squareVa, transform);
+				Snowstorm::Renderer2D::Submit(m_flatColorShader, m_squareVa, transform);
 
 				if (dynScale >= 0.12f) goingUp = false;
 				else if (dynScale <= 0.1f) goingUp = true;
@@ -183,15 +183,15 @@ public:
 		const auto textureShader = m_shaderLibrary.Get("Texture");
 
 		m_texture->Bind();
-		Snowstorm::Renderer::Submit(textureShader, m_squareVa, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		Snowstorm::Renderer2D::Submit(textureShader, m_squareVa, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
 		m_chernoLogoTexture->Bind();
-		Snowstorm::Renderer::Submit(textureShader, m_squareVa, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		Snowstorm::Renderer2D::Submit(textureShader, m_squareVa, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
 		// Triangle
 		// Snowstorm::Renderer::Submit(m_Shader, m_VertexArray);
 
-		Snowstorm::Renderer::EndScene();
+		Snowstorm::Renderer2D::EndScene();
 	}
 
 	void OnImGuiRender() override
