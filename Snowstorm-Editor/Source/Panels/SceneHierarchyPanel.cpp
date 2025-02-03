@@ -50,8 +50,8 @@ namespace Snowstorm
 		const auto& tag = entity.GetComponent<TagComponent>().Tag;
 
 		const ImGuiTreeNodeFlags flags =
-		((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0)
-		| ImGuiTreeNodeFlags_OpenOnArrow;
+			((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0)
+			| ImGuiTreeNodeFlags_OpenOnArrow;
 
 		const bool opened = ImGui::TreeNodeEx(reinterpret_cast<void*>(typeid(TransformComponent).hash_code()),
 		                                      flags,
@@ -107,7 +107,7 @@ namespace Snowstorm
 
 				const char* projectionTypeStrings[] = {"Perspective", "Orthographic"};
 				const char* currentProjectionTypeString = projectionTypeStrings[static_cast<int>(camera.
-					getProjectionType())];
+					GetProjectionType())];
 
 				if (ImGui::BeginCombo("Projection", currentProjectionTypeString))
 				{
@@ -117,7 +117,7 @@ namespace Snowstorm
 						if (ImGui::Selectable(projectionTypeStrings[i], isSelected))
 						{
 							currentProjectionTypeString = projectionTypeStrings[i];
-							camera.setProjectionType(static_cast<SceneCamera::ProjectionType>(i));
+							camera.SetProjectionType(static_cast<SceneCamera::ProjectionType>(i));
 						}
 
 						if (isSelected)
@@ -127,7 +127,7 @@ namespace Snowstorm
 					ImGui::EndCombo();
 				}
 
-				if (camera.getProjectionType() == SceneCamera::ProjectionType::Perspective)
+				if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)
 				{
 					float perspectiveFOV = glm::degrees(camera.GetPerspectiveVerticalFOV());
 					if (ImGui::DragFloat("FOV", &perspectiveFOV))
@@ -142,19 +142,19 @@ namespace Snowstorm
 						camera.SetPerspectiveFarClip(perspectiveFar);
 				}
 
-				if (camera.getProjectionType() == SceneCamera::ProjectionType::Orthographic)
+				if (camera.GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
 				{
-					float orthoSize = camera.getOrthographicSize();
+					float orthoSize = camera.GetOrthographicSize();
 					if (ImGui::DragFloat("Size", &orthoSize))
-						camera.setOrthographicSize(orthoSize);
+						camera.SetOrthographicSize(orthoSize);
 
-					float orthoNear = camera.getOrthographicNearClip();
+					float orthoNear = camera.GetOrthographicNearClip();
 					if (ImGui::DragFloat("Near", &orthoNear))
-						camera.setOrthographicNearClip(orthoNear);
+						camera.SetOrthographicNearClip(orthoNear);
 
-					float orthoFar = camera.getOrthographicFarClip();
+					float orthoFar = camera.GetOrthographicFarClip();
 					if (ImGui::DragFloat("Far", &orthoFar))
-						camera.setOrthographicFarClip(orthoFar);
+						camera.SetOrthographicFarClip(orthoFar);
 
 					ImGui::Checkbox("Fixed Aspect Ratio", &cameraComponent.FixedAspectRatio);
 				}
@@ -162,6 +162,5 @@ namespace Snowstorm
 				ImGui::TreePop();
 			}
 		}
-
 	}
 }

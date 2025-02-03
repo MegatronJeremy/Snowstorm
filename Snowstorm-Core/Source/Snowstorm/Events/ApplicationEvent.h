@@ -14,7 +14,7 @@ namespace Snowstorm
 			SS_CORE_INFO("Window resize event");
 		}
 
-		[[nodiscard]] std::string toString() const override
+		[[nodiscard]] std::string ToString() const override
 		{
 			std::stringstream ss;
 			ss << "WindowResizeEvent: " << Width << ", " << Height;

@@ -11,7 +11,7 @@ namespace Snowstorm
 		{
 		}
 
-		[[nodiscard]] std::string toString() const override
+		[[nodiscard]] std::string ToString() const override
 		{
 			std::stringstream ss;
 			ss << "MouseMovedEvent: " << mouseX << ", " << mouseY;
@@ -32,7 +32,7 @@ namespace Snowstorm
 		{
 		}
 
-		[[nodiscard]] std::string toString() const override
+		[[nodiscard]] std::string ToString() const override
 		{
 			std::stringstream ss;
 			ss << "MouseScrolledEvent: " << xOffset << ", " << yOffset;
@@ -65,7 +65,7 @@ namespace Snowstorm
 		{
 		}
 
-		[[nodiscard]] std::string toString() const override
+		[[nodiscard]] std::string ToString() const override
 		{
 			std::stringstream ss;
 			ss << "MouseButtonPressedEvent: " << m_Button;
@@ -82,7 +82,7 @@ namespace Snowstorm
 		{
 		}
 
-		[[nodiscard]] std::string toString() const override
+		[[nodiscard]] std::string ToString() const override
 		{
 			std::stringstream ss;
 			ss << "MouseButtonReleasedEvent: " << m_Button;
@@ -91,5 +91,4 @@ namespace Snowstorm
 
 		EVENT_CLASS_TYPE(MouseButtonReleased)
 	};
-
 }

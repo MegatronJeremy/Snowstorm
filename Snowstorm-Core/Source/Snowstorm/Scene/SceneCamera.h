@@ -12,17 +12,17 @@ namespace Snowstorm
 		SceneCamera();
 		~SceneCamera() override = default;
 
-		void setOrthographic(float size, float nearClip, float farClip);
-		void setPerspective(float verticalFOV, float nearClip, float farClip);
+		void SetOrthographic(float size, float nearClip, float farClip);
+		void SetPerspective(float verticalFOV, float nearClip, float farClip);
 
-		void setViewportSize(uint32_t width, uint32_t height);
+		void SetViewportSize(uint32_t width, uint32_t height);
 
 		float GetPerspectiveVerticalFOV() const { return m_PerspectiveFOV; }
 
 		void SetPerspectiveVerticalFOV(const float verticalFOV)
 		{
 			m_PerspectiveFOV = verticalFOV;
-			recalculateProjection();
+			RecalculateProjection();
 		}
 
 		float GetPerspectiveNearClip() const { return m_PerspectiveNear; }
@@ -30,7 +30,7 @@ namespace Snowstorm
 		void SetPerspectiveNearClip(const float nearClip)
 		{
 			m_PerspectiveNear = nearClip;
-			recalculateProjection();
+			RecalculateProjection();
 		}
 
 		float GetPerspectiveFarClip() const { return m_PerspectiveFar; }
@@ -38,51 +38,51 @@ namespace Snowstorm
 		void SetPerspectiveFarClip(const float farClip)
 		{
 			m_PerspectiveFar = farClip;
-			recalculateProjection();
+			RecalculateProjection();
 		}
 
-		[[nodiscard]] float getOrthographicSize() const { return m_OrthographicSize; }
+		[[nodiscard]] float GetOrthographicSize() const { return m_OrthographicSize; }
 
-		void setOrthographicSize(const float size)
+		void SetOrthographicSize(const float size)
 		{
 			m_OrthographicSize = size;
-			recalculateProjection();
+			RecalculateProjection();
 		}
 
-		[[nodiscard]] float getOrthographicNearClip() const { return m_OrthographicNear; }
+		[[nodiscard]] float GetOrthographicNearClip() const { return m_OrthographicNear; }
 
-		void setOrthographicNearClip(const float nearClip)
+		void SetOrthographicNearClip(const float nearClip)
 		{
 			m_OrthographicNear = nearClip;
-			recalculateProjection();
+			RecalculateProjection();
 		}
 
-		[[nodiscard]] float getOrthographicFarClip() const { return m_OrthographicFar; }
+		[[nodiscard]] float GetOrthographicFarClip() const { return m_OrthographicFar; }
 
-		void setOrthographicFarClip(const float farClip)
+		void SetOrthographicFarClip(const float farClip)
 		{
 			m_OrthographicFar = farClip;
-			recalculateProjection();
+			RecalculateProjection();
 		}
 
-		[[nodiscard]] ProjectionType getProjectionType() const { return m_ProjectionType; }
+		[[nodiscard]] ProjectionType GetProjectionType() const { return m_ProjectionType; }
 
-		void setProjectionType(const ProjectionType type)
+		void SetProjectionType(const ProjectionType type)
 		{
 			m_ProjectionType = type;
-			recalculateProjection();
+			RecalculateProjection();
 		}
 
 	private:
-		void recalculateProjection();
+		void RecalculateProjection();
 
 		ProjectionType m_ProjectionType = ProjectionType::Orthographic;
 
 		float m_PerspectiveFOV = glm::radians(45.0f);
-		float m_PerspectiveNear = 0.01f, m_PerspectiveFar = 1000.0f;
+		float m_PerspectiveNear = 0.01f, m_PerspectiveFar = 500.0f;
 
 		float m_OrthographicSize = 10.0f;
-		float m_OrthographicNear = -1.0f, m_OrthographicFar = 1.0f;
+		float m_OrthographicNear = -10.0f, m_OrthographicFar = 10.0f;
 
 		float m_AspectRatio = 0.0f;
 	};

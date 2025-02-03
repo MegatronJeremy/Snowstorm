@@ -22,6 +22,7 @@ namespace Snowstorm
 
 		// Framebuffer setup
 		{
+			// TODO set this up with the current screen size
 			m_FramebufferEntity = m_ActiveScene->CreateEntity("Framebuffer");
 			m_FramebufferEntity.AddComponent<ViewportComponent>(glm::vec2{1280.0f, 720.0f});
 
@@ -71,7 +72,8 @@ namespace Snowstorm
 			auto checkerboardSquare = m_ActiveScene->CreateEntity("Amazing Square");
 
 			checkerboardSquare.AddComponent<TransformComponent>();
-			checkerboardSquare.AddComponent<SpriteComponent>(checkerboardTexture, 1.0f, glm::vec4{0.0f, 0.0f, 1.0f, 1.0f});
+			checkerboardSquare.AddComponent<SpriteComponent>(checkerboardTexture, 1.0f,
+			                                                 glm::vec4{0.0f, 0.0f, 1.0f, 1.0f});
 			checkerboardSquare.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
 
 			checkerboardSquare.GetComponent<TransformComponent>().Position[0] += 2.0f;
@@ -83,12 +85,20 @@ namespace Snowstorm
 			redSquare.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
 
 			m_SquareEntity = checkerboardSquare;
+		}
 
+		// Camera Entities
+		{
 			m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
 			m_CameraEntity.AddComponent<TransformComponent>();
 			m_CameraEntity.AddComponent<CameraComponent>();
 			m_CameraEntity.AddComponent<CameraControllerComponent>();
 			m_CameraEntity.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
+
+			m_CameraEntity.GetComponent<CameraComponent>().Camera.SetProjectionType(
+				SceneCamera::ProjectionType::Perspective);
+			m_CameraEntity.GetComponent<CameraComponent>().Camera.SetOrthographicFarClip(1000.0f);
+			m_CameraEntity.GetComponent<TransformComponent>().Position.z = 15.0f;
 
 			m_SecondCamera = m_ActiveScene->CreateEntity("Clip-Space Entity");
 			m_SecondCamera.AddComponent<TransformComponent>();
@@ -133,7 +143,7 @@ namespace Snowstorm
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 			windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-			ImGuiWindowFlags_NoMove;
+				ImGuiWindowFlags_NoMove;
 			windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 		}
 		else
@@ -222,9 +232,9 @@ namespace Snowstorm
 
 		{
 			auto& camera = m_SecondCamera.GetComponent<CameraComponent>().Camera;
-			float orthoSize = camera.getOrthographicSize();
+			float orthoSize = camera.GetOrthographicSize();
 			if (ImGui::DragFloat("Second Camera Ortho Size", &orthoSize))
-				camera.setOrthographicSize(orthoSize);
+				camera.SetOrthographicSize(orthoSize);
 		}
 
 		ImGui::End();
@@ -244,7 +254,8 @@ namespace Snowstorm
 		viewportComponent.Size = {viewportPanelSize.x, viewportPanelSize.y};
 
 		const uint32_t textureID = framebufferComponent.Framebuffer->GetColorAttachmentRendererID();
-		ImGui::Image(reinterpret_cast<ImTextureID>(textureID), ImVec2{viewportComponent.Size.x, viewportComponent.Size.y}, ImVec2{0, 1},
+		ImGui::Image(reinterpret_cast<ImTextureID>(textureID),
+		             ImVec2{viewportComponent.Size.x, viewportComponent.Size.y}, ImVec2{0, 1},
 		             ImVec2{1, 0});
 		ImGui::End();
 		ImGui::PopStyleVar();
@@ -259,13 +270,13 @@ namespace Snowstorm
 			{
 				EventType::MouseScrolled, [&eventsHandler](Event& e)
 				{
-					eventsHandler.pushEvent<MouseScrolledEvent>(dynamic_cast<MouseScrolledEvent&>(e));
+					eventsHandler.PushEvent<MouseScrolledEvent>(dynamic_cast<MouseScrolledEvent&>(e));
 				}
 			}
 		};
 
 		// Check if the event type exists in the map
-		if (const auto it = eventMap.find(event.getEventType()); it != eventMap.end())
+		if (const auto it = eventMap.find(event.GetEventType()); it != eventMap.end())
 		{
 			it->second(event); // Call the corresponding function
 		}

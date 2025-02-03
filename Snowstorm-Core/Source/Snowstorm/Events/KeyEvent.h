@@ -24,7 +24,7 @@ namespace Snowstorm
 		{
 		}
 
-		std::string toString() const override
+		std::string ToString() const override
 		{
 			std::stringstream ss;
 			ss << "KeyPressedEvent: " << m_KeyCode << " (" << m_RepeatCount << " repeats)";
@@ -43,7 +43,7 @@ namespace Snowstorm
 		{
 		}
 
-		std::string toString() const override
+		std::string ToString() const override
 		{
 			std::stringstream ss;
 			ss << "KeyReleasedEvent: " << m_KeyCode;
@@ -60,7 +60,7 @@ namespace Snowstorm
 		{
 		}
 
-		std::string toString() const override
+		std::string ToString() const override
 		{
 			std::stringstream ss;
 			ss << "KeyTypedEvent: " << m_KeyCode;
@@ -69,5 +69,4 @@ namespace Snowstorm
 
 		EVENT_CLASS_TYPE(KeyTyped)
 	};
-
 }

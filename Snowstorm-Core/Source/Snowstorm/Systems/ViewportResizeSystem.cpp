@@ -22,7 +22,8 @@ namespace Snowstorm
 			const uint32_t viewportWidth = static_cast<uint32_t>(viewport.Size.x);
 			const uint32_t viewportHeight = static_cast<uint32_t>(viewport.Size.y);
 
-			if (const auto fbSpec = framebuffer.Framebuffer->GetSpecification(); fbSpec.Width == viewportWidth && fbSpec.Width == viewportHeight)
+			if (const auto fbSpec = framebuffer.Framebuffer->GetSpecification(); fbSpec.Width == viewportWidth && fbSpec
+				.Width == viewportHeight)
 			{
 				continue;
 			}
@@ -32,9 +33,10 @@ namespace Snowstorm
 			// Resize all camera viewports within the framebuffer
 			for (const auto& cameraEntity : cameraView)
 			{
-				if (const auto [camera, renderTarget] = cameraView.get<CameraComponent, RenderTargetComponent>(cameraEntity); renderTarget.TargetFramebuffer == entity)
+				if (const auto [camera, renderTarget] = cameraView.get<
+					CameraComponent, RenderTargetComponent>(cameraEntity); renderTarget.TargetFramebuffer == entity)
 				{
-					camera.Camera.setViewportSize(viewportWidth, viewportHeight);
+					camera.Camera.SetViewportSize(viewportWidth, viewportHeight);
 				}
 			}
 		}

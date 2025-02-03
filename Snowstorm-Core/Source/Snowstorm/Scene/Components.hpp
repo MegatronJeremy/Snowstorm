@@ -22,23 +22,23 @@ namespace Snowstorm
 	struct TransformComponent
 	{
 		glm::vec3 Position{0.0f, 0.0f, 0.0f};
-		glm::vec3 Rotation{0.0f, 0.0f, 0.0f}; // Euler angles in degrees
+		glm::vec3 Rotation{0.0f, 0.0f, 0.0f}; // Stored in radians
 		glm::vec3 Scale{1.0f, 1.0f, 1.0f};
 
-		[[nodiscard]] glm::mat4 getTransformMatrix() const
+		[[nodiscard]] glm::mat4 GetTransformMatrix() const
 		{
 			glm::mat4 transform = translate(glm::mat4(1.0f), Position);
 
-			// Apply rotations in the correct order: Z (roll) → X (pitch) → Y (yaw)
-			transform = rotate(transform, glm::radians(Rotation.z), glm::vec3(0, 0, 1)); // Roll
-			transform = rotate(transform, glm::radians(Rotation.x), glm::vec3(1, 0, 0)); // Pitch
-			transform = rotate(transform, glm::radians(Rotation.y), glm::vec3(0, 1, 0)); // Yaw
+			// Correct order: Y (yaw) → X (pitch) → Z (roll)
+			transform = rotate(transform, Rotation.y, glm::vec3(0, 1, 0)); // Yaw
+			transform = rotate(transform, Rotation.x, glm::vec3(1, 0, 0)); // Pitch
+			transform = rotate(transform, Rotation.z, glm::vec3(0, 0, 1)); // Roll
 
 			transform = scale(transform, Scale);
 			return transform;
 		}
 
-		operator glm::mat4() const { return getTransformMatrix(); }
+		operator glm::mat4() const { return GetTransformMatrix(); }
 	};
 
 	struct ViewportComponent
@@ -75,7 +75,8 @@ namespace Snowstorm
 		float TilingFactor = 1.0f;
 		glm::vec4 TintColor = glm::vec4{1.0f};
 
-		SpriteComponent(Ref<Texture2D> textureInstance, const float tilingFactor = 1.0f, const glm::vec4& color = glm::vec4{1.0f})
+		SpriteComponent(Ref<Texture2D> textureInstance, const float tilingFactor = 1.0f,
+		                const glm::vec4& color = glm::vec4{1.0f})
 			: TextureInstance(std::move(textureInstance)), TilingFactor(tilingFactor), TintColor(color)
 		{
 		}
@@ -96,10 +97,10 @@ namespace Snowstorm
 	struct CameraControllerComponent
 	{
 		bool RotationEnabled = true;
-		float ZoomLevel = 10.0f;
+		float ZoomSpeed = 5.0f;
 		float MoveSpeed = 5.0f;
 		float RotationSpeed = 180.0f; // Degrees per second
-		float LookSensitivity = 0.1f; // Degrees per pixel moved
+		float LookSensitivity = 1.0f; // Degrees per pixel moved
 	};
 
 	struct NativeScriptComponent

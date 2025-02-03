@@ -13,19 +13,19 @@ namespace Snowstorm
 	{
 		auto& eventsHandler = SingletonView<EventsHandlerSingleton>();
 
-		for (const auto cameraControllerView = View<CameraComponent, TransformComponent, CameraControllerComponent>(); const auto entity : cameraControllerView)
+		for (const auto cameraControllerView = View<CameraComponent, TransformComponent, CameraControllerComponent>();
+		     const auto entity : cameraControllerView)
 		{
 			auto [camera, transform, controller] = cameraControllerView.get(entity);
 
 			if (!camera.Primary) continue;
 
-			bool isPerspective = camera.Camera.getProjectionType() == SceneCamera::ProjectionType::Perspective;
+			bool isPerspective = camera.Camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective;
 			bool rightClickHeld = Input::IsMouseButtonPressed(Mouse::ButtonRight);
 
 			static bool wasRightClickHeld = false;
 			static std::pair<float, float> lastMousePos = Input::GetMousePosition();
 
-			// **Fix abrupt jumps when enabling look mode**
 			if (rightClickHeld && !wasRightClickHeld)
 			{
 				Input::SetCursorMode(CursorMode::Locked);
@@ -39,49 +39,64 @@ namespace Snowstorm
 
 			glm::vec3 moveDir(0.0f);
 
-			// **Mouse Look in Perspective Mode**
-			if (isPerspective && rightClickHeld)
+			if (rightClickHeld)
 			{
 				auto [mouseX, mouseY] = Input::GetMousePosition();
 				float deltaX = mouseX - lastMousePos.first;
-				float deltaY = lastMousePos.second - mouseY; // Inverted Y-axis
+				float deltaY = lastMousePos.second - mouseY;
 
-				lastMousePos = {mouseX, mouseY}; // Update last position
+				lastMousePos = {mouseX, mouseY};
 
-				// **Apply correct yaw (Y rotation) and pitch (X rotation)**
-				transform.Rotation.y -= deltaX * controller.LookSensitivity;
-				transform.Rotation.x += deltaY * controller.LookSensitivity;
+				float sensitivity = controller.LookSensitivity * 0.001f;
+
+				transform.Rotation.y -= deltaX * sensitivity;
+				transform.Rotation.x += deltaY * sensitivity;
+
+				transform.Rotation.x = glm::clamp(transform.Rotation.x, -glm::half_pi<float>(), glm::half_pi<float>());
 			}
 
-			// **Quaternion-based Rotation for Correct 3D Movement**
-			auto rotation = glm::quat(glm::vec3(transform.Rotation.x, transform.Rotation.y, 0.0f));
+			auto rotation = glm::quat(glm::vec3(transform.Rotation.x, transform.Rotation.y, 0));
 			glm::vec3 forward = rotation * glm::vec3(0.0f, 0.0f, -1.0f);
 			glm::vec3 right = normalize(cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)));
+			auto up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-			// **Correct movement logic in Perspective Mode**
-			if (isPerspective && rightClickHeld)
+			if (rightClickHeld)
 			{
-				if (Input::IsKeyPressed(Key::W)) moveDir += forward;
-				if (Input::IsKeyPressed(Key::S)) moveDir -= forward;
 				if (Input::IsKeyPressed(Key::D)) moveDir += right;
 				if (Input::IsKeyPressed(Key::A)) moveDir -= right;
-			}
-			else
-			{
-				// **Correct movement logic in Orthographic Mode**
-				if (Input::IsKeyPressed(Key::A)) moveDir.x -= 1.0f;
-				if (Input::IsKeyPressed(Key::D)) moveDir.x += 1.0f;
-				if (Input::IsKeyPressed(Key::W)) moveDir.y += 1.0f;
-				if (Input::IsKeyPressed(Key::S)) moveDir.y -= 1.0f;
+
+				if (isPerspective)
+				{
+					if (Input::IsKeyPressed(Key::W)) moveDir += forward;
+					if (Input::IsKeyPressed(Key::S)) moveDir -= forward;
+					if (Input::IsKeyPressed(Key::E)) moveDir += up;
+					if (Input::IsKeyPressed(Key::Q)) moveDir -= up;
+				}
+				else
+				{
+					if (Input::IsKeyPressed(Key::W)) moveDir += up;
+					if (Input::IsKeyPressed(Key::S)) moveDir -= up;
+					if (Input::IsKeyPressed(Key::E)) moveDir += forward;
+					if (Input::IsKeyPressed(Key::Q)) moveDir -= forward;
+				}
 			}
 
 			transform.Position += moveDir * controller.MoveSpeed * ts.GetSeconds();
 
-			// **Proper Zoom Behavior in Perspective Mode (Move Forward/Backward)**
-			for (const auto& event : eventsHandler.process<MouseScrolledEvent>())
+			for (const auto& event : eventsHandler.Process<MouseScrolledEvent>())
 			{
-				float zoomSpeed = 5.0f;
-				transform.Position += forward * event->yOffset * zoomSpeed;
+				if (isPerspective)
+				{
+					transform.Position += forward * event->yOffset * controller.ZoomSpeed;
+				}
+				else
+				{
+					float zoomFactor = 1.0f - (event->yOffset * controller.ZoomSpeed * 0.1f);
+					float orthoSize = camera.Camera.GetOrthographicSize();
+					orthoSize = glm::clamp(orthoSize * zoomFactor, 0.25f, 100.0f);
+
+					camera.Camera.SetOrthographicSize(orthoSize);
+				}
 			}
 		}
 	}

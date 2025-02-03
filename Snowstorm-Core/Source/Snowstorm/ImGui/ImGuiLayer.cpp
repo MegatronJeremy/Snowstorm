@@ -74,8 +74,8 @@ namespace Snowstorm
 		if (m_BlockEvents)
 		{
 			const ImGuiIO& io = ImGui::GetIO();
-			e.Handled |= e.isInCategory(EventCategoryMouse) & io.WantCaptureMouse;
-			e.Handled |= e.isInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
+			e.Handled |= e.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
+			e.Handled |= e.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
 		}
 	}
 

@@ -40,11 +40,11 @@ namespace Snowstorm
 		EventCategoryMouseButton = BIT(4)
 	}; // bit field because one event can be in multiple categories
 
-#define EVENT_CLASS_TYPE(type) static EventType getStaticType() {return EventType::##type;  }\
-								virtual EventType getEventType() const override { return getStaticType(); }\
-								virtual const char* getName() const override { return #type; }
+#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() {return EventType::##type;  }\
+								virtual EventType GetEventType() const override { return GetStaticType(); }\
+								virtual const char* GetName() const override { return #type; }
 
-#define EVENT_CLASS_CATEGORY(category) virtual int getCategoryFlags() const override { return category; }
+#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
 
 	struct Event
 	{
@@ -61,14 +61,14 @@ namespace Snowstorm
 		Event& operator=(const Event& e) = default;
 		Event& operator=(Event&& e) = default;
 
-		[[nodiscard]] virtual EventType getEventType() const = 0;
-		[[nodiscard]] virtual int getCategoryFlags() const = 0;
-		[[nodiscard]] virtual const char* getName() const = 0; // basically only for debugging
-		[[nodiscard]] virtual std::string toString() const { return getName(); } // if you want more details override
+		[[nodiscard]] virtual EventType GetEventType() const = 0;
+		[[nodiscard]] virtual int GetCategoryFlags() const = 0;
+		[[nodiscard]] virtual const char* GetName() const = 0; // basically only for debugging
+		[[nodiscard]] virtual std::string ToString() const { return GetName(); } // if you want more details override
 
-		[[nodiscard]] bool isInCategory(const EventCategory category) const
+		[[nodiscard]] bool IsInCategory(const EventCategory category) const
 		{
-			return getCategoryFlags() & category;
+			return GetCategoryFlags() & category;
 		}
 	};
 
@@ -76,23 +76,23 @@ namespace Snowstorm
 	{
 	public:
 		template <typename T, typename... Args>
-		void pushEvent(Args&&... args)
+		void PushEvent(Args&&... args)
 		{
-			m_events[typeid(T)].emplace_back(CreateRef<T>(std::forward<Args>(args)...));
+			m_Events[typeid(T)].emplace_back(CreateRef<T>(std::forward<Args>(args)...));
 		}
 
 		template <typename T>
-		std::vector<Ref<T>> process()
+		std::vector<Ref<T>> Process()
 		{
 			std::vector<Ref<T>> events;
 
-			if (const auto it = m_events.find(typeid(T)); it != m_events.end())
+			if (const auto it = m_Events.find(typeid(T)); it != m_Events.end())
 			{
 				for (const auto& event : it->second)
 				{
 					events.push_back(std::static_pointer_cast<T>(event));
 				}
-				m_events.erase(it);
+				m_Events.erase(it);
 			}
 
 			for (const auto& event : events)
@@ -104,7 +104,7 @@ namespace Snowstorm
 		}
 
 	private:
-		std::unordered_map<std::type_index, std::vector<Ref<Event>>> m_events;
+		std::unordered_map<std::type_index, std::vector<Ref<Event>>> m_Events;
 	};
 
 	class EventDispatcher
@@ -117,9 +117,9 @@ namespace Snowstorm
 
 		// F will be deduced by the compiler
 		template <typename T, typename F>
-		bool dispatch(const F& func) // call this a bunch of times with a different event function
+		bool Dispatch(const F& func) // call this a bunch of times with a different event function
 		{
-			if (m_Event->getEventType() == T::getStaticType())
+			if (m_Event->GetEventType() == T::GetStaticType())
 			{
 				// run the function if it matches the actual type
 				m_Event->Handled = func(*static_cast<T*>(m_Event));
@@ -134,6 +134,6 @@ namespace Snowstorm
 
 	inline std::ostream& operator<<(std::ostream& os, const Event& e)
 	{
-		return os << e.toString();
+		return os << e.ToString();
 	}
 }
