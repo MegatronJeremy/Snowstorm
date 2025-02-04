@@ -88,7 +88,7 @@ namespace Snowstorm
 		VulkanContext::UpdateViewProjection(value);
 	}
 
-	void VulkanShader::Recompile()
+	void VulkanShader::Compile()
 	{
 	}
 }

@@ -40,19 +40,22 @@ namespace Snowstorm
 
 			Ref<Shader> basicShader = shaderLibrary.Load("assets/shaders/BasicLit.glsl");
 
+			auto cubeMesh = Mesh::CreateFromFile("assets/meshes/cube.obj");
+			auto girlMesh = Mesh::CreateFromFile("assets/meshes/girl.obj");
+
 			const Ref<Material> redMaterial = CreateRef<Material>(basicShader);
-			redMaterial->SetUniform("u_Color", glm::vec3(1.0f, 0.0f, 0.0f)); // Red color
-			redMaterial->SetTexture("u_AlbedoTexture", checkerboardTexture);
+			redMaterial->SetTexture("AlbedoTexture", checkerboardTexture);
+			redMaterial->SetColor({1.0f, 0.0f, 0.0f, 1.0f});
 
 			const Ref<Material> blueMaterial = CreateRef<Material>(basicShader);
-			blueMaterial->SetUniform("u_Color", glm::vec3(0.0f, 0.0f, 1.0f)); // Blue color
-			blueMaterial->SetTexture("u_AlbedoTexture", checkerboardTexture);
-
+			blueMaterial->SetTexture("AlbedoTexture", checkerboardTexture);
+			blueMaterial->SetColor({0.0f, 0.0f, 1.0f, 1.0f});
+			
 			auto blueCube = m_ActiveScene->CreateEntity("Blue Cube");
-
+			
 			blueCube.AddComponent<TransformComponent>();
 			blueCube.AddComponent<MaterialComponent>(blueMaterial);
-			blueCube.AddComponent<MeshComponent>(Mesh::CreateCube());
+			blueCube.AddComponent<MeshComponent>(girlMesh);
 			blueCube.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
 
 			blueCube.GetComponent<TransformComponent>().Position -= 3.0f;
@@ -61,7 +64,7 @@ namespace Snowstorm
 
 			redCube.AddComponent<TransformComponent>();
 			redCube.AddComponent<MaterialComponent>(redMaterial);
-			redCube.AddComponent<MeshComponent>(Mesh::CreateCube());
+			redCube.AddComponent<MeshComponent>(cubeMesh);
 			redCube.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
 
 			redCube.GetComponent<TransformComponent>().Position += 3.0f;

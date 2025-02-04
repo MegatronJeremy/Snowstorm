@@ -33,8 +33,6 @@ namespace Snowstorm
 
 		[[nodiscard]] const std::string& GetPath() const override { return m_Filepath; }
 
-		void Recompile() override;
-
 		void UploadUniformInt(const std::string& name, int value) const;
 		void UploadUniformIntArray(const std::string& name, const int* values, uint32_t count) const;
 
@@ -49,6 +47,8 @@ namespace Snowstorm
 	private:
 		static std::string ReadFile(const std::string& filepath);
 		static std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
+
+		void Compile() override;
 		void Compile(std::unordered_map<GLenum, std::string>& shaderSources);
 
 		uint32_t m_RendererID;

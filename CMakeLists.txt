@@ -13,4 +13,8 @@ add_subdirectory(Snowstorm-App)
 add_subdirectory(Snowstorm-Editor)
 
 # Set the default startup project for Visual Studio
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT "Snowstorm-App")
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT "Snowstorm-Editor")
+
+# Set working directory to root directory
+set_property(TARGET Snowstorm-Editor PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+set_property(TARGET Snowstorm-App PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")

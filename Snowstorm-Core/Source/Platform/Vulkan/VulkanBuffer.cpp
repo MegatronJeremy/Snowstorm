@@ -137,13 +137,13 @@ namespace Snowstorm
 	{
 	}
 
-	VulkanVertexBuffer::VulkanVertexBuffer(const float* vertices, const uint32_t size)
+	VulkanVertexBuffer::VulkanVertexBuffer(const void* data, const uint32_t size)
 	{
 		SS_PROFILE_FUNCTION();
 
 		m_Device = VulkanInstance::GetInstance()->GetVulkanDevice()->GetVkDevice();
 
-		SetData(vertices, size);
+		SetData(data, size);
 	}
 
 	VulkanVertexBuffer::~VulkanVertexBuffer()

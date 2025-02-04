@@ -103,6 +103,13 @@ namespace Snowstorm
 		return shaderSources;
 	}
 
+	void OpenGLShader::Compile()
+	{
+		const std::string source = ReadFile(m_Filepath);
+		auto shaderSources = PreProcess(source);
+		Compile(shaderSources);
+	}
+
 	void OpenGLShader::Compile(std::unordered_map<GLenum, std::string>& shaderSources)
 	{
 		SS_PROFILE_FUNCTION();
@@ -229,13 +236,6 @@ namespace Snowstorm
 		SS_PROFILE_FUNCTION();
 
 		UploadUniformMat4(name, value);
-	}
-
-	void OpenGLShader::Recompile()
-	{
-		const std::string source = ReadFile(m_Filepath);
-		auto shaderSources = PreProcess(source);
-		Compile(shaderSources);
 	}
 
 	void OpenGLShader::UploadUniformInt(const std::string& name, const int value) const

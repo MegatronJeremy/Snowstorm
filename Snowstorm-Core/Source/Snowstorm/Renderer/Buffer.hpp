@@ -53,8 +53,10 @@ namespace Snowstorm
 
 		BufferElement() = default;
 
-		BufferElement(const ShaderDataType type, std::string name, const bool instanced = false, const bool normalized = false)
-			: Name(std::move(name)), Type(type), Size(ShaderDataTypeSize(type)), Offset(0), Instanced(instanced), Normalized(normalized)
+		BufferElement(const ShaderDataType type, std::string name, const bool instanced = false,
+		              const bool normalized = false)
+			: Name(std::move(name)), Type(type), Size(ShaderDataTypeSize(type)), Offset(0), Instanced(instanced),
+			  Normalized(normalized)
 		{
 		}
 
@@ -87,6 +89,12 @@ namespace Snowstorm
 		BufferLayout() = default;
 
 		BufferLayout(const std::initializer_list<BufferElement>& elements)
+			: m_Elements(elements)
+		{
+			CalculateOffsetsAndStride();
+		}
+
+		BufferLayout(const std::vector<BufferElement>& elements)
 			: m_Elements(elements)
 		{
 			CalculateOffsetsAndStride();
@@ -140,7 +148,7 @@ namespace Snowstorm
 		virtual uint64_t GetHandle() const;
 
 		static Ref<VertexBuffer> Create(uint32_t size);
-		static Ref<VertexBuffer> Create(const float* vertices, uint32_t size);
+		static Ref<VertexBuffer> Create(const void* data, uint32_t size);
 	};
 
 	// Currently Snowstorm only supports 32-bit index buffers

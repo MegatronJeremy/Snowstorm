@@ -5,6 +5,7 @@
 
 #include <ranges>
 
+#include "Snowstorm/Renderer/RenderCommand.hpp"
 #include "Snowstorm/Renderer/Renderer2D.hpp"
 
 namespace Snowstorm
@@ -23,6 +24,7 @@ namespace Snowstorm
 		m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
 		Renderer2D::Init();
+		RenderCommand::Init();
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);

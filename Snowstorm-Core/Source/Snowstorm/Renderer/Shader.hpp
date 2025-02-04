@@ -48,9 +48,13 @@ namespace Snowstorm
 
 		[[nodiscard]] virtual const std::string& GetPath() const = 0;
 
-		virtual void Recompile() = 0;
-
 		static Ref<Shader> Create(const std::string& filepath);
+
+		void Recompile()
+		{
+			Compile();
+			m_UniformCache.clear();
+		}
 
 	protected:
 		// Virtual methods for GPU upload
@@ -60,6 +64,8 @@ namespace Snowstorm
 		virtual void UploadUniform(const std::string& name, const glm::vec4& value) = 0;
 		virtual void UploadUniform(const std::string& name, const glm::mat4& value) = 0;
 		virtual void UploadUniform(const std::string& name, const std::vector<int>& values) = 0;
+
+		virtual void Compile() = 0;
 
 	private:
 		// Single cache for all uniform types

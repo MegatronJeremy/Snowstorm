@@ -7,7 +7,7 @@
 #include <Snowstorm/ECS/SystemManager.hpp>
 
 #include "Snowstorm/Events/Event.h"
-#include "Snowstorm/Renderer/BatchRenderer3DSingleton.hpp"
+#include "Snowstorm/Renderer/Renderer3DSingleton.hpp"
 #include "Snowstorm/Renderer/Shader.hpp"
 
 #include "Snowstorm/Systems/CameraControllerSystem.hpp"
@@ -31,7 +31,7 @@ namespace Snowstorm
 
 		m_SingletonManager->RegisterSingleton<EventsHandlerSingleton>();
 		m_SingletonManager->RegisterSingleton<ShaderLibrarySingleton>();
-		m_SingletonManager->RegisterSingleton<BatchRenderer3DSingleton>();
+		m_SingletonManager->RegisterSingleton<Renderer3DSingleton>();
 	}
 
 	Scene::~Scene()

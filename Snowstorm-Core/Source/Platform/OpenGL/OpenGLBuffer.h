@@ -8,7 +8,7 @@ namespace Snowstorm
 	{
 	public:
 		explicit OpenGLVertexBuffer(uint32_t size);
-		OpenGLVertexBuffer(const float* vertices, uint32_t size);
+		OpenGLVertexBuffer(const void* data, uint32_t size);
 		~OpenGLVertexBuffer() override;
 
 		OpenGLVertexBuffer(const OpenGLVertexBuffer& other) = delete;
@@ -53,5 +53,4 @@ namespace Snowstorm
 		uint32_t m_RendererID;
 		uint32_t m_Count;
 	};
-
 }

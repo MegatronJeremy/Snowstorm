@@ -12,16 +12,16 @@ namespace Snowstorm
 	{
 		std::vector<Vertex> vertices = {
 			// Front face
-			{{-0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-			{{0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
-			{{0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-			{{-0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+			{.Position = {-0.5f, -0.5f, 0.5f}, .Normal = {0.0f, 0.0f, 1.0f}, .TexCoord = {0.0f, 0.0f}},
+			{.Position = {0.5f, -0.5f, 0.5f}, .Normal = {0.0f, 0.0f, 1.0f}, .TexCoord = {1.0f, 0.0f}},
+			{.Position = {0.5f, 0.5f, 0.5f}, .Normal = {0.0f, 0.0f, 1.0f}, .TexCoord = {1.0f, 1.0f}},
+			{.Position = {-0.5f, 0.5f, 0.5f}, .Normal = {0.0f, 0.0f, 1.0f}, .TexCoord = {0.0f, 1.0f}},
 
 			// Back face
-			{{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},
-			{{0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}},
-			{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}},
-			{{-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}},
+			{.Position = {-0.5f, -0.5f, -0.5f}, .Normal = {0.0f, 0.0f, -1.0f}, .TexCoord = {1.0f, 0.0f}},
+			{.Position = {0.5f, -0.5f, -0.5f}, .Normal = {0.0f, 0.0f, -1.0f}, .TexCoord = {0.0f, 0.0f}},
+			{.Position = {0.5f, 0.5f, -0.5f}, .Normal = {0.0f, 0.0f, -1.0f}, .TexCoord = {0.0f, 1.0f}},
+			{.Position = {-0.5f, 0.5f, -0.5f}, .Normal = {0.0f, 0.0f, -1.0f}, .TexCoord = {1.0f, 1.0f}},
 		};
 
 		std::vector<uint32_t> indices = {

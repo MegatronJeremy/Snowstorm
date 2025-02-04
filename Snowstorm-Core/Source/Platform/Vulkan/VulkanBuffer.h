@@ -31,7 +31,7 @@ namespace Snowstorm
 	{
 	public:
 		explicit VulkanVertexBuffer(uint32_t size);
-		VulkanVertexBuffer(const float* vertices, uint32_t size);
+		VulkanVertexBuffer(const void* data, uint32_t size);
 		~VulkanVertexBuffer() override;
 
 		VulkanVertexBuffer(const VulkanVertexBuffer& other) = delete;

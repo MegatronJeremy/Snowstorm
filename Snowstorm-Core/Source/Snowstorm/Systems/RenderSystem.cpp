@@ -3,7 +3,7 @@
 #include "Snowstorm/Events/ApplicationEvent.h"
 #include "Snowstorm/Renderer/RenderCommand.hpp"
 #include "Snowstorm/Renderer/Renderer2D.hpp"
-#include "Snowstorm/Renderer/BatchRenderer3DSingleton.hpp"
+#include "Snowstorm/Renderer/Renderer3DSingleton.hpp"
 #include "Snowstorm/Scene/Components.hpp"
 
 namespace Snowstorm
@@ -21,7 +21,8 @@ namespace Snowstorm
 		{
 			for (const auto entity : cameraView)
 			{
-				if (const auto& [TargetFramebuffer] = cameraView.template get<RenderTargetComponent>(entity); TargetFramebuffer == fbEntity)
+				if (const auto& [TargetFramebuffer] = cameraView.template get<RenderTargetComponent>(entity);
+					TargetFramebuffer == fbEntity)
 				{
 					auto [transform, camera] = cameraView.template get<TransformComponent, CameraComponent>(entity);
 					if (camera.Primary)
@@ -42,7 +43,7 @@ namespace Snowstorm
 		const auto spriteView = View<TransformComponent, SpriteComponent, RenderTargetComponent>();
 		const auto meshView = View<TransformComponent, MeshComponent, MaterialComponent, RenderTargetComponent>();
 
-		auto& batchRenderer3D = SingletonView<BatchRenderer3DSingleton>();
+		auto& renderer3DSingleton = SingletonView<Renderer3DSingleton>();
 
 		// Loop through each framebuffer
 		for (const auto fbEntity : framebufferView)
@@ -75,11 +76,14 @@ namespace Snowstorm
 
 				for (const auto entity : spriteView)
 				{
-					if (auto& [targetFramebuffer] = spriteView.get<RenderTargetComponent>(entity); targetFramebuffer == fbEntity) // Match framebuffer
+					if (auto& [targetFramebuffer] = spriteView.get<RenderTargetComponent>(entity); targetFramebuffer ==
+						fbEntity) // Match framebuffer
 					{
-						if (auto [transform, sprite] = spriteView.get<TransformComponent, SpriteComponent>(entity); sprite.TextureInstance)
+						if (auto [transform, sprite] = spriteView.get<TransformComponent, SpriteComponent>(entity);
+							sprite.TextureInstance)
 						{
-							Renderer2D::DrawQuad(transform, sprite.TextureInstance, sprite.TilingFactor, sprite.TintColor);
+							Renderer2D::DrawQuad(transform, sprite.TextureInstance, sprite.TilingFactor,
+							                     sprite.TintColor);
 						}
 						else
 						{
@@ -93,18 +97,20 @@ namespace Snowstorm
 
 			// Draw meshes
 			{
-				batchRenderer3D.BeginBatch(*mainCamera, cameraTransform);
+				renderer3DSingleton.BeginScene(*mainCamera, cameraTransform);
 
 				for (const auto entity : meshView)
 				{
-					if (auto& [targetFramebuffer] = meshView.get<RenderTargetComponent>(entity); targetFramebuffer == fbEntity)
+					if (auto& [targetFramebuffer] = meshView.get<RenderTargetComponent>(entity); targetFramebuffer ==
+						fbEntity)
 					{
-						auto [transform, mesh, material] = meshView.get<TransformComponent, MeshComponent, MaterialComponent>(entity);
-						batchRenderer3D.DrawMesh(transform, mesh.MeshInstance, material.MaterialInstance);
+						auto [transform, mesh, material] = meshView.get<
+							TransformComponent, MeshComponent, MaterialComponent>(entity);
+						renderer3DSingleton.DrawMesh(transform, mesh.MeshInstance, material.MaterialInstance);
 					}
 				}
 
-				batchRenderer3D.EndBatch();
+				renderer3DSingleton.EndScene();
 			}
 
 			// End rendering

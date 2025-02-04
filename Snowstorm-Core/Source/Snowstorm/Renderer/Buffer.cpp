@@ -30,7 +30,7 @@ namespace Snowstorm
 		return nullptr;
 	}
 
-	Ref<VertexBuffer> VertexBuffer::Create(const float* vertices, const uint32_t size)
+	Ref<VertexBuffer> VertexBuffer::Create(const void* data, const uint32_t size)
 	{
 		switch (Renderer2D::GetAPI())
 		{
@@ -38,9 +38,9 @@ namespace Snowstorm
 			SS_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;
 		case RendererAPI::API::OpenGL:
-			return CreateRef<OpenGLVertexBuffer>(vertices, size);
+			return CreateRef<OpenGLVertexBuffer>(data, size);
 		case RendererAPI::API::Vulkan:
-			return CreateRef<VulkanVertexBuffer>(vertices, size);
+			return CreateRef<VulkanVertexBuffer>(data, size);
 		}
 
 		SS_CORE_ASSERT(false, "Unknown RendererAPI!");

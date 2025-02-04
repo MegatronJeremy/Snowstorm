@@ -29,11 +29,3 @@ target_include_directories(Snowstorm-Editor PUBLIC
 target_link_libraries(Snowstorm-Editor PRIVATE
     Snowstorm-Core  # Link the core library
 )
-
-# Copy assets to build directory
-add_custom_command(TARGET Snowstorm-Editor
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/Assets
-    ${CMAKE_CURRENT_BINARY_DIR}/Assets
-)

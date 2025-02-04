@@ -27,7 +27,7 @@ namespace Snowstorm
 
 		const std::string& GetPath() const override { return m_Filepath; }
 
-		void Recompile() override;
+		void Compile() override;
 
 	private:
 		VkDevice m_Device;
