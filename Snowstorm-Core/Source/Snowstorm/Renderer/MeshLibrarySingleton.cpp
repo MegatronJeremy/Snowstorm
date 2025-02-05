@@ -1,32 +1,20 @@
-#include "Mesh.hpp"
-
-#include "RenderCommand.hpp"
-#include "Snowstorm/Core/Log.h"
+#include "MeshLibrarySingleton.hpp"
 
 #include <assimp/Importer.hpp>
-#include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
+#include "Snowstorm/Core/Log.h"
 
 namespace Snowstorm
 {
-	Ref<Mesh> Mesh::CreateQuad()
+	Ref<Mesh> MeshLibrarySingleton::Load(const std::string& filepath)
 	{
-		std::vector<Vertex> vertices = {
-			{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // Bottom-left
-			{{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}}, // Bottom-right
-			{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}, // Top-right
-			{{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}, // Top-left
-		};
+		if (m_Meshes.contains(filepath))
+		{
+			return m_Meshes[filepath];
+		}
 
-		std::vector<uint32_t> indices = {
-			0, 1, 2, 2, 3, 0
-		};
-
-		return CreateRef<Mesh>(vertices, indices);
-	}
-
-	Ref<Mesh> Mesh::CreateFromFile(const std::string& filepath)
-	{
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(filepath,
 		                                         aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
@@ -43,7 +31,6 @@ namespace Snowstorm
 		for (uint32_t i = 0; i < scene->mNumMeshes; i++)
 		{
 			const aiMesh* mesh = scene->mMeshes[i];
-
 			const uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
 
 			for (uint32_t j = 0; j < mesh->mNumVertices; j++)
@@ -66,7 +53,6 @@ namespace Snowstorm
 				}
 				else
 				{
-					// Simple planar mapping (XZ plane)
 					vertex.TexCoord = {vertex.Position.x, vertex.Position.z};
 				}
 
@@ -83,6 +69,36 @@ namespace Snowstorm
 			}
 		}
 
-		return CreateRef<Mesh>(vertices, indices);
+		Ref<Mesh> mesh = CreateRef<Mesh>(vertices, indices);
+		m_Meshes[filepath] = mesh;
+		return mesh;
+	}
+
+	Ref<Mesh> MeshLibrarySingleton::CreateQuad()
+	{
+		std::vector<Vertex> vertices = {
+			{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // Bottom-left
+			{{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}}, // Bottom-right
+			{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}, // Top-right
+			{{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}, // Top-left
+		};
+
+		std::vector<uint32_t> indices = {
+			0, 1, 2, 2, 3, 0
+		};
+
+		Ref<Mesh> quad = CreateRef<Mesh>(vertices, indices);
+		m_Meshes["Quad"] = quad;
+		return quad;
+	}
+
+	void MeshLibrarySingleton::Clear()
+	{
+		m_Meshes.clear();
+	}
+
+	bool MeshLibrarySingleton::Remove(const std::string& filepath)
+	{
+		return m_Meshes.erase(filepath) > 0;
 	}
 }

@@ -7,6 +7,7 @@
 #include <Snowstorm/ECS/SystemManager.hpp>
 
 #include "Snowstorm/Events/Event.h"
+#include "Snowstorm/Renderer/MeshLibrarySingleton.hpp"
 #include "Snowstorm/Renderer/Renderer3DSingleton.hpp"
 #include "Snowstorm/Renderer/Shader.hpp"
 
@@ -31,6 +32,7 @@ namespace Snowstorm
 
 		m_SingletonManager->RegisterSingleton<EventsHandlerSingleton>();
 		m_SingletonManager->RegisterSingleton<ShaderLibrarySingleton>();
+		m_SingletonManager->RegisterSingleton<MeshLibrarySingleton>();
 		m_SingletonManager->RegisterSingleton<Renderer3DSingleton>();
 	}
 

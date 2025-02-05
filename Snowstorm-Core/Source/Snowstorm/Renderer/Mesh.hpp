@@ -1,9 +1,7 @@
 #pragma once
 
+#include <vector>
 #include <glm/glm.hpp>
-
-#include "Snowstorm/Core/Base.h"
-
 
 namespace Snowstorm
 {
@@ -26,9 +24,6 @@ namespace Snowstorm
 		[[nodiscard]] uint32_t GetVertexCount() const { return static_cast<uint32_t>(m_Vertices.size()); }
 		[[nodiscard]] const std::vector<uint32_t>& GetIndices() const { return m_Indices; }
 		[[nodiscard]] uint32_t GetIndexCount() const { return static_cast<uint32_t>(m_Indices.size()); }
-
-		static Ref<Mesh> CreateQuad();
-		static Ref<Mesh> CreateFromFile(const std::string& filepath);
 
 	private:
 		std::vector<Vertex> m_Vertices;

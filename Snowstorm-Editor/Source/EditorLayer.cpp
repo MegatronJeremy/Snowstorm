@@ -5,6 +5,7 @@
 
 #include "Snowstorm/Events/KeyEvent.h"
 #include "Snowstorm/Events/MouseEvent.h"
+#include "Snowstorm/Renderer/MeshLibrarySingleton.hpp"
 
 namespace Snowstorm
 {
@@ -19,6 +20,9 @@ namespace Snowstorm
 
 		m_ActiveScene = CreateRef<Scene>();
 		m_SceneHierarchyPanel.setContext(m_ActiveScene);
+
+		auto& shaderLibrary = m_ActiveScene->getSingletonManager().GetSingleton<ShaderLibrarySingleton>();
+		auto& meshLibrarySingleton = m_ActiveScene->getSingletonManager().GetSingleton<MeshLibrarySingleton>();
 
 		// Framebuffer setup
 		{
@@ -36,12 +40,10 @@ namespace Snowstorm
 
 		// 3D Entities
 		{
-			auto& shaderLibrary = m_ActiveScene->getSingletonManager().GetSingleton<ShaderLibrarySingleton>();
-
 			Ref<Shader> basicShader = shaderLibrary.Load("assets/shaders/BasicLit.glsl");
 
-			auto cubeMesh = Mesh::CreateFromFile("assets/meshes/cube.obj");
-			auto girlMesh = Mesh::CreateFromFile("assets/meshes/girl.obj");
+			auto cubeMesh = meshLibrarySingleton.Load("assets/meshes/cube.obj");
+			auto girlMesh = meshLibrarySingleton.Load("assets/meshes/girl.obj");
 
 			const Ref<Material> redMaterial = CreateRef<Material>(basicShader);
 			redMaterial->SetTexture("AlbedoTexture", checkerboardTexture);
@@ -63,11 +65,20 @@ namespace Snowstorm
 			auto redCube = m_ActiveScene->CreateEntity("Red Cube");
 
 			redCube.AddComponent<TransformComponent>();
-			redCube.AddComponent<MaterialComponent>(redMaterial);
-			redCube.AddComponent<MeshComponent>(cubeMesh);
+			redCube.AddComponent<MaterialComponent>(blueMaterial);
+			redCube.AddComponent<MeshComponent>(girlMesh);
 			redCube.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
 
 			redCube.GetComponent<TransformComponent>().Position += 3.0f;
+
+			auto girlCube = m_ActiveScene->CreateEntity("Girl Cube");
+
+			girlCube.AddComponent<TransformComponent>();
+			girlCube.AddComponent<MaterialComponent>(redMaterial);
+			girlCube.AddComponent<MeshComponent>(cubeMesh);
+			girlCube.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
+
+			girlCube.GetComponent<TransformComponent>().Position -= 6.0f;
 		}
 
 		// 2D Entities

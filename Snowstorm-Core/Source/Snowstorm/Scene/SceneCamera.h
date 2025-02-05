@@ -4,8 +4,6 @@
 
 namespace Snowstorm
 {
-	// TODO move everything here to CameraComponent
-
 	class SceneCamera final : public Camera
 	{
 	public:
