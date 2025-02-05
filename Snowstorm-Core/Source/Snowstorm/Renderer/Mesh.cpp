@@ -1,47 +1,14 @@
 #include "Mesh.hpp"
 
 #include "RenderCommand.hpp"
-
 #include "Snowstorm/Core/Log.h"
 
-#include <tiny_obj_loader.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 namespace Snowstorm
 {
-	Ref<Mesh> Mesh::CreateCube()
-	{
-		std::vector<Vertex> vertices = {
-			// Front face
-			{.Position = {-0.5f, -0.5f, 0.5f}, .Normal = {0.0f, 0.0f, 1.0f}, .TexCoord = {0.0f, 0.0f}},
-			{.Position = {0.5f, -0.5f, 0.5f}, .Normal = {0.0f, 0.0f, 1.0f}, .TexCoord = {1.0f, 0.0f}},
-			{.Position = {0.5f, 0.5f, 0.5f}, .Normal = {0.0f, 0.0f, 1.0f}, .TexCoord = {1.0f, 1.0f}},
-			{.Position = {-0.5f, 0.5f, 0.5f}, .Normal = {0.0f, 0.0f, 1.0f}, .TexCoord = {0.0f, 1.0f}},
-
-			// Back face
-			{.Position = {-0.5f, -0.5f, -0.5f}, .Normal = {0.0f, 0.0f, -1.0f}, .TexCoord = {1.0f, 0.0f}},
-			{.Position = {0.5f, -0.5f, -0.5f}, .Normal = {0.0f, 0.0f, -1.0f}, .TexCoord = {0.0f, 0.0f}},
-			{.Position = {0.5f, 0.5f, -0.5f}, .Normal = {0.0f, 0.0f, -1.0f}, .TexCoord = {0.0f, 1.0f}},
-			{.Position = {-0.5f, 0.5f, -0.5f}, .Normal = {0.0f, 0.0f, -1.0f}, .TexCoord = {1.0f, 1.0f}},
-		};
-
-		std::vector<uint32_t> indices = {
-			// Front
-			0, 1, 2, 2, 3, 0,
-			// Back
-			4, 5, 6, 6, 7, 4,
-			// Left
-			4, 0, 3, 3, 7, 4,
-			// Right
-			1, 5, 6, 6, 2, 1,
-			// Top
-			3, 2, 6, 6, 7, 3,
-			// Bottom
-			4, 5, 1, 1, 0, 4
-		};
-
-		return CreateRef<Mesh>(vertices, indices);
-	}
-
 	Ref<Mesh> Mesh::CreateQuad()
 	{
 		std::vector<Vertex> vertices = {
@@ -60,50 +27,59 @@ namespace Snowstorm
 
 	Ref<Mesh> Mesh::CreateFromFile(const std::string& filepath)
 	{
-		tinyobj::attrib_t attrib;
-		std::vector<tinyobj::shape_t> shapes;
-		std::vector<tinyobj::material_t> materials;
-		std::string warn, err;
+		Assimp::Importer importer;
+		const aiScene* scene = importer.ReadFile(filepath,
+		                                         aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
 
-		if (!LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str()))
+		if (!scene || !scene->mRootNode || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE)
 		{
-			SS_CORE_ERROR("Failed to load mesh: {}", filepath);
+			SS_CORE_ERROR("Failed to load mesh: {} | Assimp Error: {}", filepath, importer.GetErrorString());
 			return nullptr;
 		}
 
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
 
-		for (const auto& shape : shapes)
+		for (uint32_t i = 0; i < scene->mNumMeshes; i++)
 		{
-			for (const auto& index : shape.mesh.indices)
+			const aiMesh* mesh = scene->mMeshes[i];
+
+			const uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
+
+			for (uint32_t j = 0; j < mesh->mNumVertices; j++)
 			{
 				Vertex vertex;
-				vertex.Position = {
-					attrib.vertices[3 * index.vertex_index + 0],
-					attrib.vertices[3 * index.vertex_index + 1],
-					attrib.vertices[3 * index.vertex_index + 2]
-				};
+				vertex.Position = {mesh->mVertices[j].x, mesh->mVertices[j].y, mesh->mVertices[j].z};
 
-				if (!attrib.normals.empty())
+				if (mesh->HasNormals())
 				{
-					vertex.Normal = {
-						attrib.normals[3 * index.normal_index + 0],
-						attrib.normals[3 * index.normal_index + 1],
-						attrib.normals[3 * index.normal_index + 2]
-					};
+					vertex.Normal = {mesh->mNormals[j].x, mesh->mNormals[j].y, mesh->mNormals[j].z};
+				}
+				else
+				{
+					vertex.Normal = {0.0f, 1.0f, 0.0f}; // Default normal if missing
 				}
 
-				if (!attrib.texcoords.empty())
+				if (mesh->HasTextureCoords(0))
 				{
-					vertex.TexCoord = {
-						attrib.texcoords[2 * index.texcoord_index + 0],
-						1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-					};
+					vertex.TexCoord = {mesh->mTextureCoords[0][j].x, 1.0f - mesh->mTextureCoords[0][j].y};
+				}
+				else
+				{
+					// Simple planar mapping (XZ plane)
+					vertex.TexCoord = {vertex.Position.x, vertex.Position.z};
 				}
 
 				vertices.push_back(vertex);
-				indices.push_back(static_cast<uint32_t>(indices.size()));
+			}
+
+			for (uint32_t j = 0; j < mesh->mNumFaces; j++)
+			{
+				const aiFace& face = mesh->mFaces[j];
+				for (uint32_t k = 0; k < face.mNumIndices; k++)
+				{
+					indices.push_back(baseIndex + face.mIndices[k]);
+				}
 			}
 		}
 

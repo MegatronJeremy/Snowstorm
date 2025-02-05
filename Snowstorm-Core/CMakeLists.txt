@@ -30,7 +30,7 @@ find_package(imgui REQUIRED CONFIG)
 find_package(VulkanLoader REQUIRED CONFIG)
 find_package(VulkanHeaders REQUIRED CONFIG)
 find_package(vulkan-validationlayers REQUIRED CONFIG)
-find_package(tinyobjloader REQUIRED CONFIG)
+find_package(assimp REQUIRED CONFIG)
 
 target_link_libraries(Snowstorm-Core PUBLIC
     spdlog::spdlog
@@ -45,5 +45,5 @@ target_link_libraries(Snowstorm-Core PUBLIC
     vulkan-headers::vulkan-headers
     vulkan-validationlayers::vulkan-validationlayers
     opengl32 
-    tinyobjloader::tinyobjloader
+    assimp::assimp
 )

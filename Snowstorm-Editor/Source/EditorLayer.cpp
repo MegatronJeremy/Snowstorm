@@ -50,9 +50,9 @@ namespace Snowstorm
 			const Ref<Material> blueMaterial = CreateRef<Material>(basicShader);
 			blueMaterial->SetTexture("AlbedoTexture", checkerboardTexture);
 			blueMaterial->SetColor({0.0f, 0.0f, 1.0f, 1.0f});
-			
+
 			auto blueCube = m_ActiveScene->CreateEntity("Blue Cube");
-			
+
 			blueCube.AddComponent<TransformComponent>();
 			blueCube.AddComponent<MaterialComponent>(blueMaterial);
 			blueCube.AddComponent<MeshComponent>(girlMesh);
@@ -146,7 +146,7 @@ namespace Snowstorm
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 			windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-				ImGuiWindowFlags_NoMove;
+			ImGuiWindowFlags_NoMove;
 			windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 		}
 		else

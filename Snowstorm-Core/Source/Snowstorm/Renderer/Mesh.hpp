@@ -27,7 +27,6 @@ namespace Snowstorm
 		[[nodiscard]] const std::vector<uint32_t>& GetIndices() const { return m_Indices; }
 		[[nodiscard]] uint32_t GetIndexCount() const { return static_cast<uint32_t>(m_Indices.size()); }
 
-		static Ref<Mesh> CreateCube();
 		static Ref<Mesh> CreateQuad();
 		static Ref<Mesh> CreateFromFile(const std::string& filepath);
 

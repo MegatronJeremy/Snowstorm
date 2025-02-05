@@ -106,7 +106,7 @@ def main():
     ensure_conan_profile(conan_executable)
 
     # Step 5: Install Conan dependencies and configure CMake for all build types
-    build_types = ["Release", "Debug", "RelWithDebInfo"]
+    build_types = ["Release", "Debug"]
 
     for build_type in build_types:
         # Install Conan for this build type

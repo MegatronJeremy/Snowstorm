@@ -20,9 +20,9 @@ class SnowstormConan(ConanFile):
         "spdlog/1.15.0",
         "imgui/cci.20230105+1.89.2.docking",
         "fmt/11.0.2",
-        "stb/cci.20240531",
+        "stb/cci.20230920",
         "entt/3.14.0",
-        "tinyobjloader/2.0.0-rc10"
+        "assimp/5.4.3"
     ]
            
     def generate(self):        
