@@ -73,6 +73,11 @@ namespace Snowstorm
 		VulkanSwapChainQueue::GetInstance()->EnqueueUniformBufferValue(name, &value, sizeof(float));
 	}
 
+	void VulkanShader::UploadUniform(const std::string& name, const glm::vec2& value)
+	{
+		VulkanSwapChainQueue::GetInstance()->EnqueueUniformBufferValue(name, &value, sizeof(glm::vec2));
+	}
+
 	void VulkanShader::UploadUniform(const std::string& name, const glm::vec3& value)
 	{
 		VulkanSwapChainQueue::GetInstance()->EnqueueUniformBufferValue(name, &value, sizeof(glm::vec3));

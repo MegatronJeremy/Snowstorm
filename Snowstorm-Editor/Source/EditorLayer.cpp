@@ -3,6 +3,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
+#include "Examples/MandelbrotSet/MandelbrotControllerComponent.hpp"
+#include "Examples/MandelbrotSet/MandelbrotMaterial.hpp"
+#include "Examples/MandelbrotSet/MandelbrotControllerSystem.hpp"
+
+#include "Snowstorm/ECS/SystemManager.hpp"
 #include "Snowstorm/Events/KeyEvent.h"
 #include "Snowstorm/Events/MouseEvent.h"
 #include "Snowstorm/Renderer/MeshLibrarySingleton.hpp"
@@ -19,10 +24,12 @@ namespace Snowstorm
 		SS_PROFILE_FUNCTION();
 
 		m_ActiveScene = CreateRef<Scene>();
+		m_ActiveScene->GetSystemManager().RegisterSystem<MandelbrotControllerSystem>(m_ActiveScene.get());
+
 		m_SceneHierarchyPanel.setContext(m_ActiveScene);
 
-		auto& shaderLibrary = m_ActiveScene->getSingletonManager().GetSingleton<ShaderLibrarySingleton>();
-		auto& meshLibrary = m_ActiveScene->getSingletonManager().GetSingleton<MeshLibrarySingleton>();
+		auto& shaderLibrary = m_ActiveScene->GetSingletonManager().GetSingleton<ShaderLibrarySingleton>();
+		auto& meshLibrary = m_ActiveScene->GetSingletonManager().GetSingleton<MeshLibrarySingleton>();
 
 		// Framebuffer setup
 		{
@@ -36,19 +43,19 @@ namespace Snowstorm
 			m_FramebufferEntity.AddComponent<FramebufferComponent>(Framebuffer::Create(fbSpec));
 		}
 
-		Ref<Texture2D> checkerboardTexture = Texture2D::Create("assets/textures/Checkerboard.png");
-
 		// 3D Entities
 		{
-			Ref<Shader> basicShader = shaderLibrary.Load("assets/shaders/Material.glsl");
+			const Ref<Shader> mandelbrotShader = shaderLibrary.Load("assets/shaders/Mandelbrot.glsl");
+			const Ref<Shader> basicShader = shaderLibrary.Load("assets/shaders/Material.glsl");
+
+			const Ref<MandelbrotMaterial> mandelbrotMaterial = CreateRef<MandelbrotMaterial>(mandelbrotShader);
+			const Ref<Material> redMaterial = CreateRef<Material>(basicShader);
+			const Ref<Material> blueMaterial = CreateRef<Material>(basicShader);
 
 			auto cubeMesh = meshLibrary.Load("assets/meshes/cube.obj");
 			auto girlMesh = meshLibrary.Load("assets/meshes/girl.obj");
 
-			const Ref<Material> redMaterial = CreateRef<Material>(basicShader);
 			redMaterial->SetColor({1.0f, 0.0f, 0.0f, 1.0f});
-
-			const Ref<Material> blueMaterial = CreateRef<Material>(basicShader);
 			blueMaterial->SetColor({0.0f, 0.0f, 1.0f, 1.0f});
 
 			auto blueCube = m_ActiveScene->CreateEntity("Blue Cube");
@@ -63,7 +70,7 @@ namespace Snowstorm
 			auto redCube = m_ActiveScene->CreateEntity("Red Cube");
 
 			redCube.AddComponent<TransformComponent>();
-			redCube.AddComponent<MaterialComponent>(blueMaterial);
+			redCube.AddComponent<MaterialComponent>(mandelbrotMaterial);
 			redCube.AddComponent<MeshComponent>(girlMesh);
 			redCube.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
 
@@ -77,26 +84,17 @@ namespace Snowstorm
 			girlCube.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
 
 			girlCube.GetComponent<TransformComponent>().Position -= 6.0f;
-		}
 
-		// 2D Entities
-		{
-			auto checkerboardSquare = m_ActiveScene->CreateEntity("Amazing Square");
+			auto mandelbrotQuad = m_ActiveScene->CreateEntity("Mandelbrot Quad");
+			mandelbrotQuad.AddComponent<TransformComponent>();
+			mandelbrotQuad.AddComponent<MaterialComponent>(mandelbrotMaterial);
+			mandelbrotQuad.AddComponent<MeshComponent>(meshLibrary.CreateQuad());
+			mandelbrotQuad.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
 
-			checkerboardSquare.AddComponent<TransformComponent>();
-			checkerboardSquare.AddComponent<SpriteComponent>(checkerboardTexture, 1.0f,
-			                                                 glm::vec4{0.0f, 0.0f, 1.0f, 1.0f});
-			checkerboardSquare.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
+			mandelbrotQuad.GetComponent<TransformComponent>().Scale *= 10.0f;
 
-			checkerboardSquare.GetComponent<TransformComponent>().Position[0] += 2.0f;
-
-			auto redSquare = m_ActiveScene->CreateEntity("Red Square");
-
-			redSquare.AddComponent<TransformComponent>();
-			redSquare.AddComponent<SpriteComponent>(glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
-			redSquare.AddComponent<RenderTargetComponent>(m_FramebufferEntity);
-
-			m_SquareEntity = checkerboardSquare;
+			auto mandelbrotControllerEntity = m_ActiveScene->CreateEntity("Mandelbrot Controller Entity");
+			mandelbrotControllerEntity.AddComponent<MandelbrotControllerComponent>(mandelbrotMaterial);
 		}
 
 		// Camera Entities
@@ -275,7 +273,7 @@ namespace Snowstorm
 
 	void EditorLayer::OnEvent(Event& event)
 	{
-		auto& eventsHandler = m_ActiveScene->getSingletonManager().GetSingleton<EventsHandlerSingleton>();
+		auto& eventsHandler = m_ActiveScene->GetSingletonManager().GetSingleton<EventsHandlerSingleton>();
 
 		// TODO have to make this better
 		static const std::unordered_map<EventType, std::function<void(Event&)>> eventMap = {

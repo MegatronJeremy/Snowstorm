@@ -24,11 +24,11 @@ namespace Snowstorm
 		  m_SingletonManager(new SingletonManager)
 	{
 		// TODO order of execution here is important, create some sort of execution graph
-		m_SystemManager->registerSystem<ScriptSystem>(this);
-		m_SystemManager->registerSystem<ViewportResizeSystem>(this);
-		m_SystemManager->registerSystem<CameraControllerSystem>(this);
-		m_SystemManager->registerSystem<ShaderReloadSystem>(this);
-		m_SystemManager->registerSystem<RenderSystem>(this);
+		m_SystemManager->RegisterSystem<ScriptSystem>(this);
+		m_SystemManager->RegisterSystem<ViewportResizeSystem>(this);
+		m_SystemManager->RegisterSystem<CameraControllerSystem>(this);
+		m_SystemManager->RegisterSystem<ShaderReloadSystem>(this);
+		m_SystemManager->RegisterSystem<RenderSystem>(this);
 
 		m_SingletonManager->RegisterSingleton<EventsHandlerSingleton>();
 		m_SingletonManager->RegisterSingleton<ShaderLibrarySingleton>();
@@ -44,7 +44,7 @@ namespace Snowstorm
 
 	Entity Scene::CreateEntity(const std::string& name)
 	{
-		Entity entity = {m_SystemManager->getRegistry().create(), this};
+		Entity entity = {m_SystemManager->GetRegistry().create(), this};
 
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
@@ -54,11 +54,11 @@ namespace Snowstorm
 
 	TrackedRegistry& Scene::GetRegistry() const
 	{
-		return m_SystemManager->getRegistry();
+		return m_SystemManager->GetRegistry();
 	}
 
 	void Scene::OnUpdate(const Timestep ts) const
 	{
-		m_SystemManager->executeSystems(ts);
+		m_SystemManager->ExecuteSystems(ts);
 	}
 }

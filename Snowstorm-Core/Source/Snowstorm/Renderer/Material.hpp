@@ -24,6 +24,12 @@ namespace Snowstorm
 			m_Uniforms[name] = value;
 		}
 
+		[[nodiscard]] Shader::UniformValue GetUniform(const std::string& name) const
+		{
+			SS_CORE_ASSERT(m_Uniforms.contains(name));
+			return m_Uniforms.find(name)->second;
+		}
+
 		// Predefined texture setters (make some sort of enums here)
 		void SetAlbedoMap(Ref<Texture> texture) { m_Textures[0] = std::move(texture); }
 		Ref<Texture> GetAlbedoMap() { return m_Textures[0]; }

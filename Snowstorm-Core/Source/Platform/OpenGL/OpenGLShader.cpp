@@ -217,6 +217,13 @@ namespace Snowstorm
 		UploadUniformFloat(name, value);
 	}
 
+	void OpenGLShader::UploadUniform(const std::string& name, const glm::vec2& value)
+	{
+		SS_PROFILE_FUNCTION();
+
+		UploadUniformFloat2(name, value);
+	}
+
 	void OpenGLShader::UploadUniform(const std::string& name, const glm::vec3& value)
 	{
 		SS_PROFILE_FUNCTION();

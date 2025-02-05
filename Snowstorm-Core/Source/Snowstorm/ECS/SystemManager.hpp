@@ -11,13 +11,13 @@ namespace Snowstorm
 	{
 	public:
 		template <typename T, typename... Args>
-		void registerSystem(Args&&... args)
+		void RegisterSystem(Args&&... args)
 		{
 			static_assert(std::is_base_of_v<System, T>, "T must inherit from System");
 			m_Systems.emplace_back(CreateScope<T>(std::forward<Args>(args)...));
 		}
 
-		void executeSystems(const Timestep ts)
+		void ExecuteSystems(const Timestep ts)
 		{
 			for (const auto& system : m_Systems)
 			{
@@ -27,7 +27,7 @@ namespace Snowstorm
 			m_Registry.clearTrackedComponents();
 		}
 
-		TrackedRegistry& getRegistry() { return m_Registry; }
+		TrackedRegistry& GetRegistry() { return m_Registry; }
 
 	private:
 		TrackedRegistry m_Registry;

@@ -14,7 +14,7 @@ namespace Snowstorm
 	class Shader
 	{
 	public:
-		using UniformValue = std::variant<int, float, glm::vec3, glm::vec4, glm::mat4, std::vector<int>>;
+		using UniformValue = std::variant<int, float, glm::vec2, glm::vec3, glm::vec4, glm::mat4, std::vector<int>>;
 
 		Shader() = default;
 		virtual ~Shader() = default;
@@ -60,6 +60,7 @@ namespace Snowstorm
 		// Virtual methods for GPU upload
 		virtual void UploadUniform(const std::string& name, int value) = 0;
 		virtual void UploadUniform(const std::string& name, float value) = 0;
+		virtual void UploadUniform(const std::string& name, const glm::vec2& value) = 0;
 		virtual void UploadUniform(const std::string& name, const glm::vec3& value) = 0;
 		virtual void UploadUniform(const std::string& name, const glm::vec4& value) = 0;
 		virtual void UploadUniform(const std::string& name, const glm::mat4& value) = 0;

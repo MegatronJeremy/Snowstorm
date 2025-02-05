@@ -19,7 +19,8 @@ namespace Snowstorm
 		Entity CreateEntity(const std::string& name = std::string());
 
 		[[nodiscard]] TrackedRegistry& GetRegistry() const;
-		[[nodiscard]] SingletonManager& getSingletonManager() const { return *m_SingletonManager; }
+		[[nodiscard]] SystemManager& GetSystemManager() const { return *m_SystemManager; }
+		[[nodiscard]] SingletonManager& GetSingletonManager() const { return *m_SingletonManager; }
 
 		void OnUpdate(Timestep ts) const;
 

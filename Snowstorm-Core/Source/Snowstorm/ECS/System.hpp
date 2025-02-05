@@ -73,7 +73,7 @@ namespace Snowstorm
 		template <typename T>
 		[[nodiscard]] T& SingletonView()
 		{
-			return m_Scene->getSingletonManager().GetSingleton<T>();
+			return m_Scene->GetSingletonManager().GetSingleton<T>();
 		}
 
 		SceneRef m_Scene;
