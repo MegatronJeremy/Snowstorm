@@ -22,7 +22,7 @@ namespace Snowstorm
 		m_SceneHierarchyPanel.setContext(m_ActiveScene);
 
 		auto& shaderLibrary = m_ActiveScene->getSingletonManager().GetSingleton<ShaderLibrarySingleton>();
-		auto& meshLibrarySingleton = m_ActiveScene->getSingletonManager().GetSingleton<MeshLibrarySingleton>();
+		auto& meshLibrary = m_ActiveScene->getSingletonManager().GetSingleton<MeshLibrarySingleton>();
 
 		// Framebuffer setup
 		{
@@ -40,17 +40,15 @@ namespace Snowstorm
 
 		// 3D Entities
 		{
-			Ref<Shader> basicShader = shaderLibrary.Load("assets/shaders/BasicLit.glsl");
+			Ref<Shader> basicShader = shaderLibrary.Load("assets/shaders/Material.glsl");
 
-			auto cubeMesh = meshLibrarySingleton.Load("assets/meshes/cube.obj");
-			auto girlMesh = meshLibrarySingleton.Load("assets/meshes/girl.obj");
+			auto cubeMesh = meshLibrary.Load("assets/meshes/cube.obj");
+			auto girlMesh = meshLibrary.Load("assets/meshes/girl.obj");
 
 			const Ref<Material> redMaterial = CreateRef<Material>(basicShader);
-			redMaterial->SetTexture("AlbedoTexture", checkerboardTexture);
 			redMaterial->SetColor({1.0f, 0.0f, 0.0f, 1.0f});
 
 			const Ref<Material> blueMaterial = CreateRef<Material>(basicShader);
-			blueMaterial->SetTexture("AlbedoTexture", checkerboardTexture);
 			blueMaterial->SetColor({0.0f, 0.0f, 1.0f, 1.0f});
 
 			auto blueCube = m_ActiveScene->CreateEntity("Blue Cube");

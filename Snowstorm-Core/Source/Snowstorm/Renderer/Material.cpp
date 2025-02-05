@@ -1,5 +1,6 @@
 #include "Material.hpp"
 
+#include <numeric>
 #include <ranges>
 
 namespace Snowstorm
@@ -8,9 +9,12 @@ namespace Snowstorm
 	{
 		m_Uniforms["u_Color"] = glm::vec4(1.0f); // Default color
 
-		std::vector<int32_t> samplers(32); // TODO don't hardcode this (MAX TEXTURE SAMPLES)
+		std::vector<int32_t> samplers(MAX_TEXTURE_SLOTS);
 		std::iota(samplers.begin(), samplers.end(), 0);
 		m_Uniforms["u_Textures"] = samplers;
+
+		// Set albedo texture to checkerboard texture
+		m_Textures[0] = Texture2D::Create("assets/textures/Checkerboard.png");
 	}
 
 	void Material::Bind() const
@@ -22,15 +26,16 @@ namespace Snowstorm
 		{
 			ApplyUniform(name, value);
 		}
-	}
 
-	Ref<Texture> Material::GetTexture(const std::string& name) const
-	{
-		if (const auto it = m_Textures.find(name); it != m_Textures.end())
+		for (uint32_t i = 0; i < m_Textures.size(); i++)
 		{
-			return it->second;
+			if (!m_Textures[i])
+			{
+				continue;
+			}
+
+			m_Textures[i]->Bind(i);
 		}
-		return nullptr; // Return null if texture not found
 	}
 
 	std::vector<BufferElement> Material::GetVertexLayout() const
@@ -50,10 +55,15 @@ namespace Snowstorm
 
 	std::vector<BufferElement> Material::GetInstanceLayout() const
 	{
-		return {
+		// Base attributes (Every mesh should have these)
+		std::vector<BufferElement> layout = {
 			{ShaderDataType::Mat4, "a_ModelMatrix", true},
-			{ShaderDataType::Float, "a_TextureIndex", true}
 		};
+
+		// Add extra attributes dynamically
+		layout.insert(layout.end(), m_ExtraInstanceAttributes.begin(), m_ExtraInstanceAttributes.end());
+
+		return layout;
 	}
 
 	void Material::ApplyUniform(const std::string& name, const Shader::UniformValue& value) const

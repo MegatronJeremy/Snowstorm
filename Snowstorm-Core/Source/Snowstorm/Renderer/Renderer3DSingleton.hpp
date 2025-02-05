@@ -3,7 +3,6 @@
 #include "Camera.hpp"
 #include "Material.hpp"
 #include "Mesh.hpp"
-#include "Texture.hpp"
 #include "UniformBuffer.hpp"
 #include "VertexArray.hpp"
 
@@ -12,7 +11,6 @@ namespace Snowstorm
 	struct MeshInstanceData
 	{
 		glm::mat4 ModelMatrix;
-		float TextureIndex;
 	};
 
 	struct BatchData
@@ -37,14 +35,8 @@ namespace Snowstorm
 
 	private:
 		void FlushBatch(BatchData& batch) const;
-		float GetTextureIndex(const Ref<Texture>& texture);
 
 		Ref<UniformBuffer> m_CameraUBO;
 		std::vector<BatchData> m_Batches;
-
-		static constexpr uint32_t MAX_TEXTURE_SLOTS = 32;
-		Ref<Texture> m_TextureSlots[MAX_TEXTURE_SLOTS];
-		std::unordered_map<Ref<Texture>, uint32_t> m_TextureSlotMap;
-		uint32_t m_TextureSlotIndex = 1;
 	};
 }

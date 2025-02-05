@@ -7,11 +7,6 @@ namespace Snowstorm
 	Renderer3DSingleton::Renderer3DSingleton()
 	{
 		m_CameraUBO = UniformBuffer::Create(sizeof(glm::mat4), 0); // Binding = 0
-
-		// Default white texture
-		m_TextureSlots[0] = Texture2D::Create(1, 1);
-		uint32_t whiteTextureData = 0xffffffff;
-		m_TextureSlots[0]->SetData(&whiteTextureData, sizeof(uint32_t));
 	}
 
 	void Renderer3DSingleton::BeginScene(const Camera& camera, const glm::mat4& transform)
@@ -20,8 +15,6 @@ namespace Snowstorm
 		m_CameraUBO->SetData(&viewProj, sizeof(glm::mat4));
 
 		m_Batches.clear();
-		m_TextureSlotIndex = 1;
-		m_TextureSlotMap.clear();
 	}
 
 	void Renderer3DSingleton::EndScene()
@@ -74,10 +67,6 @@ namespace Snowstorm
 		MeshInstanceData instance;
 		instance.ModelMatrix = transform;
 
-		// **Get the Albedo texture from material**
-		const Ref<Texture> albedoTexture = material->GetTexture("AlbedoTexture");
-		instance.TextureIndex = GetTextureIndex(albedoTexture);
-
 		batch->Instances.push_back(instance);
 
 		if (batch->Instances.size() >= 1000)
@@ -102,37 +91,10 @@ namespace Snowstorm
 		batch.InstanceBuffer->SetData(batch.Instances.data(), batch.Instances.size() * sizeof(MeshInstanceData));
 
 		batch.VAO->Bind();
-
-		for (uint32_t i = 0; i < m_TextureSlotIndex; i++)
-		{
-			m_TextureSlots[i]->Bind(i);
-		}
-
 		batch.Material->Bind();
 
-		RenderCommand::DrawIndexedInstanced(batch.VAO, batch.Mesh->GetIndexCount(),
-		                                    static_cast<uint32_t>(batch.Instances.size()));
+		RenderCommand::DrawIndexedInstanced(batch.VAO, batch.Mesh->GetIndexCount(), static_cast<uint32_t>(batch.Instances.size()));
 
 		batch.Instances.clear();
-	}
-
-	float Renderer3DSingleton::GetTextureIndex(const Ref<Texture>& texture)
-	{
-		if (!texture)
-			return 0.0f;
-
-		if (const auto it = m_TextureSlotMap.find(texture); it != m_TextureSlotMap.end())
-			return static_cast<float>(it->second);
-
-		if (m_TextureSlotIndex >= MAX_TEXTURE_SLOTS)
-		{
-			Flush();
-			m_TextureSlotIndex = 1;
-			m_TextureSlotMap.clear();
-		}
-
-		m_TextureSlots[m_TextureSlotIndex] = texture;
-		m_TextureSlotMap[texture] = m_TextureSlotIndex;
-		return static_cast<float>(m_TextureSlotIndex++);
 	}
 }
