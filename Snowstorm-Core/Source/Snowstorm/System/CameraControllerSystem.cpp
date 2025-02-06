@@ -5,7 +5,7 @@
 #include "Snowstorm/Core/Input.h"
 #include "Snowstorm/Events/Event.h"
 #include "Snowstorm/Events/MouseEvent.h"
-#include "Snowstorm/Scene/Components.hpp"
+#include "Snowstorm/World/Components.hpp"
 
 namespace Snowstorm
 {

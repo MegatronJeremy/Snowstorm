@@ -10,7 +10,7 @@
 #include "Snowstorm/ECS/SystemManager.hpp"
 #include "Snowstorm/Events/KeyEvent.h"
 #include "Snowstorm/Events/MouseEvent.h"
-#include "Snowstorm/Renderer/MeshLibrarySingleton.hpp"
+#include "Snowstorm/Render/MeshLibrarySingleton.hpp"
 
 namespace Snowstorm
 {
@@ -23,18 +23,17 @@ namespace Snowstorm
 	{
 		SS_PROFILE_FUNCTION();
 
-		m_ActiveScene = CreateRef<Scene>();
-		m_ActiveScene->GetSystemManager().RegisterSystem<MandelbrotControllerSystem>(m_ActiveScene.get());
+		m_ActiveWorld = CreateRef<World>();
 
-		m_SceneHierarchyPanel.setContext(m_ActiveScene);
+		m_SceneHierarchyPanel.setContext(m_ActiveWorld);
 
-		auto& shaderLibrary = m_ActiveScene->GetSingletonManager().GetSingleton<ShaderLibrarySingleton>();
-		auto& meshLibrary = m_ActiveScene->GetSingletonManager().GetSingleton<MeshLibrarySingleton>();
+		auto& shaderLibrary = m_ActiveWorld->GetSingleton<ShaderLibrarySingleton>();
+		auto& meshLibrary = m_ActiveWorld->GetSingleton<MeshLibrarySingleton>();
 
 		// Framebuffer setup
 		{
 			// TODO set this up with the current screen size
-			m_FramebufferEntity = m_ActiveScene->CreateEntity("Framebuffer");
+			m_FramebufferEntity = m_ActiveWorld->CreateEntity("Framebuffer");
 			m_FramebufferEntity.AddComponent<ViewportComponent>(glm::vec2{1280.0f, 720.0f});
 
 			FramebufferSpecification fbSpec;
@@ -58,7 +57,7 @@ namespace Snowstorm
 			redMaterial->SetColor({1.0f, 0.0f, 0.0f, 1.0f});
 			blueMaterial->SetColor({0.0f, 0.0f, 1.0f, 1.0f});
 
-			auto blueCube = m_ActiveScene->CreateEntity("Blue Cube");
+			auto blueCube = m_ActiveWorld->CreateEntity("Blue Cube");
 
 			blueCube.AddComponent<TransformComponent>();
 			blueCube.AddComponent<MaterialComponent>(blueMaterial);
@@ -67,7 +66,7 @@ namespace Snowstorm
 
 			blueCube.GetComponent<TransformComponent>().Position -= 3.0f;
 
-			auto redCube = m_ActiveScene->CreateEntity("Red Cube");
+			auto redCube = m_ActiveWorld->CreateEntity("Red Cube");
 
 			redCube.AddComponent<TransformComponent>();
 			redCube.AddComponent<MaterialComponent>(mandelbrotMaterial);
@@ -76,7 +75,7 @@ namespace Snowstorm
 
 			redCube.GetComponent<TransformComponent>().Position += 3.0f;
 
-			auto girlCube = m_ActiveScene->CreateEntity("Girl Cube");
+			auto girlCube = m_ActiveWorld->CreateEntity("Girl Cube");
 
 			girlCube.AddComponent<TransformComponent>();
 			girlCube.AddComponent<MaterialComponent>(redMaterial);
@@ -85,7 +84,7 @@ namespace Snowstorm
 
 			girlCube.GetComponent<TransformComponent>().Position -= 6.0f;
 
-			auto mandelbrotQuad = m_ActiveScene->CreateEntity("Mandelbrot Quad");
+			auto mandelbrotQuad = m_ActiveWorld->CreateEntity("Mandelbrot Quad");
 			mandelbrotQuad.AddComponent<TransformComponent>();
 			mandelbrotQuad.AddComponent<MaterialComponent>(mandelbrotMaterial);
 			mandelbrotQuad.AddComponent<MeshComponent>(meshLibrary.CreateQuad());
@@ -93,13 +92,13 @@ namespace Snowstorm
 
 			mandelbrotQuad.GetComponent<TransformComponent>().Scale *= 10.0f;
 
-			auto mandelbrotControllerEntity = m_ActiveScene->CreateEntity("Mandelbrot Controller Entity");
+			auto mandelbrotControllerEntity = m_ActiveWorld->CreateEntity("Mandelbrot Controller Entity");
 			mandelbrotControllerEntity.AddComponent<MandelbrotControllerComponent>(mandelbrotMaterial);
 		}
 
 		// Camera Entities
 		{
-			m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
+			m_CameraEntity = m_ActiveWorld->CreateEntity("Camera Entity");
 			m_CameraEntity.AddComponent<TransformComponent>();
 			m_CameraEntity.AddComponent<CameraComponent>();
 			m_CameraEntity.AddComponent<CameraControllerComponent>();
@@ -110,7 +109,7 @@ namespace Snowstorm
 			m_CameraEntity.GetComponent<CameraComponent>().Camera.SetOrthographicFarClip(1000.0f);
 			m_CameraEntity.GetComponent<TransformComponent>().Position.z = 15.0f;
 
-			m_SecondCamera = m_ActiveScene->CreateEntity("Clip-Space Entity");
+			m_SecondCamera = m_ActiveWorld->CreateEntity("Clip-Space Entity");
 			m_SecondCamera.AddComponent<TransformComponent>();
 			auto& cc = m_SecondCamera.AddComponent<CameraComponent>();
 			m_SecondCamera.AddComponent<CameraControllerComponent>();
@@ -129,7 +128,12 @@ namespace Snowstorm
 		SS_PROFILE_FUNCTION();
 
 		// Update scene
-		m_ActiveScene->OnUpdate(ts);
+		m_ActiveWorld->OnUpdate(ts);
+	}
+
+	void EditorLayer::PostUpdate(const Timestep ts)
+	{
+		m_ActiveWorld->PostUpdate(ts);
 	}
 
 	void EditorLayer::OnImGuiRender()
@@ -258,7 +262,7 @@ namespace Snowstorm
 
 		viewportComponent.Focused = ImGui::IsWindowFocused();
 		viewportComponent.Hovered = ImGui::IsWindowHovered();
-		Application::Get().GetImGuiLayer()->BlockEvents(!viewportComponent.Focused || !viewportComponent.Hovered);
+		// BlockEvents(!viewportComponent.Focused || !viewportComponent.Hovered);
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		viewportComponent.Size = {viewportPanelSize.x, viewportPanelSize.y};
@@ -273,7 +277,7 @@ namespace Snowstorm
 
 	void EditorLayer::OnEvent(Event& event)
 	{
-		auto& eventsHandler = m_ActiveScene->GetSingletonManager().GetSingleton<EventsHandlerSingleton>();
+		auto& eventsHandler = m_ActiveWorld->GetSingleton<EventsHandlerSingleton>();
 
 		// TODO have to make this better
 		static const std::unordered_map<EventType, std::function<void(Event&)>> eventMap = {

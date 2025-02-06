@@ -4,17 +4,17 @@
 
 #include <Snowstorm/Core/Timestep.h>
 #include <Snowstorm/Utility/NonCopyable.hpp>
-#include "Snowstorm/Scene/Scene.hpp"
+#include <Snowstorm/World/World.hpp>
 
 namespace Snowstorm
 {
 	class System : public NonCopyable
 	{
 	public:
-		using SceneRef = Scene*;
+		using WorldRef = World*;
 
-		explicit System(const SceneRef context)
-			: m_Scene(context)
+		explicit System(const WorldRef world)
+			: m_World(world)
 		{
 		}
 
@@ -28,7 +28,7 @@ namespace Snowstorm
 		{
 			static_assert(sizeof...(Components) > 0, "view requires at least one component type.");
 
-			return m_Scene->GetRegistry().m_Registry.view<Components...>();
+			return m_World->GetRegistry().m_Registry.view<Components...>();
 		}
 
 		/// Returns a view of entities that had all the specified components added
@@ -39,7 +39,7 @@ namespace Snowstorm
 
 			std::unordered_set<entt::entity> entitiesWithAddedComponents;
 
-			for (const auto& [entity, componentTypes] : m_Scene->GetRegistry().m_AddedComponents)
+			for (const auto& [entity, componentTypes] : m_World->GetRegistry().m_AddedComponents)
 			{
 				if ((componentTypes.count(std::type_index(typeid(Components))) && ...))
 				{
@@ -58,7 +58,7 @@ namespace Snowstorm
 
 			std::unordered_set<entt::entity> entitiesWithRemovedComponents;
 
-			for (const auto& [entity, componentTypes] : m_Scene->GetRegistry().m_RemovedComponents)
+			for (const auto& [entity, componentTypes] : m_World->GetRegistry().m_RemovedComponents)
 			{
 				if ((componentTypes.count(std::type_index(typeid(Components))) && ...))
 				{
@@ -73,9 +73,9 @@ namespace Snowstorm
 		template <typename T>
 		[[nodiscard]] T& SingletonView()
 		{
-			return m_Scene->GetSingletonManager().GetSingleton<T>();
+			return m_World->GetSingleton<T>();
 		}
 
-		SceneRef m_Scene;
+		WorldRef m_World;
 	};
 }

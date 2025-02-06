@@ -29,7 +29,7 @@ namespace Snowstorm
 	private:
 		Entity m_Entity;
 
-		friend class Scene;
+		friend class World;
 		friend class ScriptSystem;
 	};
 }

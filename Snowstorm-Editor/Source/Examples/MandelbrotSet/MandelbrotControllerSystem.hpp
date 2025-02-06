@@ -6,7 +6,7 @@ namespace Snowstorm
 	class MandelbrotControllerSystem final : public System
 	{
 	public:
-		explicit MandelbrotControllerSystem(const SceneRef scene) : System(scene)
+		explicit MandelbrotControllerSystem(const WorldRef world) : System(world)
 		{
 		}
 

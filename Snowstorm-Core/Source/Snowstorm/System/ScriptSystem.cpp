@@ -1,7 +1,7 @@
 #include "ScriptSystem.hpp"
 
-#include "Snowstorm/Scene/Components.hpp"
-#include "Snowstorm/Scene/ScriptableEntity.h"
+#include "Snowstorm/World/Components.hpp"
+#include "Snowstorm/World/ScriptableEntity.h"
 
 namespace Snowstorm
 {
@@ -18,7 +18,7 @@ namespace Snowstorm
 			SS_CORE_ASSERT(scriptComponent.Instance == nullptr);
 
 			scriptComponent.InstantiateScript();
-			scriptComponent.Instance->m_Entity = Entity{entity, m_Scene};
+			scriptComponent.Instance->m_Entity = Entity{entity, m_World};
 			scriptComponent.Instance->OnCreate();
 		}
 

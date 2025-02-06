@@ -3,11 +3,11 @@
 
 namespace Snowstorm
 {
-	class ShaderReloadSystem : public System
+	class CameraControllerSystem final : public System
 	{
 	public:
-		explicit ShaderReloadSystem(const SceneRef context)
-			: System(context)
+		explicit CameraControllerSystem(const WorldRef world)
+			: System(world)
 		{
 		}
 

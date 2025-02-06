@@ -30,6 +30,10 @@ namespace Snowstorm
 		{
 		}
 
+		virtual void PostUpdate(Timestep ts)
+		{
+		}
+
 		virtual void OnImGuiRender()
 		{
 		}

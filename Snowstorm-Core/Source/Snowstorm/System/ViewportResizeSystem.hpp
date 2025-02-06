@@ -3,10 +3,11 @@
 
 namespace Snowstorm
 {
-	class CameraControllerSystem final : public System
+	class ViewportResizeSystem final : public System
 	{
 	public:
-		explicit CameraControllerSystem(const SceneRef scene) : System(scene)
+		explicit ViewportResizeSystem(const WorldRef world)
+			: System(world)
 		{
 		}
 

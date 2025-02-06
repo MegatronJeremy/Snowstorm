@@ -6,9 +6,9 @@
 #include "SceneCamera.h"
 #include "ScriptableEntity.h"
 
-#include "Snowstorm/Renderer/Framebuffer.hpp"
-#include "Snowstorm/Renderer/Material.hpp"
-#include "Snowstorm/Renderer/Mesh.hpp"
+#include "Snowstorm/Render/Framebuffer.hpp"
+#include "Snowstorm/Render/Material.hpp"
+#include "Snowstorm/Render/Mesh.hpp"
 
 namespace Snowstorm
 {

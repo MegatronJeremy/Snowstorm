@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Scene.hpp"
+#include "World.hpp"
 #include <Snowstorm/Core/Log.h>
 
 #include <entt/entt.hpp>
@@ -13,7 +13,7 @@ namespace Snowstorm
 		Entity() = default;
 		~Entity() = default;
 
-		Entity(entt::entity handle, Scene* scene);
+		Entity(entt::entity handle, World* scene);
 
 		Entity(const Entity&) = default;
 		Entity(Entity&&) = default;
@@ -64,6 +64,6 @@ namespace Snowstorm
 
 	private:
 		entt::entity m_EntityHandle = entt::null;
-		Scene* m_Scene = nullptr;
+		World* m_Scene = nullptr;
 	};
 }

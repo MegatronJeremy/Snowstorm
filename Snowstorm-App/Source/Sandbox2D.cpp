@@ -32,7 +32,7 @@ void Sandbox2D::OnAttach()
 {
 	SS_PROFILE_FUNCTION();
 
-	m_scene = Snowstorm::CreateRef<Snowstorm::Scene>();
+	m_scene = Snowstorm::CreateRef<Snowstorm::World>();
 
 	m_CheckerboardTexture = Snowstorm::Texture2D::Create("assets/textures/Checkerboard.png");
 

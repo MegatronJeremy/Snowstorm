@@ -7,7 +7,7 @@
 #include "VulkanSwapChain.h"
 #include "VulkanSyncObjects.h"
 #include "Platform/Windows/WindowsWindow.h"
-#include "Snowstorm/Renderer/GraphicsContext.hpp"
+#include "Snowstorm/Render/GraphicsContext.hpp"
 #include "glm/glm.hpp"
 
 namespace Snowstorm

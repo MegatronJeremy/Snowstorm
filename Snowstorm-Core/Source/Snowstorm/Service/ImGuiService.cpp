@@ -1,30 +1,17 @@
-#include "pch.h"
-#include "ImGuiLayer.h"
+#include "ImGuiService.hpp"
 
 #include <imgui.h>
 
-#include <Platform/OpenGL/backends/imgui_impl_glfw.h>
-#include <Platform/OpenGL/backends/imgui_impl_opengl3.h>
+#include "Platform/OpenGL/backends/imgui_impl_glfw.h"
+#include "Platform/OpenGL/backends/imgui_impl_opengl3.h"
+#include "Platform/Windows/WindowsWindow.h"
 
 #include "Snowstorm/Core/Application.h"
 
-// Temporary hack
-#include <GLFW/glfw3.h>
-
 namespace Snowstorm
 {
-	ImGuiLayer::ImGuiLayer()
-		: Layer("ImGuiLayer")
+	ImGuiService::ImGuiService()
 	{
-	}
-
-	ImGuiLayer::~ImGuiLayer()
-	= default;
-
-	void ImGuiLayer::OnAttach()
-	{
-		SS_PROFILE_FUNCTION();
-
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -54,45 +41,26 @@ namespace Snowstorm
 
 		// Setup Platform/Renderer backends
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
-		ImGui_ImplOpenGL3_Init("#version 410");
+		ImGui_ImplOpenGL3_Init("#version 450");
 	}
 
-	void ImGuiLayer::OnDetach()
+	ImGuiService::~ImGuiService()
 	{
-		SS_PROFILE_FUNCTION();
-
-		// Cleanup
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
 
-	void ImGuiLayer::OnEvent(Event& e)
+	void ImGuiService::OnUpdate(Timestep ts)
 	{
-		SS_PROFILE_FUNCTION();
-
-		if (m_BlockEvents)
-		{
-			const ImGuiIO& io = ImGui::GetIO();
-			e.Handled |= e.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
-			e.Handled |= e.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
-		}
-	}
-
-	void ImGuiLayer::Begin()
-	{
-		SS_PROFILE_FUNCTION();
-
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
 
-	void ImGuiLayer::End()
+	void ImGuiService::PostUpdate(Timestep ts)
 	{
-		SS_PROFILE_FUNCTION();
-
 		ImGuiIO& io = ImGui::GetIO();
 		const Application& app = Application::Get();
 		io.DisplaySize = ImVec2(static_cast<float>(app.GetWindow().GetWidth()),

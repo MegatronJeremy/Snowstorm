@@ -10,7 +10,7 @@
 
 #include "Sandbox2D.h"
 
-#include "Snowstorm/Renderer/OrthographicCameraController.h"
+#include "Snowstorm/Render/OrthographicCameraController.h"
 
 class ExampleLayer final : public Snowstorm::Layer
 {
@@ -207,7 +207,7 @@ public:
 	}
 
 private:
-	Snowstorm::Ref<Snowstorm::Scene> m_scene;
+	Snowstorm::Ref<Snowstorm::World> m_scene;
 
 	Snowstorm::ShaderLibrarySingleton m_shaderLibrary;
 	Snowstorm::Ref<Snowstorm::Shader> m_shader;

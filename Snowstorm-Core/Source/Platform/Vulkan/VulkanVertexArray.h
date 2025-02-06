@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan_core.h>
 
-#include "Snowstorm/Renderer/VertexArray.hpp"
+#include "Snowstorm/Render/VertexArray.hpp"
 
 namespace Snowstorm
 {

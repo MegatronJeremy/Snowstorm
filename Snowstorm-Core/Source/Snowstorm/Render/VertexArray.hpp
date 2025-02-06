@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "Snowstorm/Renderer/Buffer.hpp"
+#include "Snowstorm/Render/Buffer.hpp"
 
 namespace Snowstorm
 {

@@ -3,16 +3,16 @@
 
 #include "SceneHieararchyPanel.hpp"
 #include "Snowstorm/Core/Log.h"
-#include "Snowstorm/Scene/Components.hpp"
+#include "Snowstorm/World/Components.hpp"
 
 namespace Snowstorm
 {
-	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& context)
+	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<World>& context)
 	{
 		setContext(context);
 	}
 
-	void SceneHierarchyPanel::setContext(const Ref<Scene>& context)
+	void SceneHierarchyPanel::setContext(const Ref<World>& context)
 	{
 		m_Context = context;
 	}
@@ -50,8 +50,8 @@ namespace Snowstorm
 		const auto& tag = entity.GetComponent<TagComponent>().Tag;
 
 		const ImGuiTreeNodeFlags flags =
-			((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0)
-			| ImGuiTreeNodeFlags_OpenOnArrow;
+		((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0)
+		| ImGuiTreeNodeFlags_OpenOnArrow;
 
 		const bool opened = ImGui::TreeNodeEx(reinterpret_cast<void*>(typeid(TransformComponent).hash_code()),
 		                                      flags,

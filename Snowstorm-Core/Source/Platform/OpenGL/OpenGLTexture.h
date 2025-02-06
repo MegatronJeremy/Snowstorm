@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Snowstorm/Renderer/Texture.hpp"
+#include "Snowstorm/Render/Texture.hpp"
 
 #include <GL/glew.h>
 

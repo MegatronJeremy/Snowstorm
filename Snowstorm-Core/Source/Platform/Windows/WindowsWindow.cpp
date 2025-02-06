@@ -7,8 +7,8 @@
 
 #include "Platform/OpenGL/OpenGLContext.h"
 
-#include "Snowstorm/Renderer/RenderCommand.hpp"
-#include "Snowstorm/Renderer/Renderer2D.hpp"
+#include "Snowstorm/Render/RenderCommand.hpp"
+#include "Snowstorm/Render/Renderer2D.hpp"
 
 namespace Snowstorm
 {

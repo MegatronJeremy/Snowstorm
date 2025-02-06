@@ -5,8 +5,6 @@
 #include "Snowstorm/Events/Event.h"
 #include "Snowstorm/Events/ApplicationEvent.h"
 
-#include "Snowstorm/ImGui/ImGuiLayer.h"
-
 namespace Snowstorm
 {
 	class Application : public NonCopyable
@@ -20,13 +18,10 @@ namespace Snowstorm
 		void OnEvent(Event& e);
 
 		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* layer);
 
 		Window& GetWindow() const { return *m_Window; }
 
 		void Close();
-
-		ImGuiLayer* GetImGuiLayer() const { return m_ImGuiLayer; };
 
 		static Application& Get() { return *s_Instance; }
 
@@ -35,7 +30,6 @@ namespace Snowstorm
 		bool OnWindowResize(WindowResizeEvent& e);
 
 		Scope<Window> m_Window;
-		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		bool m_Minimized = false;
 		LayerStack m_LayerStack;

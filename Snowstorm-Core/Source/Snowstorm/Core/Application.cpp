@@ -5,8 +5,8 @@
 
 #include <ranges>
 
-#include "Snowstorm/Renderer/RenderCommand.hpp"
-#include "Snowstorm/Renderer/Renderer2D.hpp"
+#include "Snowstorm/Render/RenderCommand.hpp"
+#include "Snowstorm/Render/Renderer2D.hpp"
 
 namespace Snowstorm
 {
@@ -25,9 +25,6 @@ namespace Snowstorm
 
 		Renderer2D::Init();
 		RenderCommand::Init();
-
-		m_ImGuiLayer = new ImGuiLayer();
-		PushOverlay(m_ImGuiLayer);
 	}
 
 	Application::~Application()
@@ -46,7 +43,7 @@ namespace Snowstorm
 			SS_PROFILE_SCOPE("RunLoop");
 
 			const auto time = static_cast<float>(glfwGetTime()); // Platform::GetTime
-			const Timestep timestep = time - m_LastFrameTime;
+			const Timestep ts = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 
 			// Pause when minimized
@@ -56,20 +53,11 @@ namespace Snowstorm
 
 				for (Layer* layer : m_LayerStack)
 				{
-					layer->OnUpdate(timestep);
-				}
-			}
-
-			m_ImGuiLayer->Begin();
-			{
-				SS_PROFILE_SCOPE("LayerStack OnImGuiRender");
-
-				for (Layer* layer : m_LayerStack)
-				{
+					layer->OnUpdate(ts);
 					layer->OnImGuiRender();
+					layer->PostUpdate(ts);
 				}
 			}
-			m_ImGuiLayer->End();
 
 			m_Window->OnUpdate();
 		}
@@ -99,14 +87,6 @@ namespace Snowstorm
 		SS_PROFILE_FUNCTION();
 
 		m_LayerStack.PushLayer(layer);
-		layer->OnAttach();
-	}
-
-	void Application::PushOverlay(Layer* layer)
-	{
-		SS_PROFILE_FUNCTION();
-
-		m_LayerStack.PushOverlay(layer);
 		layer->OnAttach();
 	}
 

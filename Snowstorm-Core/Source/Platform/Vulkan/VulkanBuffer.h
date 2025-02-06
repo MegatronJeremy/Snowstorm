@@ -3,7 +3,7 @@
 #include <queue>
 
 #include "VulkanDevice.h"
-#include "Snowstorm/Renderer/Buffer.hpp"
+#include "Snowstorm/Render/Buffer.hpp"
 
 namespace Snowstorm
 {

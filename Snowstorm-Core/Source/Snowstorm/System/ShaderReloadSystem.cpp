@@ -1,6 +1,6 @@
 #include "ShaderReloadSystem.hpp"
 
-#include "Snowstorm/Renderer/Shader.hpp"
+#include "Snowstorm/Render/Shader.hpp"
 
 namespace Snowstorm
 {

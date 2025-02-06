@@ -3,7 +3,7 @@
 
 namespace Snowstorm
 {
-	Entity::Entity(const entt::entity handle, Scene* scene)
+	Entity::Entity(const entt::entity handle, World* scene)
 		: m_EntityHandle(handle), m_Scene(scene)
 	{
 	}

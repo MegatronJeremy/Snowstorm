@@ -3,7 +3,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "VulkanCommandBuffers.h"
-#include "Snowstorm/Renderer/RendererAPI.h"
+#include "Snowstorm/Render/RendererAPI.h"
 
 namespace Snowstorm
 {

@@ -1,13 +1,13 @@
 #pragma once
-
 #include "Snowstorm/ECS/System.hpp"
 
 namespace Snowstorm
 {
-	class RenderSystem final : public System
+	class ShaderReloadSystem final : public System
 	{
 	public:
-		explicit RenderSystem(const SceneRef scene) : System(scene)
+		explicit ShaderReloadSystem(const WorldRef world)
+			: System(world)
 		{
 		}
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Snowstorm/Renderer/Material.hpp"
+#include "Snowstorm/Render/Material.hpp"
 
 namespace Snowstorm
 {

@@ -19,7 +19,7 @@ public:
 
 private:
 	// Snowstorm::OrthographicCameraController m_CameraController;
-	Snowstorm::Ref<Snowstorm::Scene> m_scene;
+	Snowstorm::Ref<Snowstorm::World> m_scene;
 
 	// Temp
 	Snowstorm::Ref<Snowstorm::VertexArray> m_SquareVA;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Snowstorm/Renderer/Camera.hpp"
+#include "Snowstorm/Render/Camera.hpp"
 
 namespace Snowstorm
 {
