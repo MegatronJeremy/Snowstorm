@@ -6,6 +6,7 @@
 
 namespace Snowstorm
 {
+	// Batch renderer for 2D quads
 	class Renderer2D
 	{
 	public:
