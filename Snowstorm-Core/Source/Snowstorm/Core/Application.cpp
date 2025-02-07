@@ -7,6 +7,7 @@
 
 #include "Snowstorm/Render/RenderCommand.hpp"
 #include "Snowstorm/Render/Renderer2D.hpp"
+#include "Snowstorm/Service/ImGuiService.hpp"
 
 namespace Snowstorm
 {
@@ -20,9 +21,15 @@ namespace Snowstorm
 
 		SS_CORE_ASSERT(!s_Instance, "Application already exists!")
 		s_Instance = this;
+
 		m_Window = Window::Create(WindowProps(name));
 		m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
+		// TODO think about this
+		m_ServiceManager = CreateScope<ServiceManager>();
+		m_ServiceManager->RegisterService<ImGuiService>();
+
+		// TODO these should be services (which have callable methods -> sort of like singletons, you can globally fetch a service through instance())
 		Renderer2D::Init();
 		RenderCommand::Init();
 	}
@@ -51,12 +58,15 @@ namespace Snowstorm
 			{
 				SS_PROFILE_SCOPE("LayerStack OnUpdate");
 
+				m_ServiceManager->ExecuteUpdate(ts);
+
 				for (Layer* layer : m_LayerStack)
 				{
 					layer->OnUpdate(ts);
 					layer->OnImGuiRender();
-					layer->PostUpdate(ts);
 				}
+
+				m_ServiceManager->ExecutePostUpdate(ts);
 			}
 
 			m_Window->OnUpdate();

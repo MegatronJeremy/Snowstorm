@@ -127,13 +127,7 @@ namespace Snowstorm
 	{
 		SS_PROFILE_FUNCTION();
 
-		// Update scene
 		m_ActiveWorld->OnUpdate(ts);
-	}
-
-	void EditorLayer::PostUpdate(const Timestep ts)
-	{
-		m_ActiveWorld->PostUpdate(ts);
 	}
 
 	void EditorLayer::OnImGuiRender()

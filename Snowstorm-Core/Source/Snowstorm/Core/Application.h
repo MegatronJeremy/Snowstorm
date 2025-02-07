@@ -4,6 +4,7 @@
 #include "Snowstorm/Core/LayerStack.h"
 #include "Snowstorm/Events/Event.h"
 #include "Snowstorm/Events/ApplicationEvent.h"
+#include "Snowstorm/Service/ServiceManager.hpp"
 
 namespace Snowstorm
 {
@@ -34,6 +35,8 @@ namespace Snowstorm
 		bool m_Minimized = false;
 		LayerStack m_LayerStack;
 		float m_LastFrameTime = 0.0f;
+
+		Scope<ServiceManager> m_ServiceManager;
 
 		static Application* s_Instance;
 	};

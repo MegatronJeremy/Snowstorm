@@ -15,7 +15,6 @@ namespace Snowstorm
 		void OnDetach() override;
 
 		void OnUpdate(Timestep ts) override;
-		void PostUpdate(Timestep ts) override;
 		void OnImGuiRender() override;
 		void OnEvent(Event& event) override;
 

@@ -3,7 +3,6 @@
 #include "Snowstorm/Core/Timestep.h"
 #include "Snowstorm/ECS/SingletonManager.hpp"
 #include "Snowstorm/ECS/TrackedRegistry.hpp"
-#include "Snowstorm/Service/ServiceManager.hpp"
 #include "Snowstorm/Utility/NonCopyable.hpp"
 
 namespace Snowstorm
@@ -15,7 +14,6 @@ namespace Snowstorm
 	{
 	public:
 		World();
-		~World() override;
 
 		Entity CreateEntity(const std::string& name = std::string());
 
@@ -28,12 +26,10 @@ namespace Snowstorm
 		}
 
 		void OnUpdate(Timestep ts) const;
-		void PostUpdate(Timestep ts) const;
 
 	private:
-		ServiceManager* m_ServiceManager;
-		SystemManager* m_SystemManager;
-		SingletonManager* m_SingletonManager;
+		Scope<SystemManager> m_SystemManager;
+		Scope<SingletonManager> m_SingletonManager;
 
 		friend class Entity;
 		friend class SceneHierarchyPanel;
