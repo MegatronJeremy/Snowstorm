@@ -256,7 +256,7 @@ namespace Snowstorm
 
 		viewportComponent.Focused = ImGui::IsWindowFocused();
 		viewportComponent.Hovered = ImGui::IsWindowHovered();
-		// BlockEvents(!viewportComponent.Focused || !viewportComponent.Hovered);
+		// Application::BlockEvents(!viewportComponent.Focused || !viewportComponent.Hovered);
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		viewportComponent.Size = {viewportPanelSize.x, viewportPanelSize.y};

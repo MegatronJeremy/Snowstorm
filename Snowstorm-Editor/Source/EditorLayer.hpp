@@ -27,7 +27,7 @@ namespace Snowstorm
 
 		bool m_PrimaryCamera = true;
 
-		// Panels
+		// Panels (shouldn't be in world)
 		SceneHierarchyPanel m_SceneHierarchyPanel;
 	};
 }

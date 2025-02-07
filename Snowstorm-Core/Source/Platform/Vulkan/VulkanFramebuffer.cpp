@@ -45,4 +45,9 @@ namespace Snowstorm
 
 		Invalidate();
 	}
+
+	void VulkanFrameBuffer::Blit()
+	{
+
+	}
 }

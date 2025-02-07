@@ -115,6 +115,7 @@ namespace Snowstorm
 
 			// End rendering
 			framebuffer->Unbind();
+			framebuffer->Blit();
 		}
 	}
 }

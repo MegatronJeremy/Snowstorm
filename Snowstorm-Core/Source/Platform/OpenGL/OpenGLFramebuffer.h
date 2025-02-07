@@ -15,6 +15,8 @@ namespace Snowstorm
 		void Bind() override;
 		void Unbind() override;
 
+		void Blit() override;
+
 		void Resize(uint32_t width, uint32_t height) override;
 
 		uint32_t GetColorAttachmentRendererID() const override { return m_ColorAttachment; }

@@ -23,6 +23,8 @@ namespace Snowstorm
 
 		void Resize(uint32_t width, uint32_t height) override;
 
+		void Blit() override;
+
 		uint32_t GetColorAttachmentRendererID() const override { return m_ColorAttachment; }
 
 		const FramebufferSpecification& GetSpecification() const override { return m_Specification; }

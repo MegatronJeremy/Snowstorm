@@ -67,6 +67,20 @@ namespace Snowstorm
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
+	void OpenGLFrameBuffer::Blit()
+	{
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_RendererID); // Bind as the read framebuffer (source)
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // Bind the default framebuffer (destination)
+
+		glBlitFramebuffer(
+			0, 0, m_Specification.Width, m_Specification.Height,
+			0, 0, m_Specification.Width, m_Specification.Height,
+			GL_COLOR_BUFFER_BIT, GL_NEAREST
+		);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
 	void OpenGLFrameBuffer::Resize(const uint32_t width, const uint32_t height)
 	{
 		if (width == 0 || height == 0 || width > s_MaxFrameBufferSize || height > s_MaxFrameBufferSize)
@@ -81,4 +95,3 @@ namespace Snowstorm
 		Invalidate();
 	}
 }
-
