@@ -31,6 +31,7 @@ namespace Snowstorm
 				Input::SetCursorMode(CursorMode::Locked);
 				lastMousePos = Input::GetMousePosition();
 			}
+
 			else if (!rightClickHeld && wasRightClickHeld)
 			{
 				Input::SetCursorMode(CursorMode::Normal);
@@ -42,17 +43,23 @@ namespace Snowstorm
 			if (rightClickHeld)
 			{
 				auto [mouseX, mouseY] = Input::GetMousePosition();
-				float deltaX = mouseX - lastMousePos.first;
-				float deltaY = lastMousePos.second - mouseY;
+
+				if (wasRightClickHeld)
+				{
+					float deltaX = mouseX - lastMousePos.first;
+					float deltaY = lastMousePos.second - mouseY;
+
+					lastMousePos = {mouseX, mouseY};
+
+					float sensitivity = controller.LookSensitivity * 0.001f;
+
+					transform.Rotation.y -= deltaX * sensitivity;
+					transform.Rotation.x += deltaY * sensitivity;
+
+					transform.Rotation.x = glm::clamp(transform.Rotation.x, -glm::half_pi<float>(), glm::half_pi<float>());
+				}
 
 				lastMousePos = {mouseX, mouseY};
-
-				float sensitivity = controller.LookSensitivity * 0.001f;
-
-				transform.Rotation.y -= deltaX * sensitivity;
-				transform.Rotation.x += deltaY * sensitivity;
-
-				transform.Rotation.x = glm::clamp(transform.Rotation.x, -glm::half_pi<float>(), glm::half_pi<float>());
 			}
 
 			auto rotation = glm::quat(glm::vec3(transform.Rotation.x, transform.Rotation.y, 0));
