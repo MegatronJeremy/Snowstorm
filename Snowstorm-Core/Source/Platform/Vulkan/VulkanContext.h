@@ -6,7 +6,7 @@
 #include "VulkanCommandBuffers.h"
 #include "VulkanSwapChain.h"
 #include "VulkanSyncObjects.h"
-#include "Platform/Windows/WindowsWindow.h"
+#include "Platform/Windows/WindowsWindow.hpp"
 #include "Snowstorm/Render/GraphicsContext.hpp"
 #include "glm/glm.hpp"
 

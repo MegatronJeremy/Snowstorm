@@ -12,11 +12,13 @@ namespace Snowstorm
 		std::string Title;
 		uint32_t Width;
 		uint32_t Height;
+		bool Maximized;
 
 		explicit WindowProps(std::string title = "Snowstorm Engine",
 		                     const uint32_t width = 1280,
-		                     const uint32_t height = 720):
-			Title(std::move(title)), Width(width), Height(height)
+		                     const uint32_t height = 720,
+		                     const bool maximized = true):
+			Title(std::move(title)), Width(width), Height(height), Maximized(maximized)
 		{
 		}
 	};

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "WindowsWindow.h"
+#include "WindowsWindow.hpp"
 
 #include "Snowstorm/Events/ApplicationEvent.h"
 #include "Snowstorm/Events/KeyEvent.h"
@@ -88,6 +88,11 @@ namespace Snowstorm
 			}
 
 			glfwSetErrorCallback(GlfwErrorCallback);
+		}
+
+		if (props.Maximized)
+		{
+			glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 		}
 
 		{

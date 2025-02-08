@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Snowstorm/Core/Window.h"
+#include "Snowstorm/Core/Window.hpp"
 #include "Snowstorm/Render/GraphicsContext.hpp"
 
 #include <GLFW/glfw3.h>

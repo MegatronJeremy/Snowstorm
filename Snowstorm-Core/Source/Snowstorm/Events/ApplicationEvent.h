@@ -11,7 +11,7 @@ namespace Snowstorm
 		WindowResizeEvent(const uint32_t width, const uint32_t height)
 			: Width(width), Height(height)
 		{
-			SS_CORE_INFO("Window resize event");
+			// SS_CORE_INFO("Window resize event");
 		}
 
 		[[nodiscard]] std::string ToString() const override

@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "Snowstorm/Core/Window.h"
+#include "Snowstorm/Core/Window.hpp"
 
 #ifdef SS_PLATFORM_WINDOWS
-#include "Platform/Windows/WindowsWindow.h"
+#include "Platform/Windows/WindowsWindow.hpp"
 #endif
 
 namespace Snowstorm

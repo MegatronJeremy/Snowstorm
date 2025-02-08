@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Window.h"
+#include "Window.hpp"
 #include "Snowstorm/Core/LayerStack.h"
 #include "Snowstorm/Events/Event.h"
 #include "Snowstorm/Events/ApplicationEvent.h"

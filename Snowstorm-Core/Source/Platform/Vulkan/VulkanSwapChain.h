@@ -7,7 +7,7 @@
 #include "VulkanRenderPass.h"
 #include "VulkanVertexArray.h"
 #include "glm/glm.hpp"
-#include "Platform/Windows/WindowsWindow.h"
+#include "Platform/Windows/WindowsWindow.hpp"
 
 namespace Snowstorm
 {
